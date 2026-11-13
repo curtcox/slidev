@@ -11,7 +11,7 @@
 - **Priority**: P1 (new product surface)
 - **Effort**: XL (8 phases)
 - **Risk**: MED-HIGH (in-browser compilation of Slidev is new; Phase 0 de-risks it)
-- **Depends on**: Fragment Kit v0.4.4 carrying SDK v0.6.0 (prepared), immutable kit workflow `@v4` (published)
+- **Depends on**: Fragment Kit v0.4.4 carrying SDK v0.6.0 and immutable kit workflow `@v4` (both published and verified)
 - **Planned at**: commit `437f139c` (Slidev v53.1.0), 2026-11-12
 
 ## Goal
@@ -418,9 +418,9 @@ contract, plus a fully offline reload that renders the gallery.
 
 | When | Action |
 |---|---|
-| Phase 0 (discovered prerequisite) | SDK v0.6.0 deployed with approval; review/approve the new Fragment Kit release carrying it |
+| Phase 0 (discovered prerequisite) | DONE: SDK v0.6.0 deployed and kit v0.4.4 published with explicit approval; integrity verified |
 | Phase 1 | DONE: owner approved immutable workflow `@v4`, published at `3de01b1`; existing `@v3` was preserved |
-| Phase 1 | Set this repo's GitHub Pages source to "GitHub Actions" |
+| Phase 1 | DONE: Pages already uses Actions; live recovery deployment verified |
 | Phase 3 | Register a HashBin client for Slidev Online (return URL = recovery origin); provide the client ID |
 | Phase 8 | Approve the hashbin.org publisher PR and DNS for `slides.hashbin.page`; update the registration return URL; allowlist the origin on `ai.hashbin.page` |
 
@@ -443,9 +443,9 @@ contract, plus a fully offline reload that renders the gallery.
 
 | Phase | Title | Status |
 |---|---|---|
-| 0 | Feasibility spikes | IN PROGRESS — released SDK S1–S3 and prototype S4 pass; kit release and full-runtime budget pending |
-| 1 | Skeleton, CI, deploy (+ kit `@v4`) | IN PROGRESS — @v4 published; welcome scaffold prepared and locally verified; kit publication/deploy pending |
-| 2 | Slidev runtime | TODO |
+| 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
+| 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
+| 2 | Slidev runtime | IN PROGRESS — extracting browser-safe transform seams and implementing the compiler/bridge |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -615,3 +615,31 @@ records the measured results. Publication/tag approvals remain outstanding.
   independent kit verification stay at `@v2`. Workflows are separate and pass
   actionlint. The Pages API already reports `build_type: workflow` for the
   recovery URL. No Slidev Online product deployment has run yet.
+
+### Published kit and live scaffold (2026-11-13)
+
+- Owner explicitly approved kit v0.4.4 publication. PR #5 merged at
+  `c410d289dd36040a527d0b64a7c1f23a915765b9`; immutable tag `v0.4.4` is there.
+  [The release workflow passed](https://github.com/curtcox/Tools-for-pages-with-state-in-URL-fragments/actions/runs/43437233993),
+  including Chromium/Firefox/WebKit, artifact upload and independent demo-pin
+  verification. Downloaded archive/manifest checksums pass. An independent
+  download through the old vendor-sync tool verifies all published bytes and
+  matches Slidev's prepared pin without editing it. Release status was recorded
+  in the tools repository at `b5bc9d9`.
+- [Online workflow 43436413635](https://github.com/curtcox/slidev/actions/runs/43436413635)
+  now passes every job, including the rerun publication gate. All root tests,
+  lint and the full package smoke matrix also pass. Continuous Releases alone
+  still fails because pkg-pr-new lacks access to this fork; its workflow is
+  unchanged.
+- PR #1 merged at `419517292229d3d9d273b3c1dd68daf1e4367608`.
+  [Pages deployment 43438041972 passed](https://github.com/curtcox/slidev/actions/runs/43438041972),
+  gated on unit, Chromium/Firefox/WebKit and independent publication verification.
+  The live [recovery site](https://curtcox.github.io/slidev/) contains the marker
+  and `release.json` reports that exact commit with `dirty:false`.
+- Actual live Chromium and WebKit both pass welcome rendering, `allow-scripts`
+  only, origin `null`, blocked parent-document access and a complete offline
+  reload. No authoring/AI/Publish acceptance is implied by this fixed welcome
+  deck. Those remain later-phase requirements.
+- Phase 0's throwaway-prototype gates are complete with published dependencies.
+  Its recorded payload/timing scope stays explicit; the complete product's
+  payload and first-render budgets must be checked again during Phase 2.
