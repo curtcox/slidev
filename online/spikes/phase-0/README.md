@@ -142,6 +142,10 @@ rendering and the prototype payload budget, and labels timing as not run.
 the SDK proposal by commit and checks the original SDK blocker, candidate S1/S3,
 and the two-theme screenshot comparison. It uploads reports and screenshots;
 it does not deploy the app or silently replace the published runtime pin.
+[The GitHub Actions run passed](https://github.com/curtcox/slidev/actions/runs/43369639052)
+on Ubuntu/Chromium with ten exact screenshot matches, an exact offline reload,
+and a 743,423-byte gzip prototype payload. Its uploaded report explicitly marks
+phone-performance timing as not run.
 
 ```sh
 pnpm exec eslint online/spikes/phase-0 --no-warn-ignored

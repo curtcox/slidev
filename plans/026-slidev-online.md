@@ -548,6 +548,13 @@ runtime pin. Candidate checks are not production deployment acceptance.
   checks the original blocker, candidate interaction/offline behavior and S2,
   and uploads comparison artifacts. CI explicitly skips hardware-sensitive
   timing while enforcing the prototype byte budget. No deploy job is added.
+- [The feasibility workflow passed in GitHub Actions](https://github.com/curtcox/slidev/actions/runs/43369639052):
+  Chromium on Ubuntu reproduced all ten exact screenshot matches and the opaque
+  offline reload. Its prototype payload was 743,423 bytes gzip; performance
+  timing was explicitly not run on the shared runner. Reports/screenshots are
+  attached to that run. Standard CI exposed unrelated mutable agent-skill
+  downloads in `prepare`; skill syncing now runs only outside CI, preserving
+  dependency lifecycle scripts and local developer setup.
 - Full repository verification passes: build, typecheck, lint and 389 tests.
   Separate maintenance commits correct the existing HMR test's overloaded send
   capture, spell BOM regexes visibly, format existing fixtures and verify
