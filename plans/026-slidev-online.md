@@ -442,7 +442,7 @@ contract, plus a fully offline reload that renders the gallery.
 
 | Phase | Title | Status |
 |---|---|---|
-| 0 | Feasibility spikes | TODO |
+| 0 | Feasibility spikes | BLOCKED — S1: pinned SDK executes in a Worker with no DOM; see evidence below |
 | 1 | Skeleton, CI, deploy (+ kit `@v3`) | TODO |
 | 2 | Slidev runtime | TODO |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
@@ -451,3 +451,32 @@ contract, plus a fully offline reload that renders the gallery.
 | 6 | Offline / PWA | TODO |
 | 7 | Presenting and export | TODO |
 | 8 | Canonical origin | TODO |
+
+### Phase 0 evidence (2026-11-12)
+
+Implemented a reproducible S1 blocker probe in
+[`online/spikes/phase-0/`](../online/spikes/phase-0/README.md) on branch
+`codex/026-slidev-online-feasibility`, based on
+`f01ef1ef236b8b1d6f70dcb7672065f03bf50eff`.
+
+- **Actually ran:** Chromium 156.0.8078.4, using Fragment Kit v0.4.3's
+  unmodified HashBin SDK v0.4.0. The runner verifies the SDK's pinned SHA-256.
+- **S1 blocked:** the starter's first slide and a `<script setup>` fixture both
+  compile and import in the sandbox, then fail at Vue mount with
+  `ReferenceError: document is not defined`. `createSandbox()` runs supplied
+  code in a Worker inside a hidden iframe, not in the iframe's DOM world.
+  The actual sandbox flags remain `allow-scripts`, with origin `null`.
+- **S2–S4 not run.** No visual fidelity, offline runtime delivery, full bundle
+  budget or phone performance claims. No deployment or other browser run.
+- **Verification:** probe assertions reproduce the blocker (intentional exit
+  code 2); ESLint on the spike and `git diff --check` pass.
+- **Next decision:** release an SDK with an opaque DOM/frame execution API
+  (recommended), or explicitly revise the plan to allow an application-owned
+  opaque iframe bootstrap. Do not add `allow-same-origin`, execute deck code on
+  the editor origin, patch pinned vendor bytes, or treat the worker import
+  path as proof of DOM rendering/offline support.
+
+The diagnostic subset is not the Phase 2 compiler. The later phases remain
+unstarted while S1's required execution environment is unavailable. Raw results
+are recorded in
+[`online/spikes/phase-0/evidence.json`](../online/spikes/phase-0/evidence.json).

@@ -1,0 +1,48 @@
+{
+  "phase": 0,
+  "s1": "BLOCKED: SDK source runs in a Worker; Vue requires a DOM to mount",
+  "s2": "NOT RUN: depends on S1",
+  "s3": "NOT RUN: depends on an agreed DOM sandbox delivery path",
+  "s4": "NOT RUN: no complete runtime or first render to measure",
+  "browser": "Chromium 156.0.8078.4",
+  "sdk": {
+    "kit": "0.4.3",
+    "version": "0.4.0",
+    "sha256": "82f25ffe41a0ff79a060fb593754a286e1c85c2502878ab387c3d0045b749fa5"
+  },
+  "fixtures": [
+    {
+      "name": "starter-slide-1",
+      "sha256": "e6cccc7fb09dbefc2cbc161734f22864dd9cf753065ed5eb80878bfef99f44a1"
+    },
+    {
+      "name": "script-setup",
+      "sha256": "fd4badd6871348b9612cc58cf73910fdd3a3ffe6749430df90383107b661847f"
+    }
+  ],
+  "diagnosticBundle": {
+    "bytes": 1293985,
+    "gzipBytes": 365514,
+    "note": "S1 subset only; not an S4 measurement"
+  },
+  "sandbox": "allow-scripts",
+  "frameDisplay": "none",
+  "environment": {
+    "origin": "null",
+    "document": "undefined",
+    "window": "undefined",
+    "worker": true
+  },
+  "results": [
+    {
+      "name": "starter-slide-1",
+      "stage": "mount",
+      "error": "ReferenceError: document is not defined"
+    },
+    {
+      "name": "script-setup",
+      "stage": "mount",
+      "error": "ReferenceError: document is not defined"
+    }
+  ]
+}
