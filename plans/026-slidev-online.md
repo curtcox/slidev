@@ -418,6 +418,7 @@ contract, plus a fully offline reload that renders the gallery.
 
 | When | Action |
 |---|---|
+| Phase 0 (discovered prerequisite) | Review/deploy the opaque DOM SDK proposal, then approve a new Fragment Kit release carrying it; the pinned worker-only SDK cannot mount Vue |
 | Phase 1 | Approve and tag kit workflows `@v3` in the tools repo |
 | Phase 1 | Set this repo's GitHub Pages source to "GitHub Actions" |
 | Phase 3 | Register a HashBin client for Slidev Online (return URL = recovery origin); provide the client ID |
@@ -442,8 +443,8 @@ contract, plus a fully offline reload that renders the gallery.
 
 | Phase | Title | Status |
 |---|---|---|
-| 0 | Feasibility spikes | BLOCKED — S1: pinned SDK executes in a Worker with no DOM; see evidence below |
-| 1 | Skeleton, CI, deploy (+ kit `@v3`) | TODO |
+| 0 | Feasibility spikes | IN PROGRESS — candidate S1/S3 pass; released SDK/kit, S2 and S4 pending |
+| 1 | Skeleton, CI, deploy (+ kit `@v3`) | IN PROGRESS — independent workflow proposal #4 prepared; skeleton/deploy unstarted |
 | 2 | Slidev runtime | TODO |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
@@ -477,6 +478,41 @@ Implemented a reproducible S1 blocker probe in
   path as proof of DOM rendering/offline support.
 
 The diagnostic subset is not the Phase 2 compiler. The later phases remain
-unstarted while S1's required execution environment is unavailable. Raw results
+unstarted except for the explicitly independent workflow prerequisite. Raw results
 are recorded in
 [`online/spikes/phase-0/evidence.json`](../online/spikes/phase-0/evidence.json).
+
+### Continuation evidence (2026-11-12)
+
+- Original feasibility work committed as `d030084b` and pushed; the remote
+  branch SHA was verified.
+- [HashBin SDK proposal #249](https://github.com/curtcox/hashbin.org/pull/249)
+  adds explicit opaque DOM execution, preserving the worker default, old
+  releases and `allow-scripts` isolation. SDK v0.6.0 files are prepared for
+  review, **not deployed or published**. Current-main validation: 1,031 unit
+  tests, zero lint errors, 14 DOM browser cases and 16 hosted-sandbox cases
+  passing across Chromium/WebKit. The proposal merges current main without
+  changing unrelated work. [GitHub run 43363883168](https://github.com/curtcox/hashbin.org/actions/runs/43363883168)
+  passed all PR jobs, including local API/frontend and funded-download checks;
+  production deployment jobs were skipped.
+- **S1 passes against that candidate:** the real client wrapper mounts the
+  starter's first slide and the script fixture; clicking increments its count.
+- **Diagnostic S3 passes against that candidate in Chromium:** after a fully
+  offline reload, the parent service worker supplies verified runtime bytes
+  through the SDK proxy. Rendering and interaction match the online run; the
+  opaque deck frame has no service-worker controller. The SDK's own offline
+  module test also passes Chromium/WebKit with actual HTTP refusal.
+- Candidate mode is explicit (`--sdk-candidate`), records its digest as
+  unreleased, and does not replace the published SDK pin or original evidence.
+  [Candidate results](../online/spikes/phase-0/candidate-evidence.json) measure
+  only the diagnostic subset. **S2 and S4 remain unverified.**
+- [Fragment Kit workflow proposal #4](https://github.com/curtcox/Tools-for-pages-with-state-in-URL-fragments/pull/4)
+  prepares optional `working-directory`, npm cache/artifact paths, and a nested
+  consumer smoke workflow. Locally: 301 unit tests, kit/static/vendor/gallery
+  checks, actionlint and a nested Chromium smoke pass. `pages.yml` and
+  `kit-check.yml` are unchanged. **The owner-controlled `@v3` tag is not created.**
+  [The reusable nested-app smoke also passed in Actions](https://github.com/curtcox/Tools-for-pages-with-state-in-URL-fragments/actions/runs/43364019171).
+  [Kit CI passed its unit/static and Chromium/Firefox/WebKit jobs](https://github.com/curtcox/Tools-for-pages-with-state-in-URL-fragments/actions/runs/43364018975).
+
+Review, SDK deployment and kit release remain prerequisites to replacing the
+runtime pin. Candidate checks are not production deployment acceptance.

@@ -3,6 +3,7 @@ import { compileScript, parse as parseSfc } from '@vue/compiler-sfc/dist/compile
 import MarkdownExit from 'markdown-exit'
 import * as Vue from 'vue'
 import { createFixedClicks } from '../../../packages/client/composables/useClicks'
+import { injectionSlidevContext } from '../../../packages/client/constants'
 import { frontmatterToProps, useSlideContext } from '../../../packages/client/context'
 import SlideWrapper from '../../../packages/client/internals/SlideWrapper.vue'
 import Cover from '../../../packages/client/layouts/cover.vue'
@@ -71,10 +72,39 @@ export function run() {
         const app = Vue.createApp({
           render: () => Vue.h(SlideWrapper, { route: route as any, clicksContext }),
         })
+        app.provide(injectionSlidevContext, Vue.reactive({
+          nav: {
+            next() {},
+            openInEditor() {},
+          },
+        }) as any)
+        app.config.errorHandler = (error) => {
+          throw error
+        }
         stage = 'mount'
+        if (typeof document !== 'undefined') {
+          const container = document.createElement('div')
+          container.id = 'app'
+          document.body.append(container)
+        }
         app.mount('#app')
-        results.push({ name, stage: 'mounted' })
+        const text = document.querySelector('#app')!.textContent
+        let button
+        if (name === 'script-setup') {
+          document.querySelector('button')!.click()
+          await Vue.nextTick()
+          button = document.querySelector('button')!.textContent
+        }
+        results.push({
+          name,
+          stage: 'mounted',
+          text,
+          ...(button
+            ? { button }
+            : {}),
+        })
         app.unmount()
+        document.querySelector('#app')!.remove()
       }
       catch (error) {
         results.push({
@@ -88,6 +118,11 @@ export function run() {
           URL.revokeObjectURL(url)
       }
     }
+    let serviceWorkerControlled = false
+    try {
+      serviceWorkerControlled = Boolean(navigator.serviceWorker?.controller)
+    }
+    catch { /* Opaque origins cannot access service workers. */ }
     postMessage({
       type: 'spike:result',
       report: {
@@ -96,6 +131,7 @@ export function run() {
           document: typeof document,
           window: typeof window,
           worker: typeof WorkerGlobalScope !== 'undefined' && globalThis instanceof WorkerGlobalScope,
+          serviceWorkerControlled,
         },
         results,
       },

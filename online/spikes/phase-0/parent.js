@@ -17,9 +17,11 @@ async function main() {
     if (!response.ok)
       throw new Error(`Fixtures: HTTP ${response.status}`)
     const fixtures = await response.json()
+    const options = await fetch('./options.json').then(response => response.json())
     const base = new URL('./', location.href).href
     sandbox = createSandbox({
       origin: 'opaque',
+      execution: options.execution,
       container: document.querySelector('#sandbox'),
       base,
       proxy: [new URL('./runtime.js', base).href],
