@@ -1,0 +1,30 @@
+name: Deploy Slidev Online
+on:
+  push:
+    branches: [main]
+    paths:
+      - online/**
+      - packages/**
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - .github/workflows/online-*.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+jobs:
+  tests:
+    uses: ./.github/workflows/online-test.yml
+  deploy:
+    needs: tests
+    uses: curtcox/Tools-for-pages-with-state-in-URL-fragments/.github/workflows/pages.yml@v2
+    with:
+      stage-command: |
+        corepack enable
+        pnpm install --frozen-lockfile
+        pnpm build
+        pnpm -C online/runtime build
+        node online/scripts/build.mjs --release
+      path: online/dist
+      verify-marker: slidev-fragment-kit-v0.4.4

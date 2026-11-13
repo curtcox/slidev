@@ -1,0 +1,34 @@
+name: Online tests
+on:
+  pull_request:
+    paths:
+      - online/**
+      - packages/**
+      - pnpm-lock.yaml
+      - pnpm-workspace.yaml
+      - .github/workflows/online-*.yml
+  workflow_call:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  tests:
+    uses: curtcox/Tools-for-pages-with-state-in-URL-fragments/.github/workflows/test.yml@v4
+    with:
+      working-directory: online
+      node-version: '24'
+      mobile: false
+      pre-test: |
+        cd "$GITHUB_WORKSPACE"
+        corepack enable
+        pnpm install --frozen-lockfile
+        pnpm build
+        pnpm -C online/runtime build
+        npm --prefix online run build
+      server-command: npm run serve
+      browser-command: node tests/browser/all.cjs http://127.0.0.1:8000/ "$BROWSER"
+      gallery-command: npm run gallery:check
+  kit:
+    uses: curtcox/Tools-for-pages-with-state-in-URL-fragments/.github/workflows/kit-check.yml@v2
+    with:
+      kit-path: online/vendor/fragment-kit-v0.4.4

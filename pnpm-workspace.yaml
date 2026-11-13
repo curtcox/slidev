@@ -23,6 +23,7 @@ packages:
   - demo/*
   - cypress/fixtures/*
   - docs
+  - online/runtime
 
 overrides:
   markdown-exit: catalog:prod

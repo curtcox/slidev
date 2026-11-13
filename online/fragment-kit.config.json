@@ -1,0 +1,11 @@
+{
+  "slug": "slidev",
+  "name": "Slidev Online",
+  "storagePrefix": "slidevonline",
+  "recoveryOrigin": "https://curtcox.github.io/slidev/",
+  "repo": "curtcox/slidev",
+  "docs": "docs/index.html",
+  "gallery": "gallery.html",
+  "documentType": "slidev",
+  "sandboxDomBootstrapHash": "sha256-MHba4tiwcOxYIRSdlDypRezjguFpToZsa3QmTEaBzAI="
+}

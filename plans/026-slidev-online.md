@@ -444,7 +444,7 @@ contract, plus a fully offline reload that renders the gallery.
 | Phase | Title | Status |
 |---|---|---|
 | 0 | Feasibility spikes | IN PROGRESS — released SDK S1–S3 and prototype S4 pass; kit release and full-runtime budget pending |
-| 1 | Skeleton, CI, deploy (+ kit `@v4`) | IN PROGRESS — workflow #4 merged and immutable @v4 published; skeleton/deploy unstarted |
+| 1 | Skeleton, CI, deploy (+ kit `@v4`) | IN PROGRESS — @v4 published; welcome scaffold prepared and locally verified; kit publication/deploy pending |
 | 2 | Slidev runtime | TODO |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
@@ -587,3 +587,31 @@ records the measured results. Publication/tag approvals remain outstanding.
 - Kit v0.4.4 is being prepared with the new SDK alongside its unchanged old SDK
   and Publish default. Publication, consumer vendoring and the full-runtime
   budget remain open; no product deployment is claimed.
+
+### Phase 1 scaffold preparation (2026-11-13)
+
+- [Kit v0.4.4 PR #5](https://github.com/curtcox/Tools-for-pages-with-state-in-URL-fragments/pull/5)
+  is prepared at `06337a5`; [Kit CI](https://github.com/curtcox/Tools-for-pages-with-state-in-URL-fragments/actions/runs/43434049843)
+  passes unit/static/package and Chromium/Firefox/WebKit. The nested-app reusable
+  workflow passes too. Local preparation passed 302 units and 128 Chromium/WebKit
+  cases; local Firefox cannot create a profile before application code. Approval
+  to merge/publish the new runtime was requested separately and remains pending.
+- The scaffold vendors those exact candidate bytes with vendor-sync and records
+  their manifest. **This is a prepared integration pin, not publication evidence.**
+  The independent `kit-check.yml@v2` job must match the published manifest before
+  the deployment workflow can proceed. No prior kit/vendor bytes were edited.
+- `online/runtime` is a workspace package built from the real client wrapper and
+  cover layout. It mounts only a fixed welcome deck in an opaque SDK DOM frame;
+  the browser compiler and editing UI remain Phase 2/3 work.
+- The native-module shell has Docs/Gallery links, startup/error status and a
+  verified offline copy. Staging writes exact commit/dirty metadata, hashes all
+  offline assets and excludes optional AI engines from automatic downloads.
+  Release staging refuses an uncommitted checkout. Built bundles are ignored.
+- Local Chromium and WebKit passed welcome rendering, `allow-scripts` only,
+  origin `null`, blocked parent-document access and a complete offline reload.
+  The artifact unit and full scaffold static checks pass. Full root verification
+  passes build/typecheck/lint and all 389 tests after refreshing cached builds.
+- Online tests use `test.yml@v4` with `working-directory: online`; Pages and
+  independent kit verification stay at `@v2`. Workflows are separate and pass
+  actionlint. The Pages API already reports `build_type: workflow` for the
+  recovery URL. No Slidev Online product deployment has run yet.
