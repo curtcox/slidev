@@ -1,0 +1,49 @@
+{
+  "phase": 0,
+  "s1": "PASS with unreleased SDK candidate only: DOM mount and script-setup interaction",
+  "s2": "NOT RUN: theme and UnoCSS fidelity gate remains",
+  "s3": "PASS with unreleased SDK candidate: offline reload mounts diagnostic Slidev bundle via parent verified service worker",
+  "s4": "NOT RUN: no complete runtime or first render to measure",
+  "browser": "Chromium 156.0.8078.4",
+  "sdk": {
+    "status": "UNRELEASED CANDIDATE",
+    "sha256": "1333545eae17d46e77b190c7120e8b39c156c99b677e55e4a90df9fc37082000"
+  },
+  "fixtures": [
+    {
+      "name": "starter-slide-1",
+      "sha256": "e6cccc7fb09dbefc2cbc161734f22864dd9cf753065ed5eb80878bfef99f44a1"
+    },
+    {
+      "name": "script-setup",
+      "sha256": "fd4badd6871348b9612cc58cf73910fdd3a3ffe6749430df90383107b661847f"
+    }
+  ],
+  "diagnosticBundle": {
+    "bytes": 1294568,
+    "gzipBytes": 365717,
+    "note": "S1 subset only; not an S4 measurement"
+  },
+  "sandbox": "allow-scripts",
+  "frameDisplay": "",
+  "environment": {
+    "origin": "null",
+    "document": "object",
+    "window": "object",
+    "worker": false,
+    "serviceWorkerControlled": false
+  },
+  "results": [
+    {
+      "name": "starter-slide-1",
+      "stage": "mounted",
+      "text": "Welcome to SlidevPresentation slides for developers Press Space for next page "
+    },
+    {
+      "name": "script-setup",
+      "stage": "mounted",
+      "text": "Script setupCount: 0",
+      "button": "Count: 1"
+    }
+  ]
+}

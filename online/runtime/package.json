@@ -1,0 +1,17 @@
+{
+  "name": "@slidev/online-runtime",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@slidev/client": "workspace:*",
+    "vue": "catalog:frontend"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "catalog:prod",
+    "vite": "catalog:prod"
+  }
+}

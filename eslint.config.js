@@ -18,6 +18,7 @@ export default antfu({
   ignores: [
     'skills/**/*.md',
     'plans/**',
+    'online/vendor/**',
   ],
 })
   .removeRules(
@@ -35,6 +36,10 @@ export default antfu({
     ],
   })
   .remove('antfu/markdown/rules')
+  .append({
+    files: ['online/tests/**/*.test.js'],
+    rules: { 'test/no-import-node-test': 'off' },
+  })
   .append({
     // Keep code in slides as authored for presentation
     files: ['**/*.md/**'],

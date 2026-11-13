@@ -1,6 +1,7 @@
 import type MagicString from 'magic-string-stack'
 import MarkdownExit from 'markdown-exit'
 import path from 'pathe'
+import { decode as decodePlantUml } from 'plantuml-encoder'
 import * as shiki from 'shiki'
 import { expect, it } from 'vitest'
 import { useMarkdownItPlugins } from '.'
@@ -107,7 +108,13 @@ graph TD
 
 `, { id: 'slides.md__slidev_1.md' })
 
-  expect(result).toMatchInlineSnapshot(`
+  // Deflate bytes can vary with Node/zlib. Verify the diagram, then snapshot
+  // its component markup independently of the compressor's byte choices.
+  const normalized = result.replace(/(<PlantUml [^>]*code=")([^"]+)(")/g, (_, before, encoded, after) => {
+    expect(decodePlantUml(encoded)).toBe('@startuml\nAlice -> Bob: Hello\n@enduml')
+    return `${before}__VERIFIED_PLANTUML__${after}`
+  })
+  expect(normalized).toMatchInlineSnapshot(`
     "<h1>Slide Title</h1>
     <p>Default content with <Link to="#1">internal link</Link> and <a href="https://example.com" target="_blank">external</a></p>
     <p>Inline code: <code v-pre>{{ code }}</code> and math: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msup><mi>x</mi><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">x^2</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="katex-base"><span class="katex-strut" style="height:0.8141em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="katex-sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span></span></span></span></p>
@@ -143,7 +150,7 @@ graph TD
     <ol>
     <li>
     <p>foo</p>
-    <PlantUml v-bind="{scale:0.5}" code="SoWkIImgAStDuNBCoKnELT2rKt3AJx9Iy4ZDoSddSaZDIodDpG40" />
+    <PlantUml v-bind="{scale:0.5}" code="__VERIFIED_PLANTUML__" />
     </li>
     <li>
     <p>bar</p>

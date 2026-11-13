@@ -1,0 +1,185 @@
+{
+  "browser": "Chromium 156.0.8078.4",
+  "sdk": {
+    "status": "PUBLISHED RELEASE",
+    "version": "0.6.0",
+    "sha256": "1333545eae17d46e77b190c7120e8b39c156c99b677e55e4a90df9fc37082000"
+  },
+  "selectedSlides": [
+    1,
+    2,
+    3,
+    8,
+    16
+  ],
+  "themes": {
+    "default": {
+      "version": "0.25.0",
+      "license": "MIT",
+      "licenseSha256": "81405b601a5bb20cdae6349dd3ae5161adf2f05708f1ae118c801c9733fcd322",
+      "stylesSourceBytes": 968,
+      "coverSourceBytes": 402,
+      "fixtureSha256": "5d1e74d0fd66fb31b5fbc840c3173b1f5456233e7d45624519366044eb6f8bf4"
+    },
+    "seriph": {
+      "version": "0.25.0",
+      "license": "MIT",
+      "licenseSha256": "81405b601a5bb20cdae6349dd3ae5161adf2f05708f1ae118c801c9733fcd322",
+      "stylesSourceBytes": 1091,
+      "coverSourceBytes": 548,
+      "fixtureSha256": "e4bd7bfa60e10f382563992aca22fd0f3416df51575c5e4d96b4c005e2194bd4"
+    }
+  },
+  "adaptations": "Local Arial/Georgia/monospace fonts, fixed cover color and identical data-URL remote-image placeholders; nonvisual services disabled in both renderers.",
+  "tolerance": {
+    "channelDelta": 8,
+    "changedPixelRatio": 0.001
+  },
+  "results": [
+    {
+      "theme": "default",
+      "starterSlide": 1,
+      "index": 1,
+      "changed": 0,
+      "exactChanged": 0,
+      "maxChannelDelta": 0,
+      "total": 540960,
+      "ratio": 0,
+      "elapsedMs": 88
+    },
+    {
+      "theme": "default",
+      "starterSlide": 2,
+      "index": 2,
+      "changed": 0,
+      "exactChanged": 0,
+      "maxChannelDelta": 0,
+      "total": 540960,
+      "ratio": 0,
+      "elapsedMs": 53.20000000298023
+    },
+    {
+      "theme": "default",
+      "starterSlide": 3,
+      "index": 3,
+      "changed": 0,
+      "exactChanged": 0,
+      "maxChannelDelta": 0,
+      "total": 540960,
+      "ratio": 0,
+      "elapsedMs": 35.80000000447035
+    },
+    {
+      "theme": "default",
+      "starterSlide": 8,
+      "index": 4,
+      "changed": 0,
+      "exactChanged": 0,
+      "maxChannelDelta": 0,
+      "total": 540960,
+      "ratio": 0,
+      "elapsedMs": 41.69999999552965
+    },
+    {
+      "theme": "default",
+      "starterSlide": 16,
+      "index": 5,
+      "changed": 0,
+      "exactChanged": 0,
+      "maxChannelDelta": 0,
+      "total": 540960,
+      "ratio": 0,
+      "elapsedMs": 34.19999999552965
+    },
+    {
+      "theme": "seriph",
+      "starterSlide": 1,
+      "index": 1,
+      "changed": 0,
+      "exactChanged": 0,
+      "maxChannelDelta": 0,
+      "total": 540960,
+      "ratio": 0,
+      "elapsedMs": 30.100000001490116
+    },
+    {
+      "theme": "seriph",
+      "starterSlide": 2,
+      "index": 2,
+      "changed": 0,
+      "exactChanged": 0,
+      "maxChannelDelta": 0,
+      "total": 540960,
+      "ratio": 0,
+      "elapsedMs": 34.79999999701977
+    },
+    {
+      "theme": "seriph",
+      "starterSlide": 3,
+      "index": 3,
+      "changed": 0,
+      "exactChanged": 0,
+      "maxChannelDelta": 0,
+      "total": 540960,
+      "ratio": 0,
+      "elapsedMs": 21.80000000447035
+    },
+    {
+      "theme": "seriph",
+      "starterSlide": 8,
+      "index": 4,
+      "changed": 0,
+      "exactChanged": 0,
+      "maxChannelDelta": 0,
+      "total": 540960,
+      "ratio": 0,
+      "elapsedMs": 24.899999998509884
+    },
+    {
+      "theme": "seriph",
+      "starterSlide": 16,
+      "index": 5,
+      "changed": 0,
+      "exactChanged": 0,
+      "maxChannelDelta": 0,
+      "total": 540960,
+      "ratio": 0,
+      "elapsedMs": 22.5
+    }
+  ],
+  "errors": [],
+  "offline": {
+    "origin": "null",
+    "sandboxServiceWorkerControlled": false,
+    "changedPixels": 0,
+    "exactChangedPixels": 0
+  },
+  "prototypePayload": {
+    "javascriptGzip": 724889,
+    "cssGzip": 19509,
+    "totalGzip": 744398,
+    "runtimeSha256": "39746b5d94eafe7a68b354f50bee9fbb7f30a6859569a1e763c15adb917c9c69",
+    "cssSha256": "47d83d8653a7d1af54c9c3875a3bd2f1cbcfee45a13d490e7a5ab84392625925",
+    "budgetBytes": 3000000,
+    "note": "Compiler + UnoCSS + two themes + YAML Shiki + selected client components only; not the complete product runtime."
+  },
+  "prototypePerformance": {
+    "state": "NOT RUN: explicitly skipped",
+    "profile": {
+      "name": "Chromium phone simulation (not physical-device acceptance)",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "deviceScaleFactor": 2,
+      "cpuSlowdown": 4,
+      "latencyMs": 40,
+      "downloadBytesPerSecond": 1500000,
+      "uploadBytesPerSecond": 750000
+    },
+    "samples": [],
+    "budgetMs": 2000,
+    "maxColdNavigationToMountMs": null,
+    "note": "Each sample uses a fresh browser context with cache disabled and gzip HTTP delivery. Navigation timing includes SDK, CSS, runtime transfer and compilation. Full runtime and physical phones remain unverified."
+  }
+}

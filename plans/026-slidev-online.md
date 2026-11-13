@@ -11,7 +11,7 @@
 - **Priority**: P1 (new product surface)
 - **Effort**: XL (8 phases)
 - **Risk**: MED-HIGH (in-browser compilation of Slidev is new; Phase 0 de-risks it)
-- **Depends on**: Fragment Kit v0.4.3 (published), a new kit workflow tag `@v3` (Phase 1)
+- **Depends on**: Fragment Kit v0.4.4 carrying SDK v0.6.0 (prepared), immutable kit workflow `@v4` (published)
 - **Planned at**: commit `437f139c` (Slidev v53.1.0), 2026-11-12
 
 ## Goal
@@ -39,7 +39,7 @@ and deployed with its reusable GitHub Actions workflows, exactly as PythonOnline
 | Hosting | **GitHub Pages first** (`https://curtcox.github.io/slidev/`, the recovery origin). A canonical `slides.hashbin.page` comes last (Phase 8). |
 | Document | **`slides.md` + optional `style.css`.** Per-slide `<script setup>` and inline Vue/HTML are allowed. Images come from URLs. |
 | Themes | **Bundled, pinned official set**, offline-capable. No npm-on-demand loading. |
-| Location | **`online/` in this fork.** It builds from the workspace's `@slidev/*` source. The kit gets a new immutable workflow tag `@v3` that adds a `working-directory` input. |
+| Location | **`online/` in this fork.** It builds from the workspace's `@slidev/*` source. The kit gets a new immutable workflow tag `@v4` that adds a `working-directory` input. |
 
 ## Constraints inherited from the fleet (do not violate)
 
@@ -253,12 +253,12 @@ to the owner instead of proceeding.
 
 ### Phase 1 — Skeleton, CI and deploy
 
-1. **Kit `@v3`** (PR in the tools repo, owner approves the tag): add an
+1. **Kit `@v4`** (PR in the tools repo, owner approves the tag): add an
    optional `working-directory` input (default `.`) to `test.yml`. It applies to
    `npm ci`, `npm test`, `npm run check`, the gallery check, the Playwright
    contract run and `actions/setup-node`'s `cache-dependency-path`. `pages.yml`
    and `kit-check.yml` already work from this repo (`stage-command`/`path`,
-   `kit-path`), so they stay at `@v2`. `@v3` is a new immutable tag; `@v2` is
+   `kit-path`), so they stay at `@v2`. `@v4` is a new immutable tag; `@v2` is
    not touched.
 2. `online/` scaffold: `package.json` (`node --test`, check, gallery, docs, offline,
    serve; pinned `playwright` and `@playwright/test`), `vendor-sync` kit v0.4.3,
@@ -271,7 +271,7 @@ to the owner instead of proceeding.
    directories are always ignored.
 4. Workflows, mirroring PythonOnline:
    - `.github/workflows/online-test.yml`: `pull_request`, `workflow_call` and
-     `workflow_dispatch` run `curtcox/…/test.yml@v3` with
+     `workflow_dispatch` run `curtcox/…/test.yml@v4` with
      `working-directory: online`, plus a `pre-test` of
      `corepack enable && pnpm install --frozen-lockfile && pnpm build && pnpm -C online/runtime build`.
      `kit-check.yml@v2` uses `kit-path: online/vendor/fragment-kit-v0.4.3`.
@@ -409,7 +409,7 @@ contract, plus a fully offline reload that renders the gallery.
 
 ## Parallelism
 
-- Phase 1 step 1 (kit `@v3`) is independent and can start right away.
+- Phase 1 step 1 (kit `@v4`) is independent and can start right away.
 - After Phase 2's bridge protocol is fixed, Phase 3 (editor) and the rest of
   Phase 2 (runtime) proceed in parallel against a stub sandbox.
 - Phase 4 examples can be written during Phase 2. Covers need Phase 3.
@@ -418,7 +418,8 @@ contract, plus a fully offline reload that renders the gallery.
 
 | When | Action |
 |---|---|
-| Phase 1 | Approve and tag kit workflows `@v3` in the tools repo |
+| Phase 0 (discovered prerequisite) | SDK v0.6.0 deployed with approval; review/approve the new Fragment Kit release carrying it |
+| Phase 1 | DONE: owner approved immutable workflow `@v4`, published at `3de01b1`; existing `@v3` was preserved |
 | Phase 1 | Set this repo's GitHub Pages source to "GitHub Actions" |
 | Phase 3 | Register a HashBin client for Slidev Online (return URL = recovery origin); provide the client ID |
 | Phase 8 | Approve the hashbin.org publisher PR and DNS for `slides.hashbin.page`; update the registration return URL; allowlist the origin on `ai.hashbin.page` |
@@ -442,8 +443,8 @@ contract, plus a fully offline reload that renders the gallery.
 
 | Phase | Title | Status |
 |---|---|---|
-| 0 | Feasibility spikes | TODO |
-| 1 | Skeleton, CI, deploy (+ kit `@v3`) | TODO |
+| 0 | Feasibility spikes | IN PROGRESS — released SDK S1–S3 and prototype S4 pass; kit release and full-runtime budget pending |
+| 1 | Skeleton, CI, deploy (+ kit `@v4`) | IN PROGRESS — @v4 published; welcome scaffold prepared and locally verified; kit publication/deploy pending |
 | 2 | Slidev runtime | TODO |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
@@ -451,3 +452,166 @@ contract, plus a fully offline reload that renders the gallery.
 | 6 | Offline / PWA | TODO |
 | 7 | Presenting and export | TODO |
 | 8 | Canonical origin | TODO |
+
+### Phase 0 evidence (2026-11-12)
+
+Implemented a reproducible S1 blocker probe in
+[`online/spikes/phase-0/`](../online/spikes/phase-0/README.md) on branch
+`codex/026-slidev-online-feasibility`, based on
+`f01ef1ef236b8b1d6f70dcb7672065f03bf50eff`.
+
+- **Actually ran:** Chromium 156.0.8078.4, using Fragment Kit v0.4.3's
+  unmodified HashBin SDK v0.4.0. The runner verifies the SDK's pinned SHA-256.
+- **S1 blocked:** the starter's first slide and a `<script setup>` fixture both
+  compile and import in the sandbox, then fail at Vue mount with
+  `ReferenceError: document is not defined`. `createSandbox()` runs supplied
+  code in a Worker inside a hidden iframe, not in the iframe's DOM world.
+  The actual sandbox flags remain `allow-scripts`, with origin `null`.
+- **S2–S4 not run.** No visual fidelity, offline runtime delivery, full bundle
+  budget or phone performance claims. No deployment or other browser run.
+- **Verification:** probe assertions reproduce the blocker (intentional exit
+  code 2); ESLint on the spike and `git diff --check` pass.
+- **Next decision:** release an SDK with an opaque DOM/frame execution API
+  (recommended), or explicitly revise the plan to allow an application-owned
+  opaque iframe bootstrap. Do not add `allow-same-origin`, execute deck code on
+  the editor origin, patch pinned vendor bytes, or treat the worker import
+  path as proof of DOM rendering/offline support.
+
+The diagnostic subset is not the Phase 2 compiler. The later phases remain
+unstarted except for the explicitly independent workflow prerequisite. Raw results
+are recorded in
+[`online/spikes/phase-0/evidence.json`](../online/spikes/phase-0/evidence.json).
+
+### Continuation evidence (2026-11-12)
+
+- Original feasibility work committed as `d030084b` and pushed; the remote
+  branch SHA was verified.
+- [HashBin SDK proposal #249](https://github.com/curtcox/hashbin.org/pull/249)
+  adds explicit opaque DOM execution, preserving the worker default, old
+  releases and `allow-scripts` isolation. SDK v0.6.0 files are prepared for
+  review, **not deployed or published**. Current-main validation: 1,031 unit
+  tests, zero lint errors, 14 DOM browser cases and 16 hosted-sandbox cases
+  passing across Chromium/WebKit. The proposal merges current main without
+  changing unrelated work. [GitHub run 43363883168](https://github.com/curtcox/hashbin.org/actions/runs/43363883168)
+  passed all PR jobs, including local API/frontend and funded-download checks;
+  production deployment jobs were skipped.
+- **S1 passes against that candidate:** the real client wrapper mounts the
+  starter's first slide and the script fixture; clicking increments its count.
+- **Diagnostic S3 passes against that candidate in Chromium:** after a fully
+  offline reload, the parent service worker supplies verified runtime bytes
+  through the SDK proxy. Rendering and interaction match the online run; the
+  opaque deck frame has no service-worker controller. The SDK's own offline
+  module test also passes Chromium/WebKit with actual HTTP refusal.
+- Candidate mode is explicit (`--sdk-candidate`), records its digest as
+  unreleased, and does not replace the published SDK pin or original evidence.
+  [Candidate results](../online/spikes/phase-0/candidate-evidence.json) measure
+  only the diagnostic subset. **S2 and S4 remain unverified.**
+- [Fragment Kit workflow proposal #4](https://github.com/curtcox/Tools-for-pages-with-state-in-URL-fragments/pull/4)
+  prepares optional `working-directory`, npm cache/artifact paths, and a nested
+  consumer smoke workflow. Locally: 301 unit tests, kit/static/vendor/gallery
+  checks, actionlint and a nested Chromium smoke pass. `pages.yml` and
+  `kit-check.yml` are unchanged. **The owner-controlled `@v4` tag is not created.**
+  [The reusable nested-app smoke also passed in Actions](https://github.com/curtcox/Tools-for-pages-with-state-in-URL-fragments/actions/runs/43364019171).
+  [Kit CI passed its unit/static and Chromium/Firefox/WebKit jobs](https://github.com/curtcox/Tools-for-pages-with-state-in-URL-fragments/actions/runs/43364018975).
+
+Review, SDK deployment and kit release remain prerequisites to replacing the
+runtime pin. Candidate checks are not production deployment acceptance.
+
+### Fidelity and performance evidence (2026-11-12)
+
+- **S2 passes for the deterministic prototype:** starter slides 1, 2, 3, 8 and
+  16 render in both pinned official themes (0.25.0, MIT). Ten comparisons against
+  actual `slidev build` output have zero exact pixel differences at 980 × 552.
+  Local fonts, fixed cover color and data-URL remote-image replacements are
+  applied identically to both renderers. Reference decks use a separate local
+  origin; author compilation/evaluation stays in the opaque SDK frame.
+- The expanded bundle includes the browser compiler, client wrapper/layouts,
+  code wrapper, UnoCSS, theme styles, YAML Shiki, icons and a built-in component.
+  Frontmatter utility classes and Markdown typography now match the CLI.
+  A browser-safe UnoCSS entry excludes Node/JSX parser dependencies.
+- **Expanded S3 passes:** after a fully offline reload, the themed first slide
+  still matches the CLI exactly. Assets are hash-verified by the parent worker;
+  the opaque frame has no service-worker controller.
+- **Prototype S4 passes:** about 744 KB gzip for JavaScript + CSS; five fresh
+  Chromium phone-profile loads take about 1.4–1.5 s. The report specifies the
+  4× CPU slowdown, viewport/DPR, network, cold caches and complete timing scope.
+  This is neither physical-phone acceptance nor the complete product payload.
+  Recheck the full-runtime budget as Phase 2 adds the remaining features.
+- [SDK #249](https://github.com/curtcox/hashbin.org/pull/249) review regressions
+  were reproduced in Chromium/WebKit and fixed in `9caf406`: readiness waits
+  for top-level await, stalled evaluation keeps its timeout, and proxied
+  204/205/304 responses retain null bodies. All 1,031 unit tests, 20 DOM browser
+  cases and 16 hosted cases pass. [Updated CI](https://github.com/curtcox/hashbin.org/actions/runs/43367188879)
+  is green. The still-unpublished v0.6.0 artifacts were regenerated from source;
+  published versions are unchanged.
+- `.github/workflows/online-feasibility.yml` pins both SDK inputs by commit,
+  checks the original blocker, candidate interaction/offline behavior and S2,
+  and uploads comparison artifacts. CI explicitly skips hardware-sensitive
+  timing while enforcing the prototype byte budget. No deploy job is added.
+- [The feasibility workflow passed in GitHub Actions](https://github.com/curtcox/slidev/actions/runs/43369639052):
+  Chromium on Ubuntu reproduced all ten exact screenshot matches and the opaque
+  offline reload. Its prototype payload was 743,423 bytes gzip; performance
+  timing was explicitly not run on the shared runner. Reports/screenshots are
+  attached to that run. Standard CI exposed unrelated mutable agent-skill
+  downloads in `prepare`; skill syncing now runs only outside CI, preserving
+  dependency lifecycle scripts and local developer setup.
+- Full repository verification passes: build, typecheck, lint and 389 tests.
+  Separate maintenance commits correct the existing HMR test's overloaded send
+  capture, spell BOM regexes visibly, format existing fixtures and verify
+  decoded PlantUML content independently of Node/zlib's compressed bytes.
+
+Reproduction commands and scope are in
+[`online/spikes/phase-0/README.md`](../online/spikes/phase-0/README.md);
+[`fidelity-evidence.json`](../online/spikes/phase-0/fidelity-evidence.json)
+records the measured results. Publication/tag approvals remain outstanding.
+
+### Approved prerequisite publication (2026-11-13)
+
+- Owner explicitly approved SDK deployment and the workflow tag. [SDK #249](https://github.com/curtcox/hashbin.org/pull/249)
+  merged at `5b6eb035a552830f7db608376be16ac3b99ce0ad`.
+  [The production deployment passed](https://github.com/curtcox/hashbin.org/actions/runs/43432577171),
+  including both production origins. Strict production verification passed locally.
+  Live SDK v0.6.0 and cache-helper bytes match both approved SHA-256 and SRI;
+  responses carry immutable cache headers.
+- [Workflow #4](https://github.com/curtcox/Tools-for-pages-with-state-in-URL-fragments/pull/4)
+  merged at `3de01b1e3ea6c2508a1831ada35c84e8e242925a`. The proposed `v3` name
+  was already published on November 8 at `8807ee5` and lacks the new input.
+  With separate explicit owner approval, immutable `v4` was published instead.
+  Remote tag dereferencing matches the merged commit; `v2` and `v3` are unchanged.
+  Future references in this plan now use `test.yml@v4`.
+- The probes now accept `--sdk-release` with an exact published v0.6.0 hash gate.
+  Released-byte mounting, script interaction, ten exact themed screenshots and
+  offline reload pass in Chromium. The original worker-only reproduction and
+  explicit development-candidate mode remain available. New timing is labeled
+  not run; prior prototype measurements used identical SDK bytes.
+- Kit v0.4.4 is being prepared with the new SDK alongside its unchanged old SDK
+  and Publish default. Publication, consumer vendoring and the full-runtime
+  budget remain open; no product deployment is claimed.
+
+### Phase 1 scaffold preparation (2026-11-13)
+
+- [Kit v0.4.4 PR #5](https://github.com/curtcox/Tools-for-pages-with-state-in-URL-fragments/pull/5)
+  is prepared at `06337a5`; [Kit CI](https://github.com/curtcox/Tools-for-pages-with-state-in-URL-fragments/actions/runs/43434049843)
+  passes unit/static/package and Chromium/Firefox/WebKit. The nested-app reusable
+  workflow passes too. Local preparation passed 302 units and 128 Chromium/WebKit
+  cases; local Firefox cannot create a profile before application code. Approval
+  to merge/publish the new runtime was requested separately and remains pending.
+- The scaffold vendors those exact candidate bytes with vendor-sync and records
+  their manifest. **This is a prepared integration pin, not publication evidence.**
+  The independent `kit-check.yml@v2` job must match the published manifest before
+  the deployment workflow can proceed. No prior kit/vendor bytes were edited.
+- `online/runtime` is a workspace package built from the real client wrapper and
+  cover layout. It mounts only a fixed welcome deck in an opaque SDK DOM frame;
+  the browser compiler and editing UI remain Phase 2/3 work.
+- The native-module shell has Docs/Gallery links, startup/error status and a
+  verified offline copy. Staging writes exact commit/dirty metadata, hashes all
+  offline assets and excludes optional AI engines from automatic downloads.
+  Release staging refuses an uncommitted checkout. Built bundles are ignored.
+- Local Chromium and WebKit passed welcome rendering, `allow-scripts` only,
+  origin `null`, blocked parent-document access and a complete offline reload.
+  The artifact unit and full scaffold static checks pass. Full root verification
+  passes build/typecheck/lint and all 389 tests after refreshing cached builds.
+- Online tests use `test.yml@v4` with `working-directory: online`; Pages and
+  independent kit verification stay at `@v2`. Workflows are separate and pass
+  actionlint. The Pages API already reports `build_type: workflow` for the
+  recovery URL. No Slidev Online product deployment has run yet.

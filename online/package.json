@@ -1,0 +1,19 @@
+{
+  "name": "slidev-online",
+  "type": "module",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/*.test.js",
+    "check": "node scripts/check.mjs",
+    "gallery:check": "node scripts/check.mjs --gallery",
+    "docs": "node scripts/check.mjs --docs",
+    "offline": "node vendor/fragment-kit-v0.4.4/tools/offline-assets.mjs --config dist/offline.config.json",
+    "serve": "node vendor/fragment-kit-v0.4.4/tools/serve.mjs --root dist"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "playwright": "1.64.1"
+  }
+}
