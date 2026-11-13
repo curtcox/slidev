@@ -1,6 +1,6 @@
 # Phase 0: SDK DOM feasibility
 
-**Pinned SDK blocked; candidate S1/S3 pass.** On 2026-11-12, Chromium 156.0.8078.4 compiled and imported
+**Pinned SDK blocked; candidate S1–S3 and prototype budgets pass.** On 2026-11-12, Chromium 156.0.8078.4 compiled and imported
 the starter's first slide and a `<script setup>` fixture inside the unmodified
 HashBin SDK sandbox. Both failed at `createApp().mount()` with
 `ReferenceError: document is not defined`.
@@ -15,12 +15,14 @@ Storage shims and a different module delivery path cannot supply the missing DOM
 
 This is a missing SDK capability, not evidence that Vue cannot run in an
 opaque iframe. No same-origin permission or editor-origin execution was added.
-No deployment was attempted. S2 and S4 have not run. A separate, unreleased
+No deployment was attempted. A separate, unreleased
 [SDK proposal](https://github.com/curtcox/hashbin.org/pull/249) now adds opt-in
 opaque DOM execution. Against that candidate, the starter and script fixture
 mount successfully, the button increments, and the same results survive a fully
 offline reload through a verified parent service worker. The deck frame itself
-is not controlled by that worker. See [candidate-evidence.json](./candidate-evidence.json).
+is not controlled by that worker. [candidate-evidence.json](./candidate-evidence.json)
+records the S1/S3 probe; [fidelity-evidence.json](./fidelity-evidence.json) separately
+records the themed S2 comparison and prototype S4 measurements.
 
 ## Reproduce
 
@@ -88,13 +90,58 @@ must match the online run, while the deck reports no service-worker controller.
 The diagnostic worker uses only `slidevonline-phase0-` cache names and verifies
 bytes when storing and serving them. It is not the product's Phase 6 service worker.
 
-The SDK proposal separately passes 1,031 unit tests, 14 DOM browser checks and
+The SDK proposal separately passes 1,031 unit tests, 20 DOM browser checks and
 16 hosted-sandbox regression checks across Chromium/WebKit. Its offline test
 refuses real HTTP connections, including for WebKit. Those SDK checks do not
 establish Slidev visual fidelity or complete-runtime performance. Its
-[GitHub verification run](https://github.com/curtcox/hashbin.org/actions/runs/43363883168)
+[GitHub verification run](https://github.com/curtcox/hashbin.org/actions/runs/43367188879)
 also passed unit, lint, DOM/hosted browser, funded-download, local API and frontend
 checks; production deployment jobs were skipped for the PR.
+
+## Theme fidelity and prototype performance
+
+```sh
+pnpm build
+node online/spikes/phase-0/fidelity.mjs \
+  --sdk-candidate online/spikes/phase-0/.cache/sdk-candidate/frontend/sdk/hashbin.js
+```
+
+The harness builds two reference decks through the real `slidev build` pipeline,
+then compares starter slides **1, 2, 3, 8 and 16** against browser-compiled slides
+inside the opaque SDK frame. References run on a separate loopback origin from
+the editor harness. Both themes are pinned at **0.25.0**, licensed MIT, and pass
+the compatibility build. Reports record their license hashes and source sizes.
+
+Fixtures use local Arial/Georgia/monospace fonts, a fixed cover color, and identical
+data-URL replacements for remote images. These deterministic adaptations apply
+to both renderers; remote fonts/media and other themes are not covered. Selected
+cases cover cover/default/center layouts, frontmatter classes, scoped styles,
+Markdown typography, code highlighting, click directives and a built-in component.
+
+All ten local comparisons have **zero exact differing pixels** at 980 × 552.
+The gate allows at most 0.1% of pixels to differ by more than 8/255 in any channel;
+the report also records exact differences and maximum channel deltas. After a
+fully offline reload, the expanded themed runtime's first slide also matches
+the CLI exactly, while its opaque frame has no service-worker controller.
+
+The prototype is approximately **744 KB gzip** for runtime JavaScript plus CSS.
+Five cold loads take approximately **1.4–1.5 seconds** on the recorded Chromium
+simulation: 390 × 844, DPR 2, 4× CPU slowdown, 40 ms latency and 1.5 MB/s download.
+Each sample uses a fresh context with browser cache disabled. Timing includes
+SDK/runtime transfer, compilation, fonts becoming ready and two animation frames.
+These are prototype measurements, not full-product or physical-phone acceptance.
+The full-runtime S4 gate remains open as the remaining client features are added.
+
+Screenshots and the generated report live under `.cache/fidelity/`. Use
+`--skip-reference-build` only during development with unchanged fixtures/CLI.
+CI uses `--skip-performance` explicitly: shared-runner timing does not establish
+the recorded phone profile. That mode still enforces visual fidelity, offline
+rendering and the prototype payload budget, and labels timing as not run.
+
+[online-feasibility.yml](../../../.github/workflows/online-feasibility.yml) pins
+the SDK proposal by commit and checks the original SDK blocker, candidate S1/S3,
+and the two-theme screenshot comparison. It uploads reports and screenshots;
+it does not deploy the app or silently replace the published runtime pin.
 
 ```sh
 pnpm exec eslint online/spikes/phase-0 --no-warn-ignored
@@ -109,11 +156,12 @@ Markdown plugin used by `unplugin-vue-markdown`. Markdown compilation, script
 evaluation and mounting are attempted only in the opaque execution world.
 The parent renders diagnostics using `textContent`.
 
-This is a minimal S1 blocker reproduction. It does not implement the complete
-Slidev Markdown plugin chain, themes, virtual modules, CSS generation, editor,
-offline support, or the product's message validation. The two virtual-module
-stubs exist only to bundle `SlideWrapper` for this probe. No built bundles or
-modified vendor bytes are committed.
+The S1 reproduction and the expanded fidelity prototype do not implement the
+complete Slidev plugin chain, theme set, virtual modules, editor, product offline
+support or product message validation. Their virtual-module stubs support only
+the selected client components. Browser UnoCSS uses the client's configuration
+through a narrow entry that excludes Node/JSX transformers. No built bundles or
+modified published vendor bytes are committed.
 
 ## Decision needed before continuing
 
@@ -121,7 +169,8 @@ Review and deploy [HashBin SDK proposal #249](https://github.com/curtcox/hashbin
 then publish and vendor a new Fragment Kit release carrying it. The candidate
 retains the opaque `allow-scripts` boundary, provides a visible render surface
 and a private message channel, and delivers runtime assets from the parent.
-Finish S2/S4 and rerun the gates against the released pin before product phases.
+Rerun the gates against the released pin and validate the complete runtime's
+size/performance before considering product acceptance complete.
 
 The independent [workflow proposal #4](https://github.com/curtcox/Tools-for-pages-with-state-in-URL-fragments/pull/4)
 prepares `test.yml`'s `working-directory` input. Its

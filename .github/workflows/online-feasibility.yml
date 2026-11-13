@@ -1,0 +1,74 @@
+name: Online feasibility
+
+on:
+  pull_request:
+    paths:
+      - online/**
+      - packages/client/**
+      - packages/parser/**
+      - packages/slidev/**
+      - pnpm-lock.yaml
+      - .github/workflows/online-feasibility.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - name: Check out the SDK proposal (explicit development dependency)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: curtcox/hashbin.org
+          ref: 9caf406984ecd344b1c1d2921934c48a2011a24c
+          path: online/spikes/phase-0/.cache/sdk-candidate
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /frontend/sdk/hashbin.js
+            /package.json
+      - name: Check out the original immutable kit release
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: curtcox/Tools-for-pages-with-state-in-URL-fragments
+          ref: b9174c417299411ccdeb020e731110436cfe6fcd
+          path: online/spikes/phase-0/.cache/original-kit
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            /vendor/hashbin-sdk-v0.4.0.mjs
+            /package.json
+      - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1
+        with:
+          node-version: '24'
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm build
+      - run: pnpm exec eslint online/spikes/phase-0 --no-warn-ignored
+      - name: Use the official Ubuntu archive
+        run: |
+          sudo find /etc/apt -maxdepth 2 -type f \( -name '*.sources' -o -name '*.list' -o -name '*-mirrors.txt' \) \
+            -exec sed -i 's|https\?://azure\.archive\.ubuntu\.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' {} +
+      - run: pnpm exec playwright install --with-deps chromium
+      - name: Reproduce the original SDK blocker
+        run: |
+          probe_status=0
+          node online/spikes/phase-0/run.mjs --kit online/spikes/phase-0/.cache/original-kit || probe_status=$?
+          test "$probe_status" -eq 2
+      - name: Verify candidate mounting, interaction and offline reload
+        run: node online/spikes/phase-0/run.mjs --sdk-candidate online/spikes/phase-0/.cache/sdk-candidate/frontend/sdk/hashbin.js
+      - name: Compare five starter slides in both themes
+        # Shared runners are not the recorded phone-performance profile.
+        run: node online/spikes/phase-0/fidelity.mjs --sdk-candidate online/spikes/phase-0/.cache/sdk-candidate/frontend/sdk/hashbin.js --skip-performance
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        if: always()
+        with:
+          name: online-feasibility
+          path: |
+            online/spikes/phase-0/.cache/report.json
+            online/spikes/phase-0/.cache/candidate-report.json
+            online/spikes/phase-0/.cache/fidelity/report.json
+            online/spikes/phase-0/.cache/fidelity/screenshots/

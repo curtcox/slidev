@@ -7,7 +7,7 @@
   "browser": "Chromium 156.0.8078.4",
   "sdk": {
     "status": "UNRELEASED CANDIDATE",
-    "sha256": "6095939fda5b199d5f1f61d28166c921b9f7857a0e0c33cadf0ad702b26de097"
+    "sha256": "1333545eae17d46e77b190c7120e8b39c156c99b677e55e4a90df9fc37082000"
   },
   "fixtures": [
     {
@@ -20,8 +20,8 @@
     }
   ],
   "diagnosticBundle": {
-    "bytes": 1294565,
-    "gzipBytes": 365722,
+    "bytes": 1294568,
+    "gzipBytes": 365717,
     "note": "S1 subset only; not an S4 measurement"
   },
   "sandbox": "allow-scripts",

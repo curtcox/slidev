@@ -443,7 +443,7 @@ contract, plus a fully offline reload that renders the gallery.
 
 | Phase | Title | Status |
 |---|---|---|
-| 0 | Feasibility spikes | IN PROGRESS — candidate S1/S3 pass; released SDK/kit, S2 and S4 pending |
+| 0 | Feasibility spikes | IN PROGRESS — candidate S1–S3 and prototype S4 pass; released pins and full-runtime budget pending |
 | 1 | Skeleton, CI, deploy (+ kit `@v3`) | IN PROGRESS — independent workflow proposal #4 prepared; skeleton/deploy unstarted |
 | 2 | Slidev runtime | TODO |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
@@ -516,3 +516,44 @@ are recorded in
 
 Review, SDK deployment and kit release remain prerequisites to replacing the
 runtime pin. Candidate checks are not production deployment acceptance.
+
+### Fidelity and performance evidence (2026-11-12)
+
+- **S2 passes for the deterministic prototype:** starter slides 1, 2, 3, 8 and
+  16 render in both pinned official themes (0.25.0, MIT). Ten comparisons against
+  actual `slidev build` output have zero exact pixel differences at 980 × 552.
+  Local fonts, fixed cover color and data-URL remote-image replacements are
+  applied identically to both renderers. Reference decks use a separate local
+  origin; author compilation/evaluation stays in the opaque SDK frame.
+- The expanded bundle includes the browser compiler, client wrapper/layouts,
+  code wrapper, UnoCSS, theme styles, YAML Shiki, icons and a built-in component.
+  Frontmatter utility classes and Markdown typography now match the CLI.
+  A browser-safe UnoCSS entry excludes Node/JSX parser dependencies.
+- **Expanded S3 passes:** after a fully offline reload, the themed first slide
+  still matches the CLI exactly. Assets are hash-verified by the parent worker;
+  the opaque frame has no service-worker controller.
+- **Prototype S4 passes:** about 744 KB gzip for JavaScript + CSS; five fresh
+  Chromium phone-profile loads take about 1.4–1.5 s. The report specifies the
+  4× CPU slowdown, viewport/DPR, network, cold caches and complete timing scope.
+  This is neither physical-phone acceptance nor the complete product payload.
+  Recheck the full-runtime budget as Phase 2 adds the remaining features.
+- [SDK #249](https://github.com/curtcox/hashbin.org/pull/249) review regressions
+  were reproduced in Chromium/WebKit and fixed in `9caf406`: readiness waits
+  for top-level await, stalled evaluation keeps its timeout, and proxied
+  204/205/304 responses retain null bodies. All 1,031 unit tests, 20 DOM browser
+  cases and 16 hosted cases pass. [Updated CI](https://github.com/curtcox/hashbin.org/actions/runs/43367188879)
+  is green. The still-unpublished v0.6.0 artifacts were regenerated from source;
+  published versions are unchanged.
+- `.github/workflows/online-feasibility.yml` pins both SDK inputs by commit,
+  checks the original blocker, candidate interaction/offline behavior and S2,
+  and uploads comparison artifacts. CI explicitly skips hardware-sensitive
+  timing while enforcing the prototype byte budget. No deploy job is added.
+- Full repository verification passes: build, typecheck, lint and 389 tests.
+  Separate maintenance commits correct the existing HMR test's overloaded send
+  capture, spell BOM regexes visibly, format existing fixtures and verify
+  decoded PlantUML content independently of Node/zlib's compressed bytes.
+
+Reproduction commands and scope are in
+[`online/spikes/phase-0/README.md`](../online/spikes/phase-0/README.md);
+[`fidelity-evidence.json`](../online/spikes/phase-0/fidelity-evidence.json)
+records the measured results. Publication/tag approvals remain outstanding.
