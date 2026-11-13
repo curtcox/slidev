@@ -19,13 +19,18 @@ async function main() {
       'kit': { type: 'string' },
       'browser': { type: 'string' },
       'sdk-candidate': { type: 'string' },
+      'sdk-release': { type: 'string' },
     },
   })
   const kit = resolve(values.kit ?? resolve(root, 'online/vendor/fragment-kit-v0.4.3'))
   const output = resolve(spike, '.cache/dist')
-  const candidate = values['sdk-candidate'] && resolve(values['sdk-candidate'])
+  assert.ok([values.kit, values['sdk-candidate'], values['sdk-release']].filter(Boolean).length <= 1, 'Choose one SDK input')
+  const released = Boolean(values['sdk-release'])
+  const candidate = (values['sdk-candidate'] || values['sdk-release']) && resolve(values['sdk-candidate'] || values['sdk-release'])
   const sdk = await readFile(candidate || resolve(kit, 'vendor/hashbin-sdk-v0.4.0.mjs'))
   const sdkHash = createHash('sha256').update(sdk).digest('hex')
+  if (released)
+    assert.equal(sdkHash, '1333545eae17d46e77b190c7120e8b39c156c99b677e55e4a90df9fc37082000', 'Published v0.6.0 SDK bytes must match')
   // Pinned v0.4.3 release manifest, never a modified SDK or a local replacement.
   if (!candidate) {
     assert.equal(sdkHash, '82f25ffe41a0ff79a060fb593754a286e1c85c2502878ab387c3d0045b749fa5')
@@ -168,13 +173,23 @@ async function main() {
     const runtime = await readFile(resolve(output, 'runtime.js'))
     const evidence = {
       phase: 0,
-      s1: candidate ? 'PASS with unreleased SDK candidate only: DOM mount and script-setup interaction' : 'BLOCKED: SDK source runs in a Worker; Vue requires a DOM to mount',
+      s1: candidate
+        ? `PASS with ${released ? 'published SDK v0.6.0' : 'unreleased SDK candidate'}: DOM mount and script-setup interaction`
+        : 'BLOCKED: SDK source runs in a Worker; Vue requires a DOM to mount',
       s2: candidate ? 'NOT RUN: theme and UnoCSS fidelity gate remains' : 'NOT RUN: depends on S1',
-      s3: candidate ? 'PASS with unreleased SDK candidate: offline reload mounts diagnostic Slidev bundle via parent verified service worker' : 'NOT RUN: depends on an agreed DOM sandbox delivery path',
+      s3: candidate
+        ? `PASS with ${released ? 'published SDK v0.6.0' : 'unreleased SDK candidate'}: offline reload mounts diagnostic Slidev bundle via parent verified service worker`
+        : 'NOT RUN: depends on an agreed DOM sandbox delivery path',
       s4: 'NOT RUN: no complete runtime or first render to measure',
       browser: `Chromium ${browser.version()}`,
       sdk: candidate
-        ? { status: 'UNRELEASED CANDIDATE', sha256: sdkHash }
+        ? {
+            status: released ? 'PUBLISHED RELEASE' : 'UNRELEASED CANDIDATE',
+            ...(released
+              ? { version: '0.6.0' }
+              : {}),
+            sha256: sdkHash,
+          }
         : { kit: '0.4.3', version: '0.4.0', sha256: sdkHash },
       fixtures: fixtures.map(({ name, src }) => ({
         name,
@@ -183,7 +198,9 @@ async function main() {
       diagnosticBundle: { bytes: runtime.length, gzipBytes: gzipSync(runtime).length, note: 'S1 subset only; not an S4 measurement' },
       ...report,
     }
-    await writeFile(resolve(spike, candidate ? '.cache/candidate-report.json' : '.cache/report.json'), `${JSON.stringify(evidence, null, 2)}\n`)
+    await writeFile(resolve(spike, released
+      ? '.cache/release-report.json'
+      : candidate ? '.cache/candidate-report.json' : '.cache/report.json'), `${JSON.stringify(evidence, null, 2)}\n`)
     process.stdout.write(`${JSON.stringify(evidence, null, 2)}\n`)
     // A reproduced blocker is not a passed feasibility gate.
     process.exitCode = candidate ? 0 : 2

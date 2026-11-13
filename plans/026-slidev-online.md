@@ -11,7 +11,7 @@
 - **Priority**: P1 (new product surface)
 - **Effort**: XL (8 phases)
 - **Risk**: MED-HIGH (in-browser compilation of Slidev is new; Phase 0 de-risks it)
-- **Depends on**: Fragment Kit v0.4.3 (published), a new kit workflow tag `@v3` (Phase 1)
+- **Depends on**: Fragment Kit v0.4.4 carrying SDK v0.6.0 (prepared), immutable kit workflow `@v4` (published)
 - **Planned at**: commit `437f139c` (Slidev v53.1.0), 2026-11-12
 
 ## Goal
@@ -39,7 +39,7 @@ and deployed with its reusable GitHub Actions workflows, exactly as PythonOnline
 | Hosting | **GitHub Pages first** (`https://curtcox.github.io/slidev/`, the recovery origin). A canonical `slides.hashbin.page` comes last (Phase 8). |
 | Document | **`slides.md` + optional `style.css`.** Per-slide `<script setup>` and inline Vue/HTML are allowed. Images come from URLs. |
 | Themes | **Bundled, pinned official set**, offline-capable. No npm-on-demand loading. |
-| Location | **`online/` in this fork.** It builds from the workspace's `@slidev/*` source. The kit gets a new immutable workflow tag `@v3` that adds a `working-directory` input. |
+| Location | **`online/` in this fork.** It builds from the workspace's `@slidev/*` source. The kit gets a new immutable workflow tag `@v4` that adds a `working-directory` input. |
 
 ## Constraints inherited from the fleet (do not violate)
 
@@ -253,12 +253,12 @@ to the owner instead of proceeding.
 
 ### Phase 1 — Skeleton, CI and deploy
 
-1. **Kit `@v3`** (PR in the tools repo, owner approves the tag): add an
+1. **Kit `@v4`** (PR in the tools repo, owner approves the tag): add an
    optional `working-directory` input (default `.`) to `test.yml`. It applies to
    `npm ci`, `npm test`, `npm run check`, the gallery check, the Playwright
    contract run and `actions/setup-node`'s `cache-dependency-path`. `pages.yml`
    and `kit-check.yml` already work from this repo (`stage-command`/`path`,
-   `kit-path`), so they stay at `@v2`. `@v3` is a new immutable tag; `@v2` is
+   `kit-path`), so they stay at `@v2`. `@v4` is a new immutable tag; `@v2` is
    not touched.
 2. `online/` scaffold: `package.json` (`node --test`, check, gallery, docs, offline,
    serve; pinned `playwright` and `@playwright/test`), `vendor-sync` kit v0.4.3,
@@ -271,7 +271,7 @@ to the owner instead of proceeding.
    directories are always ignored.
 4. Workflows, mirroring PythonOnline:
    - `.github/workflows/online-test.yml`: `pull_request`, `workflow_call` and
-     `workflow_dispatch` run `curtcox/…/test.yml@v3` with
+     `workflow_dispatch` run `curtcox/…/test.yml@v4` with
      `working-directory: online`, plus a `pre-test` of
      `corepack enable && pnpm install --frozen-lockfile && pnpm build && pnpm -C online/runtime build`.
      `kit-check.yml@v2` uses `kit-path: online/vendor/fragment-kit-v0.4.3`.
@@ -409,7 +409,7 @@ contract, plus a fully offline reload that renders the gallery.
 
 ## Parallelism
 
-- Phase 1 step 1 (kit `@v3`) is independent and can start right away.
+- Phase 1 step 1 (kit `@v4`) is independent and can start right away.
 - After Phase 2's bridge protocol is fixed, Phase 3 (editor) and the rest of
   Phase 2 (runtime) proceed in parallel against a stub sandbox.
 - Phase 4 examples can be written during Phase 2. Covers need Phase 3.
@@ -418,8 +418,8 @@ contract, plus a fully offline reload that renders the gallery.
 
 | When | Action |
 |---|---|
-| Phase 0 (discovered prerequisite) | Review/deploy the opaque DOM SDK proposal, then approve a new Fragment Kit release carrying it; the pinned worker-only SDK cannot mount Vue |
-| Phase 1 | Approve and tag kit workflows `@v3` in the tools repo |
+| Phase 0 (discovered prerequisite) | SDK v0.6.0 deployed with approval; review/approve the new Fragment Kit release carrying it |
+| Phase 1 | DONE: owner approved immutable workflow `@v4`, published at `3de01b1`; existing `@v3` was preserved |
 | Phase 1 | Set this repo's GitHub Pages source to "GitHub Actions" |
 | Phase 3 | Register a HashBin client for Slidev Online (return URL = recovery origin); provide the client ID |
 | Phase 8 | Approve the hashbin.org publisher PR and DNS for `slides.hashbin.page`; update the registration return URL; allowlist the origin on `ai.hashbin.page` |
@@ -443,8 +443,8 @@ contract, plus a fully offline reload that renders the gallery.
 
 | Phase | Title | Status |
 |---|---|---|
-| 0 | Feasibility spikes | IN PROGRESS — candidate S1–S3 and prototype S4 pass; released pins and full-runtime budget pending |
-| 1 | Skeleton, CI, deploy (+ kit `@v3`) | IN PROGRESS — independent workflow proposal #4 prepared; skeleton/deploy unstarted |
+| 0 | Feasibility spikes | IN PROGRESS — released SDK S1–S3 and prototype S4 pass; kit release and full-runtime budget pending |
+| 1 | Skeleton, CI, deploy (+ kit `@v4`) | IN PROGRESS — workflow #4 merged and immutable @v4 published; skeleton/deploy unstarted |
 | 2 | Slidev runtime | TODO |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
@@ -510,7 +510,7 @@ are recorded in
   prepares optional `working-directory`, npm cache/artifact paths, and a nested
   consumer smoke workflow. Locally: 301 unit tests, kit/static/vendor/gallery
   checks, actionlint and a nested Chromium smoke pass. `pages.yml` and
-  `kit-check.yml` are unchanged. **The owner-controlled `@v3` tag is not created.**
+  `kit-check.yml` are unchanged. **The owner-controlled `@v4` tag is not created.**
   [The reusable nested-app smoke also passed in Actions](https://github.com/curtcox/Tools-for-pages-with-state-in-URL-fragments/actions/runs/43364019171).
   [Kit CI passed its unit/static and Chromium/Firefox/WebKit jobs](https://github.com/curtcox/Tools-for-pages-with-state-in-URL-fragments/actions/runs/43364018975).
 
@@ -564,3 +564,26 @@ Reproduction commands and scope are in
 [`online/spikes/phase-0/README.md`](../online/spikes/phase-0/README.md);
 [`fidelity-evidence.json`](../online/spikes/phase-0/fidelity-evidence.json)
 records the measured results. Publication/tag approvals remain outstanding.
+
+### Approved prerequisite publication (2026-11-13)
+
+- Owner explicitly approved SDK deployment and the workflow tag. [SDK #249](https://github.com/curtcox/hashbin.org/pull/249)
+  merged at `5b6eb035a552830f7db608376be16ac3b99ce0ad`.
+  [The production deployment passed](https://github.com/curtcox/hashbin.org/actions/runs/43432577171),
+  including both production origins. Strict production verification passed locally.
+  Live SDK v0.6.0 and cache-helper bytes match both approved SHA-256 and SRI;
+  responses carry immutable cache headers.
+- [Workflow #4](https://github.com/curtcox/Tools-for-pages-with-state-in-URL-fragments/pull/4)
+  merged at `3de01b1e3ea6c2508a1831ada35c84e8e242925a`. The proposed `v3` name
+  was already published on November 8 at `8807ee5` and lacks the new input.
+  With separate explicit owner approval, immutable `v4` was published instead.
+  Remote tag dereferencing matches the merged commit; `v2` and `v3` are unchanged.
+  Future references in this plan now use `test.yml@v4`.
+- The probes now accept `--sdk-release` with an exact published v0.6.0 hash gate.
+  Released-byte mounting, script interaction, ten exact themed screenshots and
+  offline reload pass in Chromium. The original worker-only reproduction and
+  explicit development-candidate mode remain available. New timing is labeled
+  not run; prior prototype measurements used identical SDK bytes.
+- Kit v0.4.4 is being prepared with the new SDK alongside its unchanged old SDK
+  and Publish default. Publication, consumer vendoring and the full-runtime
+  budget remain open; no product deployment is claimed.

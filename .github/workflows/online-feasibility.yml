@@ -20,15 +20,15 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-      - name: Check out the SDK proposal (explicit development dependency)
+      - name: Check out the published immutable SDK release
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
         with:
           repository: curtcox/hashbin.org
-          ref: 9caf406984ecd344b1c1d2921934c48a2011a24c
-          path: online/spikes/phase-0/.cache/sdk-candidate
+          ref: 5b6eb035a552830f7db608376be16ac3b99ce0ad
+          path: online/spikes/phase-0/.cache/sdk-release
           sparse-checkout-cone-mode: false
           sparse-checkout: |
-            /frontend/sdk/hashbin.js
+            /frontend/sdk/v0.6.0/hashbin.js
             /package.json
       - name: Check out the original immutable kit release
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
@@ -58,17 +58,17 @@ jobs:
           probe_status=0
           node online/spikes/phase-0/run.mjs --kit online/spikes/phase-0/.cache/original-kit || probe_status=$?
           test "$probe_status" -eq 2
-      - name: Verify candidate mounting, interaction and offline reload
-        run: node online/spikes/phase-0/run.mjs --sdk-candidate online/spikes/phase-0/.cache/sdk-candidate/frontend/sdk/hashbin.js
+      - name: Verify released SDK mounting, interaction and offline reload
+        run: node online/spikes/phase-0/run.mjs --sdk-release online/spikes/phase-0/.cache/sdk-release/frontend/sdk/v0.6.0/hashbin.js
       - name: Compare five starter slides in both themes
         # Shared runners are not the recorded phone-performance profile.
-        run: node online/spikes/phase-0/fidelity.mjs --sdk-candidate online/spikes/phase-0/.cache/sdk-candidate/frontend/sdk/hashbin.js --skip-performance
+        run: node online/spikes/phase-0/fidelity.mjs --sdk-release online/spikes/phase-0/.cache/sdk-release/frontend/sdk/v0.6.0/hashbin.js --skip-performance
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
         if: always()
         with:
           name: online-feasibility
           path: |
             online/spikes/phase-0/.cache/report.json
-            online/spikes/phase-0/.cache/candidate-report.json
+            online/spikes/phase-0/.cache/release-report.json
             online/spikes/phase-0/.cache/fidelity/report.json
             online/spikes/phase-0/.cache/fidelity/screenshots/

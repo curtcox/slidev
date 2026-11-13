@@ -1,6 +1,8 @@
 # Phase 0: SDK DOM feasibility
 
-**Pinned SDK blocked; candidate S1–S3 and prototype budgets pass.** On 2026-11-12, Chromium 156.0.8078.4 compiled and imported
+**Original SDK blocked; released SDK v0.6.0 passes S1–S3.** The prototype
+budgets pass; kit publication and complete-runtime budgets remain open.
+On 2026-11-12, Chromium 156.0.8078.4 compiled and imported
 the starter's first slide and a `<script setup>` fixture inside the unmodified
 HashBin SDK sandbox. Both failed at `createApp().mount()` with
 `ReferenceError: document is not defined`.
@@ -15,8 +17,9 @@ Storage shims and a different module delivery path cannot supply the missing DOM
 
 This is a missing SDK capability, not evidence that Vue cannot run in an
 opaque iframe. No same-origin permission or editor-origin execution was added.
-No deployment was attempted. A separate, unreleased
-[SDK proposal](https://github.com/curtcox/hashbin.org/pull/249) now adds opt-in
+The initial spike did not deploy anything. The separate
+[SDK proposal](https://github.com/curtcox/hashbin.org/pull/249), now merged and
+deployed as v0.6.0 with owner approval, adds opt-in
 opaque DOM execution. Against that candidate, the starter and script fixture
 mount successfully, the button increments, and the same results survive a fully
 offline reload through a verified parent service worker. The deck frame itself
@@ -167,22 +170,30 @@ the selected client components. Browser UnoCSS uses the client's configuration
 through a narrow entry that excludes Node/JSX transformers. No built bundles or
 modified published vendor bytes are committed.
 
-## Decision needed before continuing
+## Released prerequisites (2026-11-13)
 
-Review and deploy [HashBin SDK proposal #249](https://github.com/curtcox/hashbin.org/pull/249),
-then publish and vendor a new Fragment Kit release carrying it. The candidate
-retains the opaque `allow-scripts` boundary, provides a visible render surface
-and a private message channel, and delivers runtime assets from the parent.
-Rerun the gates against the released pin and validate the complete runtime's
-size/performance before considering product acceptance complete.
+[SDK #249](https://github.com/curtcox/hashbin.org/pull/249) merged at `5b6eb035`
+and [production deployment passed](https://github.com/curtcox/hashbin.org/actions/runs/43432577171).
+Strict production verification passed. Live v0.6.0 SDK/cache-helper bytes match
+the approved SHA-256 and SRI manifest and immutable cache headers.
+`--sdk-release` accepts only the exact published v0.6.0 SDK hash; the development
+`--sdk-candidate` option and original pinned `--kit` reproduction remain explicit.
+
+```sh
+node online/spikes/phase-0/run.mjs --sdk-release /path/to/hashbin-sdk-v0.6.0.mjs
+node online/spikes/phase-0/fidelity.mjs --sdk-release /path/to/hashbin-sdk-v0.6.0.mjs --skip-performance
+```
+
+These released-byte runs pass mounting, script interaction, ten exact themed
+screenshots and offline reload. See `release-evidence.json` and
+`release-fidelity-evidence.json`; new phone timing was explicitly not run.
+Kit v0.4.4 is being prepared to vendor the release. Full-runtime size/performance
+still needs validation as the remaining runtime features are added.
 
 The independent [workflow proposal #4](https://github.com/curtcox/Tools-for-pages-with-state-in-URL-fragments/pull/4)
 prepares `test.yml`'s `working-directory` input. Its
 [nested-app smoke passed in Actions](https://github.com/curtcox/Tools-for-pages-with-state-in-URL-fragments/actions/runs/43364019171),
 and [Kit CI passed unit/static checks and Chromium/Firefox/WebKit](https://github.com/curtcox/Tools-for-pages-with-state-in-URL-fragments/actions/runs/43364018975). The
-owner must approve the immutable `@v3` tag after CI passes. No tags were created.
-
-Alternatively, revise the plan to permit an application-owned opaque iframe
-bootstrap, retaining the same isolation and offline requirements. That changes
-the confirmed SDK architecture and needs the owner's decision. Replacing the
-SDK iframe's `srcdoc` locally would bypass its bootstrap rather than use its API.
+owner approved immutable `@v4`, now published at `3de01b1`. The proposed `v3`
+name was already used at `8807ee5` on November 8; `v2` and `v3` remain unchanged.
+Use `test.yml@v4` for `working-directory` and retain Pages/kit-check at `@v2`.

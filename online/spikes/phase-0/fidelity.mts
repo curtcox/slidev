@@ -75,13 +75,17 @@ async function main() {
   const { values } = parseArgs({
     options: {
       'sdk-candidate': { type: 'string' },
+      'sdk-release': { type: 'string' },
       'skip-reference-build': { type: 'boolean' },
       'skip-performance': { type: 'boolean' },
     },
   })
-  assert.ok(values['sdk-candidate'], 'Pass --sdk-candidate /path/to/hashbin.js')
-  const sdkPath = resolve(values['sdk-candidate'])
+  assert.equal([values['sdk-candidate'], values['sdk-release']].filter(Boolean).length, 1, 'Pass one of --sdk-release or --sdk-candidate /path/to/hashbin.js')
+  const released = Boolean(values['sdk-release'])
+  const sdkPath = resolve(values['sdk-release'] || values['sdk-candidate']!)
   const sdk = await readFile(sdkPath)
+  if (released)
+    assert.equal(createHash('sha256').update(sdk).digest('hex'), '1333545eae17d46e77b190c7120e8b39c156c99b677e55e4a90df9fc37082000', 'Published v0.6.0 SDK bytes must match')
   const { DOM_SANDBOX_BOOTSTRAP_HASH } = await import(pathToFileURL(sdkPath).href)
   const original = await readFile(resolve(root, 'demo/starter/slides.md'), 'utf8')
   const starter = parseSync(original, 'starter.md')
@@ -351,7 +355,10 @@ async function main() {
     const report = {
       browser: `Chromium ${browser.version()}`,
       sdk: {
-        status: 'UNRELEASED CANDIDATE',
+        status: released ? 'PUBLISHED RELEASE' : 'UNRELEASED CANDIDATE',
+        ...(released
+          ? { version: '0.6.0' }
+          : {}),
         sha256: createHash('sha256').update(sdk).digest('hex'),
       },
       selectedSlides,
