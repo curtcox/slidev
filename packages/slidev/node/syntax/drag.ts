@@ -69,7 +69,7 @@ export default function MarkdownItVDrag(md: MarkdownExit, markdownTransformMap: 
 
     return _parse.call(this, src, env)
       .map((token) => {
-        if (!['html_block', 'html_inline', 'inline'].includes(token.type) || !token.content.includes('drag') || visited.has(token))
+        if (!['html_block', 'html_inline', 'inline'].includes(token.type) || !token.content.toLowerCase().includes('drag') || visited.has(token))
           return token
 
         // Iterates all html tokens and replaces <v-drag> with <v-drag :markdownSource="..."> to pass the markdown source to the component

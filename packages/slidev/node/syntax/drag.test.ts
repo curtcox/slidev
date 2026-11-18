@@ -51,3 +51,12 @@ it('keeps the v-drag source range when the block ends the slide', async () => {
   // not collapse to the line after `<div`.
   expect(result).toContain('v-drag="[284, 248, 166, NaN]" :markdownSource="[2,7,7]"')
 })
+
+it.each(['VDrag', 'VDragArrow'])('preserves source metadata for the PascalCase %s component', async (tag) => {
+  const md = MarkdownExit({ html: true })
+  md.use(MarkdownItVDrag, new Map<string, MagicString>())
+
+  const result = await md.renderAsync(`<${tag} pos="1,2,3,4">Content</${tag}>`, { id: 'test' })
+
+  expect(result).toContain(`<${tag} :markdownSource="[0,1,0]" pos="1,2,3,4">`)
+})
