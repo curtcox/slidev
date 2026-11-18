@@ -37,6 +37,18 @@ export default antfu({
   })
   .remove('antfu/markdown/rules')
   .append({
+    files: ['online/runtime/package.json'],
+    rules: {
+      // Theme upgrades require a fresh license, compatibility and size review.
+      'pnpm/json-enforce-catalog': [
+        'error',
+        {
+          ignores: ['@slidev/theme-default', '@slidev/theme-seriph'],
+        },
+      ],
+    },
+  })
+  .append({
     files: ['online/tests/**/*.test.js'],
     rules: { 'test/no-import-node-test': 'off' },
   })
