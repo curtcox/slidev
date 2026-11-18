@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — themes/icons/grammars/math/Mermaid, drag/writeback and per-deck PlantUML consent implemented; 141 exact SFC matches and 14 corpus fallbacks in Chromium/WebKit; 38-case local fidelity passes both engines; deployed drag/writeback/offline verified; PlantUML CI/deployment pending; remaining features/full rendering/phone gates open |
+| 2 | Slidev runtime | IN PROGRESS — themes/icons/grammars/math/Mermaid, drag/writeback and per-deck PlantUML consent deployed; 141 exact SFC matches and 14 corpus fallbacks in Chromium/Firefox/WebKit CI; 38-case local fidelity passes Chromium/WebKit and CI passes within tolerance; live PlantUML/offline verified in both local engines; remaining features/full rendering/phone gates open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -1128,3 +1128,36 @@ records the measured results. Publication/tag approvals remain outstanding.
   delayed error on the removed image after a successful retry. Chromium and
   WebKit pass this regression and all **38** visual cases on the rebuilt runtime.
   CI and live acceptance for this final guard remain pending.
+
+### Deployed PlantUML acceptance (2026-11-18)
+
+- Final guard `31aef5ad` is pushed on `main`. Its
+  [deployment run 44409021140](https://github.com/curtcox/slidev/actions/runs/44409021140)
+  passes units, Chromium/Firefox/WebKit, independent publication verification,
+  visual comparison and deployment. Actual job logs confirm the full runtime,
+  icon, grammar, math, Mermaid, PlantUML and drag suites ran in all three engines.
+  Each engine also passes **141** exact SFC comparisons and **14** corpus
+  fallback cases. Removing interception before offline navigation resolves the
+  Firefox failure without changing product code or reducing coverage.
+- Final local Chromium 156.0.8078.4 and WebKit 27.2 each pass all **38** visual
+  cases with zero exact differing pixels. Downloaded CI evidence has **34** exact
+  matches and four within tolerance, with no errors. All three reports share
+  runtime SHA-256
+  `38820f8a368807e593b7a2dd2a2582dd0e068bd7de64cf79b8ccecfa7728fc4d`.
+  Initial JS/CSS is **1,006,810 bytes gzip** locally and **1,006,898** in CI with
+  identical source bytes. These are payload observations, not phone acceptance.
+- The live [recovery site](https://curtcox.github.io/slidev/) reports `31aef5ad`
+  with `dirty:false`. Actual live Chromium and WebKit pass the complete PlantUML
+  suite and welcome/isolation/offline suite, including offline seriph rendering.
+  This covers the final stale-image guard. Online diagram responses are mocked.
+  The offline section removes the mock and checks real failed image requests.
+  External PlantUML availability and offline diagram rendering are not claimed.
+- [Repository CI](https://github.com/curtcox/slidev/actions/runs/44409022742)
+  passes typecheck, Cypress and Linux/Windows/macOS tests. Local acceptance has
+  **396** repository tests and **22** online units passing, plus runtime build,
+  root typecheck/lint, actionlint and static/vendor/offline integrity. The separate
+  Continuous Releases workflow still lacks `pkg-pr-new` access to this fork.
+- Phase 2 remains open for theme fonts, further theme audits, remaining client
+  features, full source-corpus fidelity and complete runtime phone timing.
+  The Phase 3 editor remains unimplemented. This final follow-up changes only
+  the plan and its index.
