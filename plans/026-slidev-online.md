@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — offline theme fonts/custom Google fonts deployed after themes/icons/grammars/math/Mermaid, drag/writeback and PlantUML consent; 141 exact SFC matches + 14 corpus fallbacks in three CI engines; 40-case local fidelity exact in Chromium/WebKit and CI within tolerance; live font/isolation/offline checks pass both local engines; all five planned themes now integrated locally with offline layouts/artwork/fonts; remaining features/full rendering/phone gates open |
+| 2 | Slidev runtime | IN PROGRESS — all five planned themes, offline artwork/fonts, icons/grammars/math/diagrams, drag/writeback and PlantUML consent deployed; 141 exact SFC matches + 14 corpus fallbacks in three CI engines; 76 visual cases pass locally in Chromium/WebKit and CI; live themes/fonts/isolation/offline pass both local engines; remaining features/full source-corpus fidelity/phone gates open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -1273,3 +1273,48 @@ records the measured results. Publication/tag approvals remain outstanding.
 - Expanded visual comparisons, CI and deployment are being verified. The
   complete source-corpus fidelity and phone-performance gates remain open.
   Phase 2 stays in progress and Phase 3 is still unimplemented.
+
+
+### Deployed official-theme acceptance (2026-11-18)
+
+- Implementation `e46b6545` and the fidelity follow-up `fc2716dc` are pushed on
+  `main`. The [final deployment run 44418217672](https://github.com/curtcox/slidev/actions/runs/44418217672)
+  passes all jobs: units, independent publication verification,
+  Chromium/Firefox/WebKit, the expanded visual report and Pages deployment.
+  Actual Firefox logs confirm all five themes, artwork/fonts, aliases,
+  components, isolation, offline reload, **141** exact compiler SFC comparisons
+  and **14** corpus fallbacks ran. No local Firefox run is claimed.
+- The visual harness now covers **76** cases: the original 38 system-font
+  fixtures, two bundled-font fixtures, every one of the 33 added theme layouts
+  and three additional font fixtures. Apple Basic keeps its local/system font
+  stack. Both renderers receive identical offline font bytes. Color-only image
+  props disable the CLI's image preload service; external traffic stays mocked
+  or blocked. This remains a deterministic subset of the full corpus.
+- The expanded gate found and fixed an Apple Basic layout mismatch. Unlike the
+  other four themes, Apple Basic does not import `layouts-base.css`; applying
+  it globally made its introduction/image text fill the slide height. The
+  runtime now follows each theme's actual style entry. A browser regression
+  checks the resulting centered text layout. Published theme bytes are unchanged.
+- Local Chromium passes **75 exact** comparisons and one within tolerance;
+  WebKit passes **76 exact** comparisons. Downloaded final CI evidence has
+  **72 exact** matches and four within tolerance, with no errors. Every new
+  theme case matches exactly in CI. All three reports have runtime SHA-256
+  `dc6f96b0b13b599c70f144f718fa2928972c81377d8d18c36345ce42efad43e0`.
+  Initial JS/CSS measures **1,070,841 bytes gzip** locally and **1,070,295**
+  in CI. Lazy font payloads remain separate; this is not phone-timing acceptance.
+- The live [recovery site](https://curtcox.github.io/slidev/) reports `fc2716dc`
+  with `dirty:false`. Live runtime bytes match that hash. Theme and font audits
+  match the locally reviewed source hashes, sizes, counts, versions and licenses.
+  Actual live Chromium and WebKit pass all five theme layouts/artwork/fonts,
+  aliases, component visibility, style isolation and full offline reload, plus
+  existing font-failure/retry and welcome/isolation suites. Custom Google service
+  responses remain mocked; their external availability is not claimed.
+- [Repository CI](https://github.com/curtcox/slidev/actions/runs/44418216726)
+  passes typecheck, Cypress and Linux/Windows/macOS tests. Local checks retain
+  **396** repository tests, **23** online units, runtime/root builds and
+  typechecks, lint, actionlint and offline/vendor integrity. Icons, grammars,
+  math, Mermaid, PlantUML and drag suites pass both local engines.
+- All five planned theme audits and integrations are complete. Phase 2 remains
+  open for remaining client features, full source-corpus rendering/fidelity and
+  complete-runtime phone timing. Phase 3 stays unimplemented. This acceptance
+  follow-up changes documentation only.

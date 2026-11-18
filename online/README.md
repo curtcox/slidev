@@ -79,20 +79,25 @@ No script, connection or frame permissions change. Custom remote fonts are not
 cached by the app for offline use. Unavailable fonts, invalid configurations and
 the unsupported coollabs provider produce visible notices with local/system
 fallbacks. Each font-loading stage has a five-second deadline.
-See [fonts and privacy](docs/fonts.html). The complete runtime fidelity and phone-performance gates remain open.
+See [fonts and privacy](docs/fonts.html). The complete runtime fidelity and
+phone-performance gates remain open.
 See [bundled themes](docs/themes.html).
 The offline browser suite also renders a seriph fact slide after a fully
 offline reload, checking that theme-specific styles survive cached delivery.
 
-The runtime fidelity harness compares the actual staged bundle through the
-editor bridge with `slidev build` on a separate origin. Nineteen deterministic
-fixtures in both themes plus two font fixtures cover the six theme layouts, Markdown, columns, scoped
-styles, code, built-in components, TOC, icons, lazy syntax languages, math, Mermaid flowcharts/sequence diagrams, positioned drag elements and initial click states. The font fixtures supply identical
-pinned bytes to the CLI and online runtime and require loaded fonts in both. Reports and CLI/online/diff PNGs go to
-`runtime/.cache/fidelity/`, with screenshots separated by browser. Use `--skip-reference-build` only when the fixtures
-and CLI are unchanged; `BROWSER=webkit` selects WebKit. CI uploads a nonblocking
-Chromium report while platform/font coverage stabilizes. This is a subset of
-the eventual full example-corpus gate and does not measure phone performance.
+The runtime fidelity harness compares the staged bundle through the editor
+bridge with `slidev build` on a separate origin. Its 76 cases cover nineteen
+fixtures in default and seriph, all 33 additional theme layouts and five font
+fixtures. Coverage includes Markdown, columns, scoped styles, code, built-in
+components, TOC, icons, lazy syntax languages, math, Mermaid, positioned drag
+elements, named slots, theme artwork and initial click states. Font fixtures
+supply identical pinned bytes to both clients and require the used webfonts to
+load; Apple Basic retains its local/system font stack. Color-only image props
+disable CLI image preloading. Reports and CLI/online/diff PNGs go to
+`runtime/.cache/fidelity/`, separated by browser. Use `--skip-reference-build`
+only when the fixtures and CLI are unchanged; `BROWSER=webkit` selects WebKit.
+CI uploads a nonblocking Chromium report while platform/font coverage
+stabilizes. Full example-corpus fidelity and phone performance remain open.
 
 The bundled navigation adapter provides slide aliases, counters, links, the
 upstream table of contents, slide-enter/leave hooks, conditional rendering,
