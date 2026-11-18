@@ -74,6 +74,11 @@ async function main() {
           }
           if (name === 'shibainu')
             assert.equal(await slide.locator('svg.layout-background').count(), 1, 'Every Shibainu layout must render its artwork')
+          if (name === 'apple-basic' && layouts[index] === 'intro-image-right') {
+            const imageSlide = await slide.boundingBox()
+            const text = await slide.locator('.slidev-layout').boundingBox()
+            assert.ok(text.y > imageSlide.y && text.height < imageSlide.height, 'Apple Basic must keep its vertically centered text layout without layouts-base.css')
+          }
           if (name === 'default' || name === 'seriph') {
             const background = await slide.locator('.slidev-layout').evaluate(element => getComputedStyle(element).backgroundImage)
             assert.equal(background, 'none', 'Other bundled theme styles must not leak into this theme')

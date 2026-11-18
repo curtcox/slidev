@@ -15,6 +15,7 @@ import seriphPrism from '@slidev/theme-seriph/styles/prism.css?inline'
 import shibainuMeta from '@slidev/theme-shibainu/package.json'
 import shibainuCss from '@slidev/theme-shibainu/styles/layouts.css?raw'
 import shibainuPrism from '@slidev/theme-shibainu/styles/prism.css?inline'
+import baseCss from '../../../packages/client/styles/layouts-base.css?raw'
 
 // These packages are pinned and audited at build time. No deck can request an
 // npm download or add a new import to the trusted runtime graph.
@@ -35,12 +36,12 @@ const themes = {
   'default': {
     meta: defaultMeta.slidev,
     layouts: themeLayouts('default'),
-    css: [defaultCss, defaultPrism],
+    css: [baseCss, defaultCss, defaultPrism],
   },
   'seriph': {
     meta: seriphMeta.slidev,
     layouts: themeLayouts('seriph'),
-    css: [seriphCss, seriphPrism],
+    css: [baseCss, seriphCss, seriphPrism],
   },
   'apple-basic': {
     meta: appleMeta.slidev,
@@ -50,12 +51,12 @@ const themes = {
   'bricks': {
     meta: bricksMeta.slidev,
     layouts: themeLayouts('bricks'),
-    css: [bricksCss, bricksPrism],
+    css: [baseCss, bricksCss, bricksPrism],
   },
   'shibainu': {
     meta: shibainuMeta.slidev,
     layouts: themeLayouts('shibainu'),
-    css: [shibainuCss, shibainuPrism],
+    css: [baseCss, shibainuCss, shibainuPrism],
   },
 }
 

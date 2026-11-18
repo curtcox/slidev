@@ -50,7 +50,7 @@ $$
 async function main() {
   await mkdir(cache, { recursive: true })
   const docs: Record<string, string> = {}
-  type Fixture = typeof fixtures[number] & { expectedFonts?: string[] }
+  type Fixture = typeof fixtures[number] & { expectedFonts?: string[], frontmatter?: Record<string, unknown> }
   const variants = ['default', 'seriph'].flatMap(theme => [
     {
       name: theme,
@@ -75,6 +75,86 @@ async function main() {
       ] as Fixture[],
     },
   ])
+  // Every additional theme layout, including its local artwork and named slots.
+  const additionalThemes = {
+    'apple-basic': [
+      '3-images',
+      'bullets',
+      'fact',
+      'image-right',
+      'intro-image-right',
+      'intro-image',
+      'intro',
+      'quote',
+      'section',
+      'statement',
+    ],
+    'bricks': [
+      'blank',
+      'cover',
+      'default',
+      'fact',
+      'intro',
+      'items',
+      'quote',
+      'section',
+      'statement',
+    ],
+    'shibainu': [
+      'center',
+      'cover',
+      'default-2',
+      'default-3',
+      'default-4',
+      'default-5',
+      'default-6',
+      'default-7',
+      'default',
+      'quote',
+      'right',
+      'section-2',
+      'section-3',
+      'section',
+    ],
+  }
+  for (const [theme, layouts] of Object.entries(additionalThemes)) {
+    variants.push({
+      name: theme,
+      theme,
+      themeFonts: false,
+      cases: layouts.map(layout => ({
+        layout,
+        frontmatter: {
+          image: '#e2e8f0',
+          imageLeft: '#fee2e2',
+          imageTopRight: '#dcfce7',
+          imageBottomRight: '#dbeafe',
+          cols: 2,
+        },
+        content: `# A theme layout\n\nText and **emphasis**.\n\n- First\n- Second\n\n::left::\n\n${theme === 'bricks'
+          ? '<Polygon1 />'
+          : 'A left slot.'}\n\n::right::\n\n## Right slot\n\n::items::\n\n<div>One</div><div>Two</div>`,
+      })) as Fixture[],
+    })
+    variants.push({
+      name: `${theme}-fonts`,
+      theme,
+      themeFonts: true,
+      cases: [
+        {
+          layout: theme === 'apple-basic'
+            ? 'intro'
+            : 'cover',
+          expectedFonts: theme === 'bricks'
+            ? ['Signika Negative', 'Sigmar One', 'Fira Code']
+            : theme === 'shibainu'
+              ? ['Titillium Web', 'Fira Code']
+              : [],
+          content: '# Theme fonts\n\n<div class="font-sans">Normal, <strong>bold</strong>, <em>italic</em>. Āā.</div>\n\n```js\nconst answer = 42\n```',
+        },
+      ] as Fixture[],
+    })
+  }
   for (const { name, theme, cases, themeFonts } of variants) {
     const deck = cases.map((fixture, index) => `---\n${YAML.stringify({
       ...(index === 0
@@ -96,6 +176,8 @@ async function main() {
             presenter: false,
             browserExporter: false,
             wakeLock: false,
+            // Color-only image props are backgrounds, not preload URLs.
+            preloadImages: false,
             monaco: false,
             twoslash: false,
             codeCopy: false,
@@ -103,6 +185,7 @@ async function main() {
             colorSchema: 'light',
           }
         : {}),
+      ...fixture.frontmatter,
       layout: fixture.layout,
     })}---\n\n${fixture.content}\n`).join('\n')
     docs[name] = deck
@@ -291,7 +374,7 @@ async function main() {
     const css = await readFile(resolve(root, 'online/dist/runtime/sandbox.css'))
     const report = {
       browser: `${engine} ${browser.version()}`,
-      scope: `Actual staged runtime and editor bridge; ${fixtures.length} deterministic fixtures in each official theme plus two theme-font fixtures. Full example corpus and phone timing remain open.`,
+      scope: `Actual staged runtime and editor bridge; ${fixtures.length} deterministic fixtures in default/seriph, every added theme layout and five theme-font fixtures. Full example corpus and phone timing remain open.`,
       adaptations: 'Local Arial/Georgia/monospace fonts in the original fixtures; pinned font bytes supplied identically to both clients in theme-font fixtures; fixed cover background, mocked PlantUML SVG after explicit consent, no external network, disabled nonvisual services, initial click position.',
       tolerance: { channelDelta: 8, changedPixelRatio: 0.001 },
       fixtures: Object.fromEntries(Object.entries(docs).map(([name, src]) => [
