@@ -1346,6 +1346,12 @@ records the measured results. Publication/tag approvals remain outstanding.
 - The gate is wired into all three CI browser jobs. CI and deployment remain
   pending. All **23** online units, static/vendor/offline integrity, lint and
   actionlint pass. Existing runtime, isolation, PlantUML consent and offline
-  suites pass Chromium and WebKit. Phase 2 remains open for the remaining client features, full
+  suites pass Chromium and WebKit. Phase 2 remains open for the remaining
+  client features, full
   source-corpus visual fidelity and complete-runtime phone timing. Phase 3
   stays unimplemented.
+- Implementation `f6075e72` is pushed on `main`. A harness follow-up accepts
+  a deployment URL and hashes its served runtime, rather than assuming local
+  bytes. Both local engines pass this mode and decode all **18** remote image
+  elements. Root lint passes. The new CI unit and independent publication jobs
+  pass. Browser, visual and deployment acceptance remain pending.

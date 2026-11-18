@@ -46,18 +46,27 @@ async function main() {
   const engine = process.env.BROWSER || 'chromium'
   const browserType = ({ chromium, firefox, webkit })[engine as 'chromium' | 'firefox' | 'webkit']
   assert.ok(browserType, `Unknown browser: ${engine}`)
-  const { server, url } = await serve({
-    root: resolve(root, 'online/dist'),
-    port: 0,
-  })
+  const local = process.argv[2]
+    ? undefined
+    : await serve({
+        root: resolve(root, 'online/dist'),
+        port: 0,
+      })
+  const url = process.argv[2] || local!.url
   let browser: Awaited<ReturnType<typeof chromium.launch>> | undefined
   const errors: string[] = []
   const results: Record<string, unknown>[] = []
   const sources: Record<string, unknown> = {}
   const plantUmlRequests: string[] = []
+  let runtimeSha256: string | undefined
+  let mockedImages = 0
   let passed = false
   try {
+    const runtime = await fetch(new URL('runtime/sandbox.js', url))
+    assert.ok(runtime.ok, `Runtime request failed: ${runtime.status}`)
+    runtimeSha256 = createHash('sha256').update(new Uint8Array(await runtime.arrayBuffer())).digest('hex')
     browser = await browserType.launch()
+    process.stdout.write(`${engine} ${browser.version()}: ${url} runtime SHA-256 ${runtimeSha256}\n`)
     const page = await browser.newPage({
       viewport: { width: 1100, height: 900 },
     })
@@ -70,6 +79,7 @@ async function main() {
       if (target.origin === new URL(url).origin || ['blob:', 'data:'].includes(target.protocol))
         return route.continue()
       if (request.resourceType() === 'image') {
+        mockedImages++
         assert.equal(request.headers().referer, undefined, 'Remote images must not receive the editor URL')
         return route.fulfill({
           contentType: 'image/svg+xml',
@@ -217,6 +227,7 @@ async function main() {
           monaco,
           diagrams,
           plantUml,
+          images: await images.count(),
           finalClick: final.click,
         })
         process.stdout.write(`${label}: mounted; final click ${final.click}; ${notices.length} documented notices\n`)
@@ -236,9 +247,11 @@ async function main() {
   finally {
     const report = `${JSON.stringify({
       passed,
+      baseUrl: url,
       browser: `${engine} ${browser?.version() ?? 'not launched'}`,
       scope: 'Unchanged starter, composable-vue and all online example sources, through the staged bridge in opaque frames; initial/final/reset clicks, lazy diagrams, math, highlighting, explicit unsupported features and error recovery. External images are mocked and other external traffic blocked. No visual comparison or phone timing.',
-      runtimeSha256: createHash('sha256').update(await readFile(resolve(root, 'online/dist/runtime/sandbox.js'))).digest('hex'),
+      runtimeSha256,
+      mockedImages,
       sources,
       results,
       errors,
@@ -252,7 +265,8 @@ async function main() {
       await writeFile(resolve(artifacts, `corpus-${engine}.json`), report)
     }
     await browser?.close()
-    await new Promise<void>(resolve => server.close(() => resolve()))
+    if (local)
+      await new Promise<void>(resolve => local.server.close(() => resolve()))
   }
 }
 

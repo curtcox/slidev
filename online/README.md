@@ -64,7 +64,14 @@ Other external traffic is blocked. Remote image requests send no referrer,
 and PlantUML receives no request without consent. Reports go to
 `runtime/.cache/corpus-<browser>.json`. CI runs the gate in all three engines
 and attaches a report to its test artifact when the gate fails. This gate does
-not compare screenshots.
+not compare screenshots. To test a deployment, pass its URL:
+
+```sh
+node runtime/tests/corpus.mjs https://curtcox.github.io/slidev/
+```
+
+The report hashes the runtime bytes served by that URL. It also records the
+number of decoded image elements and mock image requests.
 
 The runtime browser suite exercises author scripts, style isolation, slots,
 click navigation, hostile-deck isolation, document replacement, built-ins,
