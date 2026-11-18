@@ -797,9 +797,16 @@ records the measured results. Publication/tag approvals remain outstanding.
   [TOC deployment](https://github.com/curtcox/slidev/actions/runs/44348533963) and
   [motion deployment](https://github.com/curtcox/slidev/actions/runs/44349402402)
   passed their actual test/publication/deploy gates. The recovery site's release
-  metadata was verified at `3eb021f9` with `dirty:false`; final compiler-fix run
-  [44351136683](https://github.com/curtcox/slidev/actions/runs/44351136683) was still
-  in progress at this checkpoint.
+  metadata was initially verified at `3eb021f9` with `dirty:false`.
+- Final compiler-fix [deployment 44351136683](https://github.com/curtcox/slidev/actions/runs/44351136683)
+  subsequently passed unit, Chromium/Firefox/WebKit, publication verification,
+  visual report and deployment. The downloaded CI report has 24 exact matches,
+  no errors, and the same runtime hash/payload as the local reports above.
+  Live recovery metadata reports `ef8e1ecb` with `dirty:false`. Actual live
+  Chromium and WebKit both pass the complete runtime integration suite and
+  welcome/sandbox-isolation/offline-reload suite. The later evidence-layout
+  commit `7cf6a826` changes screenshot paths and documentation; its workflow
+  was still running at this follow-up checkpoint.
 - Phase 2 remains open for icons, additional/lazy grammars and diagrams/fonts,
   drag writeback, additional theme audits, remaining client features, full
   source-corpus rendering/fidelity, and complete-runtime phone performance.
