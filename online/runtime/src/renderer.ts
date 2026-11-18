@@ -46,6 +46,8 @@ import { configureDragUpdates, flushDragUpdates } from './drag'
 import { resolveIcon } from './icons'
 import { loadMathStyles } from './math'
 import { createNavigation, useNav } from './navigation'
+import { plantUmlPermission } from './plant-uml'
+import PlantUml from './PlantUml.vue'
 import RouterLink from './RouterLink.vue'
 import commonCss from './runtime.css?inline'
 import { isDark } from './shims/dark'
@@ -67,6 +69,8 @@ const components = {
   LightOrDark,
   Link,
   Mermaid,
+  PlantUml,
+  OnlinePlantUml: PlantUml,
   RenderWhen,
   RouterLink,
   ShikiMagicMove,
@@ -106,6 +110,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
   const position = Vue.ref(1)
   const navigation = createNavigation(position, clicks, goto, next, prev)
   const scale = Vue.shallowRef(1)
+  const plantUmlAllowed = Vue.ref(false)
   let generation = 0
   let stylesheet: HTMLStyleElement | undefined
   let container: HTMLDivElement | undefined
@@ -326,6 +331,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
       ]),
     })
     app.provide(constants.injectionSlideElement, slideElement)
+    app.provide(plantUmlPermission, plantUmlAllowed)
     app.provide(constants.injectionSlideScale, Vue.computed(() => scale.value))
     app.use(createVDragDirective())
     app.use(createVClickDirectives())
@@ -408,6 +414,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
     resize,
     async render(input: RenderInput) {
       generation++
+      plantUmlAllowed.value = false
       configureDragUpdates(patch => report({ type: 'drag', patch }))
       app?.unmount()
       app = undefined

@@ -175,7 +175,7 @@ async function main() {
             expectedNotice = 'Monaco editing and execution are not available yet'
           }
           else if (/^```plantuml\b/m.test(original.content)) {
-            expectedNotice = 'PlantUML is off'
+            expectedNotice = '<OnlinePlantUml'
           }
           else {
             for (const [, lang, info] of original.content.matchAll(/^`{3,}([^\s`]+)([^\n]*)/gm)) {
@@ -232,7 +232,7 @@ async function main() {
       ...negative,
       ...corpusProbes,
       { src: '# Static\n\n```js {monaco-run}\nconsole.log(1)\n```', expectedNotice: 'Monaco editing and execution are not available yet' },
-      { src: '# Diagram\n\n```plantuml\n@startuml\nA -> B\n@enduml\n```', expectedNotice: 'PlantUML is off', noPlantUml: true },
+      { src: '# Diagram\n\n```plantuml\n@startuml\nA -> B\n@enduml\n```', expectedNotice: '<OnlinePlantUml', noPlantUml: true },
       { src: '# Diagram\n\n```plantuml\n@startuml\nA -> B\n@enduml\n```', plantUmlAllowed: true, expectedNotice: '<PlantUml' },
       { src: '---\ntwoslash: true\n---\n# Type information\n\n```ts\nconst count = 1\n```', expectedNotice: 'Twoslash is unavailable' },
       { src: '# Unknown\n\n```not-bundled\nplain\n```', expectedNotice: 'Language not-bundled is unavailable; showing plain text' },

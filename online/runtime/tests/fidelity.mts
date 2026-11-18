@@ -15,6 +15,7 @@ import { serve } from '../../vendor/fragment-kit-v0.4.4/tools/serve.mjs'
 const root = fileURLToPath(new URL('../../../', import.meta.url))
 const cache = resolve(root, 'online/runtime/.cache/fidelity')
 const fixtures = [
+  { layout: 'default', expectedPlantUml: true, content: '# Remote diagram\n\n```plantuml {scale: 0.7, alt: \'Conversation\'}\n@startuml\nAlice -> Bob: Hello\n@enduml\n```\n\nA caption below the diagram.' },
   { layout: 'default', expectedDragElements: 3, content: '# Positioned elements\n\n<v-drag pos="100,130,180,80" class="bg-blue-100">A draggable box</v-drag>\n\n<div v-drag="[450,200,200,70]" class="bg-red-100">A directive</div>\n\n<v-drag-arrow pos="150,340,300,40" color="red" />' },
   { layout: 'default', expectedDiagrams: 1, content: '# A diagram\n\n```mermaid\ngraph LR\n A[Author] --> B[Preview] --> C[Present]\n```' },
   { layout: 'default', expectedDiagrams: 1, content: '# A conversation\n\n```mermaid\nsequenceDiagram\n Alice->>Bob: Hello\n Bob-->>Alice: Hi\n```' },
@@ -108,14 +109,22 @@ async function main() {
     browser = await browserType.launch()
     const referencePage = await browser.newPage({
       viewport: { width: 980, height: 552 },
+      serviceWorkers: 'block',
     })
     const onlinePage = await browser.newPage({
       viewport: { width: 980, height: 552 },
+      serviceWorkers: 'block',
     })
     const errors: string[] = []
     onlinePage.on('pageerror', error => errors.push(String(error)))
-    await referencePage.route('https://**', route => route.abort())
-    await onlinePage.route('https://**', route => route.abort())
+    for (const page of [referencePage, onlinePage]) {
+      await page.context().route('**/*', (route) => {
+        const url = new URL(route.request().url())
+        if (url.href.startsWith('https://www.plantuml.com/plantuml/svg/'))
+          return route.fulfill({ contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="80"><text x="10" y="30">Alice to Bob</text></svg>' })
+        return url.hostname === '127.0.0.1' ? route.continue() : route.abort()
+      })
+    }
     await onlinePage.goto(online.url)
     await onlinePage.waitForSelector('body[data-ready="true"]')
     await onlinePage.addStyleTag({ content: 'iframe { width: 100%; height: 100%; border: 0; display: block; }' })
@@ -156,6 +165,22 @@ async function main() {
         assert.equal(await frame.evaluate(() => globalThis.origin), 'null')
         assert.equal(await onlinePage.locator('iframe').getAttribute('sandbox'), 'allow-scripts')
         assert.equal(await frame.locator('#online-notices').count(), 0)
+        if (fixtures[index].expectedPlantUml) {
+          await actualSlide.getByRole('button', { name: 'Enable PlantUML for this deck' }).click()
+          for (const slide of [actualSlide, referenceSlide]) {
+            const image = slide.getByAltText('Conversation')
+            await image.evaluate(async (element) => {
+              const image = element as HTMLImageElement
+              if (!image.complete) {
+                await new Promise<void>((resolve, reject) => {
+                  image.addEventListener('load', () => resolve(), { once: true })
+                  image.addEventListener('error', () => reject(new Error('Mock diagram failed to load')), { once: true })
+                })
+              }
+            })
+            assert.equal(await image.evaluate(element => (element as HTMLImageElement).naturalWidth), 240, 'Both renderers must receive the mocked SVG')
+          }
+        }
         if (fixtures[index].expectedDragElements) {
           for (const slide of [actualSlide, referenceSlide])
             assert.equal(await slide.locator('[data-drag-id]').count(), fixtures[index].expectedDragElements)
@@ -213,7 +238,7 @@ async function main() {
     const report = {
       browser: `${engine} ${browser.version()}`,
       scope: `Actual staged runtime and editor bridge; ${fixtures.length} deterministic fixtures in each official theme. Full example corpus and phone timing remain open.`,
-      adaptations: 'Local Arial/Georgia/monospace fonts, fixed cover background, no remote assets, disabled nonvisual services, initial click position.',
+      adaptations: 'Local Arial/Georgia/monospace fonts, fixed cover background, mocked PlantUML SVG after explicit consent, no external network, disabled nonvisual services, initial click position.',
       tolerance: { channelDelta: 8, changedPixelRatio: 0.001 },
       fixtures: Object.fromEntries(Object.entries(docs).map(([name, src]) => [
         name,

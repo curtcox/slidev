@@ -7,5 +7,6 @@ export default async function guardedPlantUml(ctx: CodeblockTransformContext) {
     return
   if ((ctx.options as any).onlinePlantUmlAllowed === true)
     return plantUml(ctx)
-  return `<p class="online-notice" role="status">PlantUML is off. Enable it for this deck to send diagram text to plantuml.com.</p>\n${await wrap({ ...ctx, info: 'text' })}`
+  const diagram = (await plantUml(ctx))!.replace('<PlantUml', '<OnlinePlantUml').replace(/\s*\/>$/, '>')
+  return `${diagram}\n${await wrap({ ...ctx, info: 'text' })}\n</OnlinePlantUml>`
 }
