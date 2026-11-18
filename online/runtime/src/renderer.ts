@@ -110,15 +110,23 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
   const clicks = Vue.shallowRef<ClicksContext>()
   const position = Vue.ref(1)
   const navigation = createNavigation(position, clicks, goto, next, prev)
+  const transition = Vue.computed(() => {
+    const selected = navigation.currentTransition.value
+    return selected?.name === 'view-transition'
+      ? { ...selected, name: 'fade' }
+      : selected
+  })
   const scale = Vue.shallowRef(1)
   const plantUmlAllowed = Vue.ref(false)
   let generation = 0
-  let stylesheet: HTMLStyleElement | undefined
   let container: HTMLDivElement | undefined
+  const view = Vue.shallowRef<{ key: number, route: SlideRoute, clicksContext: ClicksContext }>()
+  const stylesheets = new Map<number, HTMLStyleElement>()
   let urls: string[] = []
   const iconComponents = new Map<string, Component>()
   const iconImportWarnings = new Map<string, string>()
   let titleWarnings: string[] = []
+  let currentWarnings: string[] = []
   let fonts: Awaited<ReturnType<typeof loadFonts>> | undefined
   const registryKey = `__slidevonline_${crypto.randomUUID().replaceAll('-', '')}`
   const registry: Record<string, Record<string, unknown>> = {}
@@ -234,8 +242,18 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
     flushDragUpdates()
     const version = ++generation
     const index = Math.max(0, Math.min(compiler.slides.length - 1, slide - 1))
+    // Updating click position must preserve author state and must not start a
+    // slide transition or re-evaluate the slide's script.
+    if (app && view.value?.route.no === index + 1 && clicks.value) {
+      navigation.clicksDirection.value = Math.sign(click - clicks.value.current)
+      clicks.value.current = click
+      await Vue.nextTick()
+      sendPosition()
+      return
+    }
     const source = compiler.slides[index]
     const warnings: string[] = [...titleWarnings]
+    currentWarnings = warnings
     const requestedLayout = source.frontmatter.layout || (index === 0
       ? 'cover'
       : 'default')
@@ -306,63 +324,32 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
       return
     navigation.navDirection.value = Math.sign(index + 1 - position.value)
     position.value = index + 1
+    if (navigation.currentTransition.value?.name === 'view-transition')
+      warnings.push('Native view transitions are not available online; using fade')
     // Let slide-leave watchers observe the new position before their owning
     // component is unmounted and its effect scope is disposed.
     await Vue.nextTick()
-    app?.unmount()
-    container?.remove()
-    stylesheet?.remove()
-    stylesheet = document.createElement('style')
-    stylesheet.textContent = styles.join('\n')
-    document.head.insertBefore(stylesheet, document.querySelector('#online-document-css'))
-    container = document.createElement('div')
-    container.id = 'app'
-    container.style.width = `${configs.canvasWidth}px`
-    container.style.height = `${Math.ceil(configs.canvasWidth / configs.aspectRatio)}px`
-    document.body.prepend(container)
+    if (generation !== version)
+      return
     const route = slides.value[index]
     route.component = Vue.markRaw(component)
     clicks.value = createFixedClicks(route, click)
-    const slideElement = Vue.shallowRef<HTMLElement | null>(null)
-    app = Vue.createApp({
-      render: () => Vue.h('div', {
-        ref: slideElement,
-        style: { width: '100%', height: '100%' },
-      }, [
-        Vue.h(SlideWrapper, { route, clicksContext: clicks.value! }),
-        activeDragElement.value
-          ? Vue.h(DragControl, { data: activeDragElement.value })
-          : null,
-      ]),
-    })
-    app.provide(constants.injectionSlideElement, slideElement)
-    app.provide(plantUmlPermission, plantUmlAllowed)
-    app.provide(constants.injectionSlideScale, Vue.computed(() => scale.value))
-    app.use(createVDragDirective())
-    app.use(createVClickDirectives())
-    app.use(createVMarkDirective())
-    app.use(createVMotionDirectives())
-    for (const [name, component] of Object.entries(components))
-      app.component(name, component)
-    for (const [name, component] of Object.entries(compiler.theme.components))
-      app.component(name, component)
-    for (const [name, component] of iconComponents)
-      app.component(name, component)
-    app.provide(constants.injectionSlidevContext, Vue.reactive({
-      configs,
-      nav: navigation,
-      themeConfigs: Vue.computed(() => configs.themeConfig),
-    }) as any)
-    app.config.warnHandler = (warning) => {
-      if (/Failed to resolve (?:component|directive)/.test(warning))
-        warnings.push(warning.split('\n')[0])
+    const stylesheet = document.createElement('style')
+    stylesheet.dataset.onlineSlide = String(route.no)
+    stylesheet.textContent = styles.join('\n')
+    document.head.insertBefore(stylesheet, document.querySelector('#online-document-css'))
+    stylesheets.set(version, stylesheet)
+    if (app) {
+      for (const [name, component] of iconComponents)
+        app.component(name, component)
     }
-    app.config.errorHandler = error => report({
-      type: 'error',
-      slide: position.value,
-      message: String(error).slice(0, 2000),
-    })
-    app.mount(container)
+    view.value = {
+      key: version,
+      route,
+      clicksContext: clicks.value,
+    }
+    if (!app)
+      mount()
     await Vue.nextTick()
     if (fonts)
       warnings.push(...await fonts.ready())
@@ -379,6 +366,68 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
     resize()
     sendPosition()
     return warnings
+  }
+
+  function mount() {
+    container = document.createElement('div')
+    container.id = 'app'
+    container.style.width = `${configs.canvasWidth}px`
+    container.style.height = `${Math.ceil(configs.canvasWidth / configs.aspectRatio)}px`
+    document.body.prepend(container)
+    const slideElement = Vue.shallowRef<HTMLElement | null>(null)
+    app = Vue.createApp({
+      render: () => Vue.h('div', {
+        ref: slideElement,
+        style: { width: '100%', height: '100%' },
+      }, [
+        Vue.h(Vue.Transition, {
+          css: Boolean(transition.value && transition.value.name !== 'none'),
+          ...transition.value,
+          onAfterLeave(element: Element) {
+            // Vue unmounts components before their leaving DOM is removed.
+            // Keep scoped styles alive until the animation actually finishes.
+            const key = Number((element as HTMLElement).dataset.onlineView)
+            stylesheets.get(key)?.remove()
+            stylesheets.delete(key)
+          },
+        }, {
+          default: () => view.value
+            ? Vue.h(SlideWrapper, { ...view.value, 'data-online-view': view.value.key })
+            : null,
+        }),
+        activeDragElement.value
+          ? Vue.h(DragControl, { data: activeDragElement.value })
+          : null,
+      ]),
+    })
+    app.provide(constants.injectionSlideElement, slideElement)
+    app.provide(plantUmlPermission, plantUmlAllowed)
+    app.provide(constants.injectionSlideScale, Vue.computed(() => scale.value))
+    app.use(createVDragDirective())
+    app.use(createVClickDirectives())
+    app.use(createVMarkDirective())
+    app.use(createVMotionDirectives())
+    for (const [name, component] of Object.entries(components))
+      app.component(name, component)
+    for (const [name, component] of Object.entries(compiler!.theme.components))
+      app.component(name, component)
+    for (const [name, component] of iconComponents)
+      app.component(name, component)
+    app.provide(constants.injectionSlidevContext, Vue.reactive({
+      configs,
+      nav: navigation,
+      themeConfigs: Vue.computed(() => configs.themeConfig),
+    }) as any)
+    app.config.warnHandler = (warning) => {
+      if (/Failed to resolve (?:component|directive)/.test(warning))
+        currentWarnings.push(warning.split('\n')[0])
+    }
+    app.config.errorHandler = error => report({
+      type: 'error',
+      slide: position.value,
+      message: String(error).slice(0, 2000),
+    })
+    app.mount(container)
   }
 
   async function next() {
@@ -427,6 +476,11 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
       configureDragUpdates(patch => report({ type: 'drag', patch }))
       app?.unmount()
       app = undefined
+      container?.remove()
+      view.value = undefined
+      for (const stylesheet of stylesheets.values())
+        stylesheet.remove()
+      stylesheets.clear()
       compiler = await createDeckCompiler(input.src)
       Object.assign(configs, compiler.config)
       document.documentElement.dataset.onlineTheme = compiler.theme.name

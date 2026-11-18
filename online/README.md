@@ -23,6 +23,7 @@ npm run check
 npm run serve
 node tests/browser/all.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/runtime.cjs http://127.0.0.1:8000/ chromium
+node tests/browser/transitions.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/icons.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/languages.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/themes.cjs http://127.0.0.1:8000/ chromium
@@ -129,6 +130,15 @@ for Vite aliases; both runtime builds and static checks scan all client TS/Vue
 imports and fail if a new `#slidev/*` module lacks an implementation. Empty setup
 lists reflect the online format's lack of filesystem setup directories; Monaco
 remains a static-code fallback until Phase 7.
+
+Slide changes use the upstream CSS transitions and direction resolver. Deck and
+per-slide configuration support fade, fade-out, directional slides, paired names,
+object options and custom transitions from `style.css`. An explicit `none`
+disables animation. The first render does not animate. Departing slides retain
+their styles until their animation ends. Click changes on the current slide
+preserve author state and do not rerun its script. A new document still gets a
+fresh opaque frame. Native `view-transition` requests show a visible notice and
+use fade. Native view transitions remain unimplemented.
 
 Icons from carbon, ph, mdi, logos, simple-icons, twemoji and svg-spinners are
 bundled as separate JSON assets from pinned `@iconify/json` 2.2.553. Collections

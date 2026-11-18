@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — all five themes and earlier integrations deployed; 141 exact SFC matches + 14 corpus fallbacks, 52-slide corpus DOM gate and 76 visual cases pass CI; HTTPS image fix deployed and live corpus passes Chromium/WebKit; remaining features/full source-corpus visual fidelity/phone gates open |
+| 2 | Slidev runtime | IN PROGRESS — all five themes and HTTPS images deployed; 141 exact SFC matches + 14 corpus fallbacks, 52-slide corpus DOM gate and 76 visual cases pass CI; CSS transitions implemented, acceptance pending; remaining features/full source-corpus visual fidelity/phone gates open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -1393,3 +1393,28 @@ records the measured results. Publication/tag approvals remain outstanding.
 - Phase 2 remains open for remaining client features, full source-corpus visual
   fidelity and complete-runtime phone timing. Phase 3 stays unimplemented.
   This final acceptance follow-up changes only the plan and its index.
+
+### Phase 2 CSS slide transitions (2026-11-18)
+
+- Navigation previously remounted the Vue app and omitted the upstream
+  transition stylesheet. Slide changes now keep the app mounted and use
+  Slidev's direction resolver with Vue transitions. Deck and per-slide
+  configuration support fade, fade-out, directional slides, paired names,
+  object options and custom CSS. An explicit `none` disables animation.
+  The first render does not animate. Native `view-transition` requests
+  show a visible notice and fall back to fade. Native view transitions
+  remain unimplemented.
+- Styles remain attached until the departing DOM finishes its animation.
+  Rapid reversals remove old nodes and their styles. Click changes preserve
+  author state and do not rerun the slide's script. Document replacement
+  still destroys the old opaque frame. Icons discovered during navigation
+  register with the persistent app before the new slide mounts.
+- Added a browser regression to all three CI engine jobs. It checks actual
+  computed animation effects, forward/backward names, overrides, style lifetime,
+  click state, rapid reversals, frame replacement, fallback notices and offline
+  rendering. Existing runtime assertions now target the active slide where
+  departing and incoming slides briefly coexist.
+- Local browser acceptance, final visual reports, CI and deployment are being
+  verified. Phase 2 remains open for native view transitions, other remaining
+  client features, full source-corpus visual fidelity and phone performance.
+  Phase 3 remains unimplemented.

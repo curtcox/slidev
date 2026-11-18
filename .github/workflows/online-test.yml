@@ -34,6 +34,7 @@ jobs:
       browser-command: |
         node tests/browser/all.cjs http://127.0.0.1:8000/ "$BROWSER"
         node tests/browser/runtime.cjs http://127.0.0.1:8000/ "$BROWSER"
+        node tests/browser/transitions.cjs http://127.0.0.1:8000/ "$BROWSER"
         node tests/browser/icons.cjs http://127.0.0.1:8000/ "$BROWSER"
         node tests/browser/languages.cjs http://127.0.0.1:8000/ "$BROWSER"
         node tests/browser/math.cjs http://127.0.0.1:8000/ "$BROWSER"

@@ -192,7 +192,7 @@ Page <SlideCurrentNo /> of <SlidesTotal />
     assert.match(await frame.locator('.slidev-layout').textContent(), /Page 1 of 2/)
     await page.evaluate(() => window.runtimeTest.bridge.goto(2))
     await frame.getByRole('heading', { name: 'Last visible' }).waitFor()
-    assert.equal(await frame.locator('h1').evaluate(element => getComputedStyle(element).color), 'rgb(93, 131, 146)')
+    assert.equal(await frame.locator('.slidev-page[data-slidev-no="2"] h1').evaluate(element => getComputedStyle(element).color), 'rgb(93, 131, 146)')
 
     const codeGroup = '# Code groups\n\n<AutoFitText :min="20" :max="40" model-value="Fitted text" />\n\n<CodeGroup>\n\n```ts [first.ts]\nconst first = 1\n```\n\n```ts [second.ts]\nconst second = 2\n```\n\n</CodeGroup>'
     assert.deepEqual(await render(codeGroup), [])
@@ -264,8 +264,8 @@ hideInToc: true
     assert.equal(await frame.locator('.slidev-toc-list-level-2 a').textContent(), 'Child')
     await frame.getByRole('link', { name: 'Child', exact: true }).click()
     await frame.getByRole('heading', { name: 'Child', exact: true }).waitFor()
-    assert.equal(await frame.locator('.slidev-toc-item-active > a').textContent(), 'Child')
-    assert.equal(await frame.locator('.slidev-toc-item-parent-active > a').textContent(), 'Section A')
+    assert.equal(await frame.locator('.slidev-page[data-slidev-no="3"] .slidev-toc-item-active > a').textContent(), 'Child')
+    assert.equal(await frame.locator('.slidev-page[data-slidev-no="3"] .slidev-toc-item-parent-active > a').textContent(), 'Section A')
     assert.equal(await frame.locator('#online-notices').count(), 0)
 
     for (const theme of ['default', 'seriph', 'unavailable-theme']) {
@@ -277,13 +277,13 @@ hideInToc: true
       assert.equal(await frame.locator('.slidev-layout').evaluate(element => getComputedStyle(element).backgroundColor), 'rgb(226, 232, 240)')
       await page.evaluate(() => window.runtimeTest.bridge.goto(2))
       await frame.locator('.slidev-layout.section h1').waitFor()
-      assert.equal(await frame.locator('h1').evaluate(element => getComputedStyle(element).fontSize), '60px')
+      assert.equal(await frame.locator('.slidev-layout.section h1').evaluate(element => getComputedStyle(element).fontSize), '60px')
       await page.evaluate(() => window.runtimeTest.bridge.goto(3))
       await frame.locator('.slidev-layout.fact h1').waitFor()
-      assert.equal(await frame.locator('h1').evaluate(element => getComputedStyle(element).fontSize), '96px')
+      assert.equal(await frame.locator('.slidev-layout.fact h1').evaluate(element => getComputedStyle(element).fontSize), '96px')
       await page.evaluate(() => window.runtimeTest.bridge.goto(4))
       await frame.locator('.slidev-layout.default h1').waitFor()
-      assert.equal(await frame.locator('h1').evaluate(element => getComputedStyle(element).color), theme === 'seriph'
+      assert.equal(await frame.locator('.slidev-layout.default h1').evaluate(element => getComputedStyle(element).color), theme === 'seriph'
         ? 'rgb(93, 131, 146)'
         : 'rgb(0, 0, 0)')
       if (theme === 'unavailable-theme')
