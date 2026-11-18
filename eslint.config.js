@@ -43,7 +43,13 @@ export default antfu({
       'pnpm/json-enforce-catalog': [
         'error',
         {
-          ignores: ['@slidev/theme-default', '@slidev/theme-seriph'],
+          ignores: [
+            '@slidev/theme-default',
+            '@slidev/theme-seriph',
+            '@slidev/theme-apple-basic',
+            '@slidev/theme-bricks',
+            '@slidev/theme-shibainu',
+          ],
         },
       ],
     },

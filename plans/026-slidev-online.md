@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — offline theme fonts/custom Google fonts deployed after themes/icons/grammars/math/Mermaid, drag/writeback and PlantUML consent; 141 exact SFC matches + 14 corpus fallbacks in three CI engines; 40-case local fidelity exact in Chromium/WebKit and CI within tolerance; live font/isolation/offline checks pass both local engines; more theme audits, remaining features/full rendering/phone gates open |
+| 2 | Slidev runtime | IN PROGRESS — offline theme fonts/custom Google fonts deployed after themes/icons/grammars/math/Mermaid, drag/writeback and PlantUML consent; 141 exact SFC matches + 14 corpus fallbacks in three CI engines; 40-case local fidelity exact in Chromium/WebKit and CI within tolerance; live font/isolation/offline checks pass both local engines; all five planned themes now integrated locally with offline layouts/artwork/fonts; remaining features/full rendering/phone gates open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -1242,3 +1242,34 @@ records the measured results. Publication/tag approvals remain outstanding.
 - Phase 2 stays open for further theme audits, remaining client features,
   full source-corpus rendering/fidelity and complete-runtime phone timing.
   Phase 3 remains unimplemented. This follow-up changes only the plan and index.
+
+
+### Phase 2 remaining official themes (2026-11-18)
+
+- Added pinned `apple-basic` 0.25.1, `bricks` 0.25.0 and `shibainu` 0.25.0
+  after reviewing their published archives, MIT licenses, declared Slidev
+  `>=0.47.0` compatibility and source sizes. Their integrated sources total
+  **7,363**, **30,665** and **230,895** bytes respectively. None is dropped.
+  Builds enforce reviewed versions, layout/component/artwork counts and size
+  limits. The offline audit hashes each source file and preserves original
+  licenses. No published theme or vendor bytes are edited.
+- All **45** layouts across the five planned themes, the eleven Bricks polygon
+  components, ten Bricks SVG assets and fifteen Shibainu Vue assets are bundled.
+  A local Vite adapter gates global layout styles by active theme using a
+  zero-specificity selector. Static font utilities read the current deck's
+  font stacks. No theme CSS leaks into other decks. Theme components are
+  available only in their own theme.
+- Pinned Fontsource 5.3.0 packages add Signika Negative, Sigmar One and
+  Titillium Web with all selected weights, italics and Unicode subsets. The
+  font audit now covers **77** faces across seven families, preserving original
+  WOFF2 bytes and OFL-1.1 licenses. Apple Basic retains its local Helvetica Neue
+  preference and system fallbacks. Default themes need no font-service request.
+- Actual local Chromium and WebKit pass every theme layout, artwork delivery,
+  package-name aliases, color defaults, fonts, component visibility and a full
+  offline reload. Existing runtime/fonts/welcome/isolation and Chromium compiler
+  checks pass; all **23** online units and **396** repository tests pass, with
+  runtime/root builds, typechecks, lint and offline/vendor integrity checks.
+  Root tests required refreshing stale Turbo build artifacts after installation.
+- Expanded visual comparisons, CI and deployment are being verified. The
+  complete source-corpus fidelity and phone-performance gates remain open.
+  Phase 2 stays in progress and Phase 3 is still unimplemented.

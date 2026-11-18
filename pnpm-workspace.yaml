@@ -132,6 +132,9 @@ catalogs:
     '@fontsource-variable/nunito-sans': 5.3.0
     '@fontsource/pt-mono': 5.3.0
     '@fontsource/pt-serif': 5.3.0
+    '@fontsource/sigmar-one': 5.3.0
+    '@fontsource/signika-negative': 5.3.0
+    '@fontsource/titillium-web': 5.3.0
   prod:
     '@antfu/ni': ^30.6.0
     '@comark/markdown-it': ^0.4.0

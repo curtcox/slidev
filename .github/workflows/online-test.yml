@@ -38,6 +38,7 @@ jobs:
         node tests/browser/languages.cjs http://127.0.0.1:8000/ "$BROWSER"
         node tests/browser/math.cjs http://127.0.0.1:8000/ "$BROWSER"
         node tests/browser/fonts.cjs http://127.0.0.1:8000/ "$BROWSER"
+        node tests/browser/themes.cjs http://127.0.0.1:8000/ "$BROWSER"
         node tests/browser/diagrams.cjs http://127.0.0.1:8000/ "$BROWSER"
         node tests/browser/plant-uml.cjs http://127.0.0.1:8000/ "$BROWSER"
         node tests/browser/drag.cjs http://127.0.0.1:8000/ "$BROWSER"

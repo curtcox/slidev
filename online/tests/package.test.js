@@ -32,13 +32,26 @@ it('offline artifact covers the actual shipped runtime and SDK bytes', async () 
 it('ships reviewed, pinned themes and their unchanged licenses offline', async () => {
   const base = new URL('../dist/runtime/', import.meta.url)
   const audit = JSON.parse(await fs.readFile(new URL('theme-audit.json', base), 'utf8'))
-  assert.deepEqual(audit.map(theme => theme.name), ['default', 'seriph'])
+  assert.deepEqual(audit.map(theme => theme.name), [
+    'default',
+    'seriph',
+    'apple-basic',
+    'bricks',
+    'shibainu',
+  ])
   for (const theme of audit) {
-    assert.equal(theme.version, '0.25.0')
+    assert.equal(theme.version, theme.name === 'apple-basic'
+      ? '0.25.1'
+      : '0.25.0')
     assert.equal(theme.license, 'MIT')
     const upstream = await fs.readFile(new URL(`../../node_modules/@slidev/theme-${theme.name}/LICENSE`, import.meta.url))
     assert.deepEqual(await fs.readFile(new URL(theme.licenseFile, base)), upstream)
     assert.equal(createHash('sha256').update(upstream).digest('hex'), theme.licenseSha256)
+    for (const source of theme.sources) {
+      const bytes = await fs.readFile(new URL(`../../node_modules/@slidev/theme-${theme.name}/${source.file}`, import.meta.url))
+      assert.equal(bytes.length, source.bytes)
+      assert.equal(createHash('sha256').update(bytes).digest('hex'), source.sha256)
+    }
   }
 })
 
@@ -133,6 +146,9 @@ it('ships all theme font subsets with unchanged bytes, licenses and offline hash
     'Fira Code',
     'PT Serif',
     'PT Mono',
+    'Signika Negative',
+    'Sigmar One',
+    'Titillium Web',
   ])
   const scope = {
     module: { exports: {} },

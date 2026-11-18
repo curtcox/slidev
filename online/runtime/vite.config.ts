@@ -10,13 +10,25 @@ import { bundleGrammars } from './grammar-assets.ts'
 import { bundleIcons } from './icon-assets.ts'
 import { bundleMathStyles } from './math-assets.ts'
 import { auditThemes } from './theme-audit.ts'
+import { isolateThemeStyles } from './theme-styles.ts'
 
 const local = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 
 export default defineConfig({
   plugins: [
     vue(),
-    UnoCSS({ ...unoConfig, configFile: false }),
+    UnoCSS({
+      ...unoConfig,
+      configFile: false,
+      theme: {
+        fontFamily: {
+          sans: 'var(--slidevonline-font-sans)',
+          serif: 'var(--slidevonline-font-serif)',
+          mono: 'var(--slidevonline-font-mono)',
+        },
+      },
+    }),
+    isolateThemeStyles(),
     browserTransforms(),
     auditThemes(),
     bundleIcons(),

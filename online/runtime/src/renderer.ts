@@ -203,7 +203,10 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
   async function resolveComponents(code: string) {
     const warnings: string[] = []
     const normalize = (name: string) => name.replaceAll('-', '').toLowerCase()
-    const knownComponents = new Set(Object.keys(components).map(normalize))
+    const knownComponents = new Set([
+      ...Object.keys(components),
+      ...Object.keys(compiler!.theme.components),
+    ].map(normalize))
     const names = new Set([
       ...code.matchAll(/_resolveComponent\("([^"]+)"\)/g),
     ].map(match => match[1]))
@@ -341,6 +344,8 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
     app.use(createVMotionDirectives())
     for (const [name, component] of Object.entries(components))
       app.component(name, component)
+    for (const [name, component] of Object.entries(compiler.theme.components))
+      app.component(name, component)
     for (const [name, component] of iconComponents)
       app.component(name, component)
     app.provide(constants.injectionSlidevContext, Vue.reactive({
@@ -424,6 +429,9 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
       app = undefined
       compiler = await createDeckCompiler(input.src)
       Object.assign(configs, compiler.config)
+      document.documentElement.dataset.onlineTheme = compiler.theme.name
+      for (const kind of ['sans', 'serif', 'mono'] as const)
+        document.documentElement.style.setProperty(`--slidevonline-font-${kind}`, configs.fonts[kind].join(','))
       fonts = await loadFonts(configs.fonts)
       slides.value = compiler.slides.map(source => ({
         no: source.index + 1,

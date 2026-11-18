@@ -25,6 +25,7 @@ node tests/browser/all.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/runtime.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/icons.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/languages.cjs http://127.0.0.1:8000/ chromium
+node tests/browser/themes.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/math.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/diagrams.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/drag.cjs http://127.0.0.1:8000/ chromium
@@ -55,12 +56,16 @@ click navigation, hostile-deck isolation, document replacement, built-ins,
 TOC navigation, motion, markers and visible unsupported features. Full source-
 corpus rendering, visual fidelity and phone performance gates remain open.
 
-Official `default` and `seriph` themes are pinned at 0.25.0 (MIT), including all
-six theme layouts, theme styles and config defaults. Unknown themes fall back
+The official `default`, `seriph`, `bricks` and `shibainu` themes are pinned at
+0.25.0; `apple-basic` is pinned at 0.25.1. All five use the MIT license.
+All 45 theme layouts, styles, config defaults, artwork and the eleven Bricks
+polygon components are bundled. Layout CSS is activated only for its theme,
+without changing selector specificity. Font utilities follow the active deck
+configuration. Artwork stays self-contained inside the opaque frame. Unknown themes fall back
 to default with a visible notice. Builds audit versions, license and source size,
 and ship unchanged licenses plus `runtime/theme-audit.json` offline. Nunito Sans,
-Fira Code, PT Serif and PT Mono ship as separate self-contained stylesheets from
-pinned Fontsource 5.3.0 packages (OFL-1.1). All 37 faces retain their original
+Fira Code, PT Serif, PT Mono, Signika Negative, Sigmar One and Titillium Web ship as separate self-contained stylesheets from
+pinned Fontsource 5.3.0 packages (OFL-1.1). All 77 faces retain their original
 WOFF2 bytes and available Unicode subsets. Builds audit versions, licenses,
 hashes and size. Original licenses and attribution ship at `runtime/fonts/`.
 The SDK delivers these styles into the opaque frame through its offline proxy.
@@ -74,8 +79,8 @@ No script, connection or frame permissions change. Custom remote fonts are not
 cached by the app for offline use. Unavailable fonts, invalid configurations and
 the unsupported coollabs provider produce visible notices with local/system
 fallbacks. Each font-loading stage has a five-second deadline.
-See [fonts and privacy](docs/fonts.html). Further theme audits and the complete
-runtime fidelity gate remain open.
+See [fonts and privacy](docs/fonts.html). The complete runtime fidelity and phone-performance gates remain open.
+See [bundled themes](docs/themes.html).
 The offline browser suite also renders a seriph fact slide after a fully
 offline reload, checking that theme-specific styles survive cached delivery.
 

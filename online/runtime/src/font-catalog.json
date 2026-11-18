@@ -1,6 +1,76 @@
 {
-  "Nunito Sans": { "id": "nunito-sans", "package": "@fontsource-variable/nunito-sans", "styles": ["wght.css", "wght-italic.css"], "faces": 10 },
-  "Fira Code": { "id": "fira-code", "package": "@fontsource-variable/fira-code", "styles": ["wght.css"], "faces": 7 },
-  "PT Serif": { "id": "pt-serif", "package": "@fontsource/pt-serif", "styles": ["400.css", "400-italic.css", "700.css", "700-italic.css"], "faces": 16 },
-  "PT Mono": { "id": "pt-mono", "package": "@fontsource/pt-mono", "styles": ["400.css"], "faces": 4 }
+  "Nunito Sans": {
+    "id": "nunito-sans",
+    "package": "@fontsource-variable/nunito-sans",
+    "styles": [
+      "wght.css",
+      "wght-italic.css"
+    ],
+    "faces": 10
+  },
+  "Fira Code": {
+    "id": "fira-code",
+    "package": "@fontsource-variable/fira-code",
+    "styles": [
+      "wght.css"
+    ],
+    "faces": 7
+  },
+  "PT Serif": {
+    "id": "pt-serif",
+    "package": "@fontsource/pt-serif",
+    "styles": [
+      "400.css",
+      "400-italic.css",
+      "700.css",
+      "700-italic.css"
+    ],
+    "faces": 16
+  },
+  "PT Mono": {
+    "id": "pt-mono",
+    "package": "@fontsource/pt-mono",
+    "styles": [
+      "400.css"
+    ],
+    "faces": 4
+  },
+  "Signika Negative": {
+    "id": "signika-negative",
+    "package": "@fontsource/signika-negative",
+    "styles": [
+      "300.css",
+      "400.css",
+      "500.css",
+      "600.css",
+      "700.css"
+    ],
+    "faces": 15
+  },
+  "Sigmar One": {
+    "id": "sigmar-one",
+    "package": "@fontsource/sigmar-one",
+    "styles": [
+      "400.css"
+    ],
+    "faces": 3
+  },
+  "Titillium Web": {
+    "id": "titillium-web",
+    "package": "@fontsource/titillium-web",
+    "styles": [
+      "200.css",
+      "200-italic.css",
+      "300.css",
+      "300-italic.css",
+      "400.css",
+      "400-italic.css",
+      "600.css",
+      "600-italic.css",
+      "700.css",
+      "700-italic.css",
+      "900.css"
+    ],
+    "faces": 22
+  }
 }

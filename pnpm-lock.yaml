@@ -163,19 +163,6 @@ settings:
   excludeLinksFromLockfile: false
 
 catalogs:
-  online:
-    '@fontsource-variable/fira-code':
-      specifier: 5.3.0
-      version: 5.3.0
-    '@fontsource-variable/nunito-sans':
-      specifier: 5.3.0
-      version: 5.3.0
-    '@fontsource/pt-mono':
-      specifier: 5.3.0
-      version: 5.3.0
-    '@fontsource/pt-serif':
-      specifier: 5.3.0
-      version: 5.3.0
   agentic:
     '@antfu/skills':
       specifier: ^0.1.3
@@ -390,6 +377,28 @@ catalogs:
     monaco-editor:
       specifier: ^0.57.0
       version: 0.57.0
+  online:
+    '@fontsource-variable/fira-code':
+      specifier: 5.3.0
+      version: 5.3.0
+    '@fontsource-variable/nunito-sans':
+      specifier: 5.3.0
+      version: 5.3.0
+    '@fontsource/pt-mono':
+      specifier: 5.3.0
+      version: 5.3.0
+    '@fontsource/pt-serif':
+      specifier: 5.3.0
+      version: 5.3.0
+    '@fontsource/sigmar-one':
+      specifier: 5.3.0
+      version: 5.3.0
+    '@fontsource/signika-negative':
+      specifier: 5.3.0
+      version: 5.3.0
+    '@fontsource/titillium-web':
+      specifier: 5.3.0
+      version: 5.3.0
   prod:
     '@antfu/ni':
       specifier: ^30.6.0
@@ -980,6 +989,15 @@ importers:
       '@fontsource/pt-serif':
         specifier: catalog:online
         version: 5.3.0
+      '@fontsource/sigmar-one':
+        specifier: catalog:online
+        version: 5.3.0
+      '@fontsource/signika-negative':
+        specifier: catalog:online
+        version: 5.3.0
+      '@fontsource/titillium-web':
+        specifier: catalog:online
+        version: 5.3.0
       '@iconify/utils':
         specifier: catalog:icons
         version: 3.1.7
@@ -992,10 +1010,19 @@ importers:
       '@slidev/parser':
         specifier: workspace:*
         version: link:../../packages/parser
+      '@slidev/theme-apple-basic':
+        specifier: 0.25.1
+        version: 0.25.1
+      '@slidev/theme-bricks':
+        specifier: 0.25.0
+        version: 0.25.0
       '@slidev/theme-default':
         specifier: 0.25.0
         version: 0.25.0
       '@slidev/theme-seriph':
+        specifier: 0.25.0
+        version: 0.25.0
+      '@slidev/theme-shibainu':
         specifier: 0.25.0
         version: 0.25.0
       '@slidev/types':
@@ -1590,18 +1617,6 @@ importers:
         version: 2.0.0
 
 packages:
-
-  '@fontsource-variable/fira-code@5.3.0':
-    resolution: {integrity: sha512-ZhvHeknlicraKVSJBa1NrJnXDVByUkC407zwgELYfmnx3p9g8vwIPfQCxx8YD3K7dAeCdLuHJOHlpMfRsIcApQ==}
-
-  '@fontsource-variable/nunito-sans@5.3.0':
-    resolution: {integrity: sha512-Vk1PSfckNDwgw2yGcsvJP3o/0zEW8Rp6KzbD8Ql/6iRHQshnhhAjt+cSIfAUyp5vQuSlleGHFW2LfYaaex0diw==}
-
-  '@fontsource/pt-mono@5.3.0':
-    resolution: {integrity: sha512-AKXUTYCdv53jAJyzk3AEns6PdOvL3u+AD9Y4Ms6BFFRC7WCqYOvywujYT3gs00sMBIPs/J8iY7SQljk3wRfovw==}
-
-  '@fontsource/pt-serif@5.3.0':
-    resolution: {integrity: sha512-ST+j/byBGZw6H+TQMX78o6Qlngfj2Va/Q9fAJxq54Is1ZQk1/FhBIuqyJcLmnpi0trG8V/hWO9Bx6ZY09A0DBQ==}
 
   '@11ty/gray-matter@2.1.0':
     resolution: {integrity: sha512-fNdBOb3MgDz/1UCIoeY4wDuGbp+/3s5y6UrsyfMabECbh/CVycj7Er33JXqSxRwxrRKXcGE1Jipuq/1mODInsQ==}
@@ -2650,6 +2665,27 @@ packages:
 
   '@floating-ui/utils@0.2.12':
     resolution: {integrity: sha512-HpCo8tmWzLVad5s2d19EhAz5zqrrQ6s69qd6moPMQvkOuSwDT1YgRfWSVuc4ennqrgv3OHppiOGMQ7oC13yIww==}
+
+  '@fontsource-variable/fira-code@5.3.0':
+    resolution: {integrity: sha512-ZhvHeknlicraKVSJBa1NrJnXDVByUkC407zwgELYfmnx3p9g8vwIPfQCxx8YD3K7dAeCdLuHJOHlpMfRsIcApQ==}
+
+  '@fontsource-variable/nunito-sans@5.3.0':
+    resolution: {integrity: sha512-Vk1PSfckNDwgw2yGcsvJP3o/0zEW8Rp6KzbD8Ql/6iRHQshnhhAjt+cSIfAUyp5vQuSlleGHFW2LfYaaex0diw==}
+
+  '@fontsource/pt-mono@5.3.0':
+    resolution: {integrity: sha512-AKXUTYCdv53jAJyzk3AEns6PdOvL3u+AD9Y4Ms6BFFRC7WCqYOvywujYT3gs00sMBIPs/J8iY7SQljk3wRfovw==}
+
+  '@fontsource/pt-serif@5.3.0':
+    resolution: {integrity: sha512-ST+j/byBGZw6H+TQMX78o6Qlngfj2Va/Q9fAJxq54Is1ZQk1/FhBIuqyJcLmnpi0trG8V/hWO9Bx6ZY09A0DBQ==}
+
+  '@fontsource/sigmar-one@5.3.0':
+    resolution: {integrity: sha512-dnQjXya5eMv602QF9KTw8X4MW9ccW+8o3x+pc0hwOO1CoTlJT0gQHYv/wm5ym9cFS0nIc2YPbEQyxbDDLL76tA==}
+
+  '@fontsource/signika-negative@5.3.0':
+    resolution: {integrity: sha512-zOoeEvw6bIGeC/uHfRlODriSTA6zKJZbUOrEb1F9qY9i+SnYbG6FA0KzXuewwHh46vZ+PKYL90hMAgkNBj7i6w==}
+
+  '@fontsource/titillium-web@5.3.0':
+    resolution: {integrity: sha512-+nO3ACtHoBgBgq5rzKYImyJqcbRR5cG7D5O73Iu9qMEVlpQ4KVpdDs+XJexZ6Tgcek4xSlkCI82Xd3yLNF++6w==}
 
   '@hedgedoc/markdown-it-plugins@2.1.4':
     resolution: {integrity: sha512-lJgHOasTvhPiIsx7o019xnUJ3suANVMkTIVlQ3hWiZTUp7feyxfuaRF98/gm9sl8Bg01JjNb2OIjA8l4bck/hQ==}
@@ -4179,6 +4215,7 @@ packages:
   '@secretlint/secretlint-rule-preset-recommend@10.2.2':
     resolution: {integrity: sha512-K3jPqjva8bQndDKJqctnGfwuAxU2n9XNCPtbXVI5JvC7FnQiNg/yWlQPbMUlBXtBoBGFYp08A94m6fvtc9v+zA==}
     engines: {node: '>=20.0.0'}
+    deprecated: Built into secretlint v14 and later. Remove this package; the rule id still works. https://github.com/secretlint/secretlint/blob/HEAD/docs/rules/preset-recommend.md
 
   '@secretlint/source-creator@10.2.2':
     resolution: {integrity: sha512-h6I87xJfwfUTgQ7irWq7UTdq/Bm1RuQ/fYhA3dtTIAop5BwSFmZyrchph4WcoEvbN460BWKmk4RYSvPElIIvxw==}
@@ -4278,12 +4315,24 @@ packages:
   '@slidev/rough-notation@0.1.0':
     resolution: {integrity: sha512-a/CbVmjuoO3E4JbUr2HOTsXndbcrdLWOM+ajbSQIY3gmLFzhjeXHGksGcp1NZ08pJjLZyTCxfz1C7v/ltJqycA==}
 
+  '@slidev/theme-apple-basic@0.25.1':
+    resolution: {integrity: sha512-saA5yYui+jTT13tP+QJKnWeM8sK0IA1iln2E3sWAJsfKdQHUD3fw8+AlUHLUH6yc8NPq3ewtZcwWx49a/iF8Tg==}
+    engines: {node: '>=14.0.0', slidev: '>=v0.47.0'}
+
+  '@slidev/theme-bricks@0.25.0':
+    resolution: {integrity: sha512-7fcYcnH2/xD4G7QzB+nrxTc9MEzdgjsx7qFUN2u+qpeiKKfXqsi7kbo+zxUcCV/8mi6zOQrDC4IjFcQsERffmg==}
+    engines: {node: '>=14.0.0', slidev: '>=v0.47.0'}
+
   '@slidev/theme-default@0.25.0':
     resolution: {integrity: sha512-iWvthH1Ny+i6gTwRnEeeU+EiqsHC56UdEO45bqLSNmymRAOWkKUJ/M0o7iahLzHSXsiPu71B7C715WxqjXk2hw==}
     engines: {node: '>=14.0.0', slidev: '>=v0.47.0'}
 
   '@slidev/theme-seriph@0.25.0':
     resolution: {integrity: sha512-PnFQbn4I70+/cVie5iAr0Im6sYvnwjkO7Yj5KonTyJZFFJFytckLTrD3ijft/J4cRnz7OmSzTyQKNX1FN/x0YQ==}
+    engines: {node: '>=14.0.0', slidev: '>=v0.47.0'}
+
+  '@slidev/theme-shibainu@0.25.0':
+    resolution: {integrity: sha512-ND4ZdF3L3EOB2UXCaBqhMfMFeyPG6lOXwz/DC29aaXkXSnuHYjNKMI79NJAISyLBnUgWGc4QjIJNntIAx4Uung==}
     engines: {node: '>=14.0.0', slidev: '>=v0.47.0'}
 
   '@slidev/types@0.47.5':
@@ -9667,14 +9716,6 @@ packages:
 
 snapshots:
 
-  '@fontsource-variable/fira-code@5.3.0': {}
-
-  '@fontsource-variable/nunito-sans@5.3.0': {}
-
-  '@fontsource/pt-mono@5.3.0': {}
-
-  '@fontsource/pt-serif@5.3.0': {}
-
   '@11ty/gray-matter@2.1.0':
     dependencies:
       js-yaml: 4.3.2
@@ -10906,6 +10947,20 @@ snapshots:
 
   '@floating-ui/utils@0.2.12': {}
 
+  '@fontsource-variable/fira-code@5.3.0': {}
+
+  '@fontsource-variable/nunito-sans@5.3.0': {}
+
+  '@fontsource/pt-mono@5.3.0': {}
+
+  '@fontsource/pt-serif@5.3.0': {}
+
+  '@fontsource/sigmar-one@5.3.0': {}
+
+  '@fontsource/signika-negative@5.3.0': {}
+
+  '@fontsource/titillium-web@5.3.0': {}
+
   '@hedgedoc/markdown-it-plugins@2.1.4(patch_hash=49e14003b6caa0b7d164cbe71da573809d375babb2012c0a5ac943573e063c90)(markdown-it@14.3.2)':
     dependencies:
       '@mrdrogdrog/optional': 1.2.1
@@ -12018,6 +12073,18 @@ snapshots:
     dependencies:
       roughjs: 4.6.6
 
+  '@slidev/theme-apple-basic@0.25.1':
+    dependencies:
+      '@slidev/types': 0.47.5
+      codemirror-theme-vars: 0.1.2
+      prism-theme-vars: 0.2.5
+
+  '@slidev/theme-bricks@0.25.0':
+    dependencies:
+      '@slidev/types': 0.47.5
+      codemirror-theme-vars: 0.1.2
+      prism-theme-vars: 0.2.5
+
   '@slidev/theme-default@0.25.0':
     dependencies:
       '@slidev/types': 0.47.5
@@ -12025,6 +12092,12 @@ snapshots:
       prism-theme-vars: 0.2.5
 
   '@slidev/theme-seriph@0.25.0':
+    dependencies:
+      '@slidev/types': 0.47.5
+      codemirror-theme-vars: 0.1.2
+      prism-theme-vars: 0.2.5
+
+  '@slidev/theme-shibainu@0.25.0':
     dependencies:
       '@slidev/types': 0.47.5
       codemirror-theme-vars: 0.1.2
