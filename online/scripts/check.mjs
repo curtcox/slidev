@@ -2,12 +2,14 @@ import assert from 'node:assert/strict'
 import fs from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { checkVirtualModules } from '../runtime/check-virtual-modules.ts'
 import { check } from '../vendor/fragment-kit-v0.4.4/tools/check.mjs'
 import { generateOffline } from '../vendor/fragment-kit-v0.4.4/tools/offline-assets.mjs'
 import { verifyManifest } from '../vendor/fragment-kit-v0.4.4/tools/vendor-sync.mjs'
 
 const root = fileURLToPath(new URL('../', import.meta.url))
 const kit = path.join(root, 'vendor/fragment-kit-v0.4.4')
+await checkVirtualModules()
 await verifyManifest(kit)
 await check({
   root: kit,

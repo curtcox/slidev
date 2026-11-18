@@ -1,0 +1,20 @@
+{
+  "#slidev/configs": "configs.ts",
+  "#slidev/slides": "slides.ts",
+  "#slidev/global-layers": "global-layers.ts",
+  "#slidev/title-renderer": "title-renderer.ts",
+  "#slidev/custom-nav-controls": "custom-nav-controls.ts",
+  "#slidev/conditional-styles": "conditional-styles.ts",
+  "#slidev/monaco-types": "monaco-types.ts",
+  "#slidev/monaco-run-deps": "monaco-run-deps.ts",
+  "#slidev/setups/main": "setups.ts",
+  "#slidev/setups/root": "setups.ts",
+  "#slidev/setups/routes": "setups.ts",
+  "#slidev/setups/shortcuts": "setups.ts",
+  "#slidev/setups/context-menu": "setups.ts",
+  "#slidev/setups/shiki": "setups.ts",
+  "#slidev/setups/monaco": "setups.ts",
+  "#slidev/setups/code-runners": "setups.ts",
+  "#slidev/setups/mermaid": "setups.ts",
+  "#slidev/setups/mermaid-renderer": "setups.ts"
+}

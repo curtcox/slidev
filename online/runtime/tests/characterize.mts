@@ -5,6 +5,7 @@ import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { chromium, firefox, webkit } from 'playwright'
 import { resolveOptions } from '../../../packages/slidev/node/options'
+import { templateTitleRendererMd } from '../../../packages/slidev/node/virtual/titles'
 import { createLayoutWrapperPlugin } from '../../../packages/slidev/node/vite/layoutWrapper'
 import { createMarkdownPlugin } from '../../../packages/slidev/node/vite/markdown'
 import { serve } from '../../vendor/fragment-kit-v0.4.4/tools/serve.mjs'
@@ -65,7 +66,7 @@ hashbinSandbox.import('runtime/sandbox.js').then(module => {
         return;
       }
       const compiler = await module.createDeckCompiler(data.oversize ? 'é'.repeat(3000000) : data.src,{plantUmlAllowed:data.plantUmlAllowed===true});
-      const result = await compiler.compile(data.index ?? 0,data.layoutImport ?? 'online:layout/default');
+      const result = data.titles ? await compiler.compileTitles() : await compiler.compile(data.index ?? 0,data.layoutImport ?? 'online:layout/default');
       postMessage({ok:true,result});
     } catch(error) { postMessage({ok:false,error:String(error)}); }
   };
@@ -96,6 +97,13 @@ async function main() {
       const options = await resolveOptions({ entry }, 'build')
       const markdown = await createMarkdownPlugin(options, {})
       const wrapper = createLayoutWrapperPlugin(options)
+      const titleSource = await templateTitleRendererMd.getContent.call({} as any, options)
+      expected.push({
+        fixture: `${fixture.name} titles`,
+        src: fixture.src,
+        titles: true,
+        sfc: await transform(markdown, titleSource, '/@slidev/title-renderer.md'),
+      })
       for (let index = 0; index < options.data.slides.length; index++) {
         const slide = options.data.slides[index]
         const id = `slides.md__slidev_${index + 1}.md`
@@ -122,7 +130,7 @@ async function main() {
       { src: '', oversize: true, expectedError: '5 MiB' },
     ]
     const probes = [
-      ...expected.map(({ src, index, layoutImport }) => ({ src, index, layoutImport })),
+      ...expected.map(({ src, index, layoutImport, titles }) => ({ src, index, layoutImport, titles })),
       ...negative,
       { src: '# Static\n\n```js {monaco-run}\nconsole.log(1)\n```', expectedNotice: 'Monaco editing and execution are not available yet' },
       { src: '# Diagram\n\n```plantuml\n@startuml\nA -> B\n@enduml\n```', expectedNotice: 'PlantUML is off', noPlantUml: true },

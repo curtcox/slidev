@@ -4,6 +4,7 @@ import UnoCSS from 'unocss/vite'
 import { defineConfig } from 'vite'
 import unoConfig from '../../packages/client/uno.config.ts'
 import { browserAliases, browserTransforms } from './browser-aliases.ts'
+import { checkVirtualModules, virtualModules } from './check-virtual-modules.ts'
 import { auditThemes } from './theme-audit.ts'
 
 const local = (path: string) => fileURLToPath(new URL(path, import.meta.url))
@@ -14,22 +15,18 @@ export default defineConfig({
     UnoCSS({ ...unoConfig, configFile: false }),
     browserTransforms(),
     auditThemes(),
+    {
+      name: 'slidev-online-virtual-coverage',
+      async buildStart() { await checkVirtualModules() },
+    },
   ],
   resolve: {
     alias: [
       ...browserAliases,
-      {
-        find: '#slidev/configs',
-        replacement: local('./src/virtual/configs.ts'),
-      },
-      {
-        find: '#slidev/global-layers',
-        replacement: local('./src/virtual/global-layers.ts'),
-      },
-      {
-        find: '#slidev/slides',
-        replacement: local('./src/virtual/slides.ts'),
-      },
+      ...Object.entries(virtualModules).map(([find, file]) => ({
+        find,
+        replacement: local(`./src/virtual/${file}`),
+      })),
     ],
   },
   define: {

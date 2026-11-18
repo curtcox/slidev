@@ -6,6 +6,7 @@ import { transform } from 'sucrase'
 import { version as vueVersion } from 'vue'
 import { resolveConfig } from '../../../../packages/parser/src/config'
 import { parseSync } from '../../../../packages/parser/src/core'
+import { templateTitleRendererMd } from '../../../../packages/slidev/node/virtual/titles'
 import { wrapSlideLayout } from '../../../../packages/slidev/node/vite/layoutWrapperCore'
 import { createMarkdownPlugin } from '../../../../packages/slidev/node/vite/markdown'
 import { resolveTheme } from '../themes'
@@ -30,6 +31,28 @@ export interface CompiledSlide {
 async function digest(text: string) {
   const bytes = new TextEncoder().encode(text)
   return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), b => b.toString(16).padStart(2, '0')).join('')
+}
+
+function compileSfc(sfc: string, id: string, warnings: string[]): CompiledSlide {
+  const { descriptor, errors } = parseSfc(sfc, { filename: `${id}.vue` })
+  if (errors.length)
+    throw errors[0]
+  const compiled = compileScript(descriptor, { id, inlineTemplate: true })
+  const code = transform(compiled.content, {
+    transforms: ['typescript'],
+    disableESTransforms: true,
+    production: true,
+    filePath: `${id}.ts`,
+  }).code
+  return {
+    sfc,
+    code,
+    scopeId: `data-v-${id}`,
+    styles: descriptor.styles.map(style => ({ content: style.content, scoped: style.scoped ?? false })),
+    warnings: [
+      ...new Set(warnings),
+    ],
+  }
 }
 
 export async function createDeckCompiler(src: string, { plantUmlAllowed = false } = {}) {
@@ -101,6 +124,18 @@ export async function createDeckCompiler(src: string, { plantUmlAllowed = false 
     slides,
     config,
     theme,
+    compileTitles(): Promise<CompiledSlide> {
+      const pending = queue.then(async () => {
+        currentWarnings = []
+        const source = await templateTitleRendererMd.getContent.call({} as any, options)
+        const result = await (hook as any).call({
+          error(error: unknown) { throw error },
+        }, source, '/@slidev/title-renderer.md')
+        return compileSfc(result.code, `online-titles-${(await digest(source)).slice(0, 16)}`, currentWarnings)
+      })
+      queue = pending.then(() => {}, () => {})
+      return pending
+    },
     compile(index: number, layoutImport: string): Promise<CompiledSlide> {
       const pending = queue.then(async () => {
         const slide = slides[index]
@@ -129,25 +164,7 @@ export async function createDeckCompiler(src: string, { plantUmlAllowed = false 
           error(error: unknown) { throw error },
         }, slide.content, `slides.md__slidev_${index + 1}.md`)
         const sfc = wrapSlideLayout(result.code, index, layoutImport)
-        const { descriptor, errors } = parseSfc(sfc, { filename: `slide-${index + 1}.vue` })
-        if (errors.length)
-          throw errors[0]
-        const compiled = compileScript(descriptor, { id, inlineTemplate: true })
-        const code = transform(compiled.content, {
-          transforms: ['typescript'],
-          disableESTransforms: true,
-          production: true,
-          filePath: `${id}.ts`,
-        }).code
-        const output = {
-          sfc,
-          code,
-          scopeId: `data-v-${id}`,
-          styles: descriptor.styles.map(style => ({ content: style.content, scoped: style.scoped ?? false })),
-          warnings: [
-            ...new Set(currentWarnings),
-          ],
-        }
+        const output = compileSfc(sfc, id, currentWarnings)
         // A newer render may have compiled the same key while this one awaited
         // Markdown/Shiki. Reuse its entry without counting the bytes twice.
         const completed = compiledCache.get(key)

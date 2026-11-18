@@ -35,8 +35,8 @@ offline downloads. The canonical host is unset; the shell uses the recovery URL
 until a later phase registers and deploys the canonical origin.
 
 The Phase 2 compiler reuses Slidev's Markdown plugin chain and pure layout
-wrapper inside the opaque frame. Its browser characterization compares seven
-generated SFCs with the real CLI transforms and checks unsupported features,
+wrapper inside the opaque frame. Its browser characterization compares thirteen
+generated slide/title SFCs with the real CLI transforms and checks unsupported features,
 UTF-8 limits and incremental caching. The complete starter/composable fixture
 matrix and full-runtime fidelity/budget gates remain open. The runtime browser
 suite exercises author scripts, style isolation, slots, click navigation,
@@ -57,3 +57,12 @@ styles, code and initial click states. Reports and CLI/online/diff PNGs go to
 and CLI are unchanged; `BROWSER=webkit` selects WebKit. CI uploads a nonblocking
 Chromium report while platform/font coverage stabilizes. This is a subset of
 the eventual full example-corpus gate and does not measure phone performance.
+
+The bundled navigation adapter provides slide aliases, counters, links, the
+upstream table of contents, slide-enter/leave hooks, conditional rendering,
+in-memory dark mode and magic-move click steps. No navigation or color state
+uses opaque-origin storage. `runtime/virtual-modules.json` is the single source
+for Vite aliases; both runtime builds and static checks scan all client TS/Vue
+imports and fail if a new `#slidev/*` module lacks an implementation. Empty setup
+lists reflect the online format's lack of filesystem setup directories; Monaco
+remains a static-code fallback until Phase 7.

@@ -15,6 +15,8 @@ import RenderWhen from '../../../packages/client/builtin/RenderWhen.vue'
 import ShikiMagicMove from '../../../packages/client/builtin/ShikiMagicMove.vue'
 import SlideCurrentNo from '../../../packages/client/builtin/SlideCurrentNo.vue'
 import SlidesTotal from '../../../packages/client/builtin/SlidesTotal.vue'
+import Toc from '../../../packages/client/builtin/Toc.vue'
+import TocList from '../../../packages/client/builtin/TocList.vue'
 import Transform from '../../../packages/client/builtin/Transform.vue'
 import VAfter from '../../../packages/client/builtin/VAfter'
 import VClick from '../../../packages/client/builtin/VClick'
@@ -40,6 +42,7 @@ import { isDark } from './shims/dark'
 import { createGenerator, mergeConfigs } from './shims/uno'
 import configs from './virtual/configs'
 import { slides } from './virtual/slides'
+import TitleRenderer, { titleRenderer } from './virtual/title-renderer'
 
 const layouts = import.meta.glob('../../../packages/client/layouts/*.vue', { eager: true, import: 'default' }) as Record<string, Component>
 const layoutSources = import.meta.glob('../../../packages/client/layouts/*.vue', { eager: true, query: '?raw', import: 'default' })
@@ -54,6 +57,8 @@ const components = {
   ShikiMagicMove,
   SlideCurrentNo,
   SlidesTotal,
+  Toc,
+  TocList,
   Transform,
   CodeBlockWrapper,
   KaTexBlockWrapper,
@@ -122,6 +127,8 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
       '@slidev/client/logic/slides': moduleUrl('slides', slideLogic),
       '@slidev/client/context': moduleUrl('context', context),
       '@slidev/client/constants': moduleUrl('constants', constants),
+      '#slidev/slides': moduleUrl('virtual-slides', { slides }),
+      '#slidev/title-renderer': moduleUrl('titles', { default: TitleRenderer }),
     }
     activeLayouts = {
       ...layoutByName,
@@ -135,6 +142,22 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
 
   function sendPosition() {
     report({ type: 'position', slide: position.value, click: clicks.value?.current ?? 0 })
+  }
+
+  async function loadComponent(code: string) {
+    code = await rewriteModuleImports(code, (specifier) => {
+      const name = specifier.replace(/\.ts$/, '')
+      if (!Object.hasOwn(modules, name))
+        throw new Error(`Module ${specifier} is unavailable online; only bundled modules can be imported`)
+      return modules[name]
+    })
+    const url = URL.createObjectURL(new Blob([code], { type: 'text/javascript' }))
+    try {
+      return (await import(/* @vite-ignore */ url)).default
+    }
+    finally {
+      URL.revokeObjectURL(url)
+    }
   }
 
   async function goto(slide: number, click = 0) {
@@ -166,20 +189,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
       if (!['click', 'after'].includes(name))
         warnings.push(`Directive v-${name} is unavailable online`)
     }
-    const code = await rewriteModuleImports(compiled.code, (specifier) => {
-      const name = specifier.replace(/\.ts$/, '')
-      if (!Object.hasOwn(modules, name))
-        throw new Error(`Module ${specifier} is unavailable online; only bundled modules can be imported`)
-      return modules[name]
-    })
-    const url = URL.createObjectURL(new Blob([code], { type: 'text/javascript' }))
-    let component: any
-    try {
-      component = (await import(/* @vite-ignore */ url)).default
-    }
-    finally {
-      URL.revokeObjectURL(url)
-    }
+    const component = await loadComponent(compiled.code)
     if (generation !== version)
       return
     component.__scopeId = compiled.scopeId
@@ -322,6 +332,8 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
         meta: { ...source.frontmatter, slide: source },
       } as unknown as SlideRoute))
       resetModules()
+      const titles = await compiler.compileTitles()
+      titleRenderer.value = Vue.markRaw(await loadComponent(titles.code))
       isDark.value = input.dark
       document.querySelector('#online-document-css')?.remove()
       const style = document.createElement('style')

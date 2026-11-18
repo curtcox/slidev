@@ -184,6 +184,41 @@ Page <SlideCurrentNo /> of <SlidesTotal />
     await frame.getByText('after', { exact: true }).waitFor()
     assert.equal(await frame.locator('#online-notices').count(), 0)
 
+    const contents = `---
+hideInToc: true
+---
+# Contents
+
+<Toc />
+
+---
+routeAlias: topic
+---
+# **Section** A
+
+---
+routeAlias: child
+---
+## Child
+
+<Toc />
+
+---
+hideInToc: true
+---
+# Hidden
+`
+    assert.deepEqual(await render(contents), [])
+    frame = page.frameLocator('#runtime-test iframe')
+    assert.equal(await frame.locator('.slidev-toc a').count(), 2)
+    assert.equal(await frame.locator('.slidev-toc strong').textContent(), 'Section')
+    assert.equal(await frame.locator('.slidev-toc-list-level-2 a').textContent(), 'Child')
+    await frame.getByRole('link', { name: 'Child', exact: true }).click()
+    await frame.getByRole('heading', { name: 'Child', exact: true }).waitFor()
+    assert.equal(await frame.locator('.slidev-toc-item-active > a').textContent(), 'Child')
+    assert.equal(await frame.locator('.slidev-toc-item-parent-active > a').textContent(), 'Section A')
+    assert.equal(await frame.locator('#online-notices').count(), 0)
+
     for (const theme of ['default', 'seriph', 'unavailable-theme']) {
       const src = `---\ntheme: ${theme}\nbackground: '#e2e8f0'\nfonts:\n  provider: none\n  sans: Arial\n---\n# Theme cover\n\n---\nlayout: section\n---\n# Theme section\n\n---\nlayout: fact\n---\n# 42\n\nA fact\n\n---\n# Theme default\n`
       assert.deepEqual(await render(src), [])
