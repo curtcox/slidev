@@ -1,4 +1,4 @@
-import { Document } from 'yaml'
+import { Document, isMap, isScalar } from 'yaml'
 import { parseSync } from '../../../packages/parser/src/core'
 
 const MAX_BYTES = 5 * 1024 * 1024
@@ -161,8 +161,16 @@ export function applyDragPatches(src: string, updates: unknown[]) {
   for (const [no, positions] of frontmatter) {
     const slide = slides[no - 1]
     const doc = slide.frontmatterDoc ?? new Document()
-    for (const [id, position] of positions)
-      doc.setIn(['dragPos', id], position)
+    const stored = doc.get('dragPos', true)
+    for (const [id, position] of positions) {
+      // YAML scalar keys may be numeric even though JavaScript object keys
+      // (and the runtime's drag IDs) are strings. Preserve the existing key.
+      const existing = isMap(stored) && stored.items.find(pair => isScalar(pair.key) && String(pair.key.value) === id)
+      if (existing && isMap(stored))
+        stored.set(existing.key, position)
+      else
+        doc.setIn(['dragPos', id], position)
+    }
     const yaml = doc.toString().trimEnd()
     const rawStart = offsets[slide.start]
     if (!slide.frontmatterStyle) {

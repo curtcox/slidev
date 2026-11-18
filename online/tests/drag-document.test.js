@@ -104,3 +104,11 @@ it('writes named positions into empty and fenced YAML blocks without creating sl
   ])
   assert.equal(fenced, `\`\`\`yaml\ntheme: default\ndragPos:\n  box: 120,140,180,80\n\`\`\`\n\n${body}`)
 })
+
+it('updates existing numeric YAML keys rather than adding a duplicate string key', () => {
+  const src = '---\ndragPos:\n  1: 10,20,30,40 # keep this position\n---\n# Box\n\n<div v-drag="1">Box</div>\n'
+  const result = applyDragPatches(src, [
+    patch([2, 3, 5], { id: '1', source: 'frontmatter' }),
+  ])
+  assert.equal(result, src.replace('10,20,30,40', '120,140,180,80'))
+})

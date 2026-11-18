@@ -1029,3 +1029,22 @@ records the measured results. Publication/tag approvals remain outstanding.
   CI and live deployment for the new drag adapter have not yet been checked.
   Remote theme fonts, further theme audits, remaining client features, full
   source-corpus rendering/fidelity and complete-runtime phone timing stay open.
+
+### Drag CI follow-up (2026-11-18)
+
+- Implementation is pushed as `9d4171fc`. CI passed units, Chromium, WebKit,
+  independent kit verification and the visual report. Firefox reached the final
+  stale-source test, then attempted to select an element beneath an already-
+  active drag overlay. The test now explicitly deselects before changing source
+  so it tests the same user interaction across engines. Local Firefox itself
+  cannot launch its temporary profile on this Mac, so successful Firefox
+  acceptance will be reported from actual CI execution only.
+- The downloaded CI visual report has the same runtime hash as local evidence:
+  **33** cases match exactly; three have one differing pixel each, with channel
+  deltas at or below eight. None exceeds the configured tolerance. This is not
+  a claim of 36 exact CI matches; both local engines still have 36 exact matches.
+- Final source review also caught YAML treating numeric IDs differently from
+  string keys. Writeback now updates the existing scalar key, preserving its
+  inline comment instead of adding a second quoted key. A shipped-bundle
+  regression covers the numeric directive form. All **22** online units and
+  runtime typecheck pass. CI/deployment for this follow-up remain pending.

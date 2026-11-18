@@ -168,6 +168,8 @@ async function main() {
       assert.match(cumulative, /pos="590,330,80,40"/)
 
       assert.deepEqual(await page.evaluate(() => window.dragTest.errors), [])
+      await frame.locator('body').press('Escape')
+      await expect(frame.locator('#drag-control-container')).toHaveCount(0)
       await page.getByRole('textbox', { name: 'Markdown' }).fill('# User changed the Markdown')
       await frame.getByText('Repeat two', { exact: true }).dblclick()
       await moveControl()
