@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — navigation/built-ins/TOC/motion, virtual coverage and seven lazy icon collections verified; source corpus has 50 exact SFC matches plus 21 explicit fallbacks; 26-case product fidelity passes local Chromium/WebKit; remaining features/full rendering/phone gates open |
+| 2 | Slidev runtime | IN PROGRESS — client/virtual modules, seven lazy icon collections and 40 lazy grammars verified; 139 Chromium / 138 WebKit exact SFC matches plus one recorded WebKit C++ color difference and 14 corpus fallbacks; 28-case local fidelity passes both engines; remaining features/full rendering/phone gates open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -844,3 +844,38 @@ records the measured results. Publication/tag approvals remain outstanding.
   is local; the new CI/deployment result has not yet been checked. Both local
   reports record runtime SHA-256
   `1d31e64510992254cb0ec2e81bc0192adefb66fa3d265ec1ac9c652068907f95`.
+
+### Phase 2 lazy syntax grammars (2026-11-18)
+
+- Added forty curated Shiki 4.6.0 languages and their published aliases as
+  separate JSON data assets. Build audits pin the package version, alias lists,
+  size bounds, embedded dependencies and original MIT license. Offline staging
+  hashes all bundles and ships the audit/license unchanged. Unknown names never
+  form fetch URLs; unavailable assets produce readable code and a visible notice.
+- Removed the initial JavaScript/TypeScript/YAML grammar payload. Grammar assets
+  load on demand through the opaque SDK frame's offline proxy, once per canonical
+  language per frame. TextMate registries are isolated by root language so Vue
+  injections cannot alter later Markdown or invalidate cached compiler output.
+  Markdown explicitly includes its optional `html-derivative` dependency.
+- Local Chromium and WebKit pass lazy requests, aliases, embedded Vue languages,
+  cache reuse, unknown-language notices, a real missing-asset fallback with the
+  service worker blocked, and highlighting after a complete offline reload.
+  Existing runtime integration passes both engines; Chromium welcome/isolation/
+  offline/theme checks pass. No new execution permission or vendor change.
+- Characterization exercises all forty languages without fallback. Chromium has
+  **139 exact SFC comparisons**; WebKit has **138** plus one recorded C++ token-
+  color difference against the Node CLI. That narrowly permitted difference is
+  hashed in the report and excluded from exact counts. The corpus now has **14**
+  explicit unsupported-feature cases instead of 21. These are compiler checks,
+  not claims of full rendering parity for starter/composable-vue.
+- Added Python/Rust/Vue to product visual fidelity, with assertions that code
+  contains highlighted tokens. All **28** cases have zero exact differing pixels
+  in both local engines. Initial JS/CSS is **993,547 bytes gzip**; forty separate
+  grammar bundles total **8,719,550 bytes** (**1,070,900 gzip**). Both visual
+  reports record runtime SHA-256
+  `379a7845c017ef5346ed03afea0db67fd9f8af313b6d7e5b4eebf4c75e9ff661`.
+- Runtime build/typecheck, nine online units and static/vendor/offline integrity
+  pass. The implementation was pushed to `main` as `3c951890`; deployment and
+  final CI results are still being checked. Diagrams/fonts, drag writeback,
+  additional theme audits, full source-corpus rendering and complete-runtime
+  phone timing remain open.

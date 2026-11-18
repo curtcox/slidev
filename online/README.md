@@ -38,8 +38,9 @@ until a later phase registers and deploys the canonical origin.
 
 The Phase 2 compiler reuses Slidev's Markdown plugin chain and pure layout
 wrapper inside the opaque frame. Characterization includes the real starter,
-composable-vue and all online example decks: 50 slide/title SFCs match CLI
-transforms exactly, and 21 corpus cases assert documented errors or fallbacks
+composable-vue and all online example decks: 139 Chromium / 138 WebKit slide/title SFCs match CLI transforms exactly,
+including forty grammar probes. One WebKit C++ token-color difference is recorded
+separately, and 14 corpus cases assert documented errors or fallbacks
 for file imports, Monaco, PlantUML and unavailable grammars. These fallback
 cases are not exact-match claims. Reports go to
 `runtime/.cache/characterization-<browser>.json`. Hidden/disabled slides follow
@@ -62,9 +63,9 @@ The offline browser suite also renders a seriph fact slide after a fully
 offline reload, checking that theme-specific styles survive cached delivery.
 
 The runtime fidelity harness compares the actual staged bundle through the
-editor bridge with `slidev build` on a separate origin. Thirteen deterministic
+editor bridge with `slidev build` on a separate origin. Fourteen deterministic
 fixtures in both themes cover the six theme layouts, Markdown, columns, scoped
-styles, code, built-in components, TOC, icons and initial click states. Reports and CLI/online/diff PNGs go to
+styles, code, built-in components, TOC, icons, lazy syntax languages and initial click states. Reports and CLI/online/diff PNGs go to
 `runtime/.cache/fidelity/`, with screenshots separated by browser. Use `--skip-reference-build` only when the fixtures
 and CLI are unchanged; `BROWSER=webkit` selects WebKit. CI uploads a nonblocking
 Chromium report while platform/font coverage stabilizes. This is a subset of

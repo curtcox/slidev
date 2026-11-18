@@ -28,6 +28,7 @@ const fixtures = [
   { layout: 'default', content: '# Built-in components\n\nPage <SlideCurrentNo /> of <SlidesTotal />\n\n<RenderWhen context="main"><p>Main content</p></RenderWhen>\n\n<RenderWhen context="presenter"><p>Presenter only</p><template #fallback><p>Presenter fallback</p></template></RenderWhen>\n\n<LightOrDark><template #light><p>Light content</p></template><template #dark><p>Dark content</p></template></LightOrDark>\n\n<Transform :scale="0.8"><p>Scaled content</p></Transform>' },
   { layout: 'default', content: '# Table of contents\n\n<Toc columns="2" maxDepth="1" text-base />' },
   { layout: 'default', expectedIcons: 8, content: '# Bundled icons\n\n<div>\n<carbon:arrow-right class="text-4xl" /> <ph-heart class="text-red-500 text-4xl" /> <mdi:home class="text-4xl" /> <logos:vue class="text-4xl" /> <simple-icons:github class="text-4xl" /> <twemoji:rocket class="text-4xl" />\n<carbon:logo-github /> <carbon-arrow-right />\n</div>' },
+  { layout: 'default', expectedCodeBlocks: 3, content: '# Lazy syntax languages\n\n```py\ndef greet(name):\n    return f"Hello {name}"\n```\n\n```rs\nfn main() { println!("hello"); }\n```\n\n```vue\n<script setup lang="ts">const n: number = 1</script>\n<template><div>{{ n }}</div></template>\n```' },
 ]
 
 async function main() {
@@ -144,6 +145,12 @@ async function main() {
         if (fixtures[index].expectedIcons) {
           assert.equal(await actualSlide.locator('svg.slidev-icon').count(), fixtures[index].expectedIcons, 'Every fixture icon must render as SVG online')
           assert.equal(await referenceSlide.locator('svg.slidev-icon').count(), fixtures[index].expectedIcons, 'Every fixture icon must render as SVG in the CLI')
+        }
+        if (fixtures[index].expectedCodeBlocks) {
+          for (const slide of [actualSlide, referenceSlide]) {
+            assert.equal(await slide.locator('pre.slidev-code').count(), fixtures[index].expectedCodeBlocks)
+            assert.ok(await slide.locator('pre.slidev-code span[style]').count() > 10, 'Grammar fixtures must contain highlighted tokens')
+          }
         }
         await referencePage.evaluate(() => document.fonts.ready)
         await frame.evaluate(() => document.fonts.ready)
