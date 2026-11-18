@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — themes/icons/grammars/math/Mermaid, drag/writeback and per-deck PlantUML consent deployed; offline theme fonts and Google font support implemented; 141 exact SFC matches and 14 corpus fallbacks in Chromium/Firefox/WebKit CI; 40-case local fidelity passes Chromium/WebKit; earlier 38-case CI passes within tolerance; live PlantUML/offline verified in both local engines; remaining features/full rendering/phone gates open |
+| 2 | Slidev runtime | IN PROGRESS — offline theme fonts/custom Google fonts deployed after themes/icons/grammars/math/Mermaid, drag/writeback and PlantUML consent; 141 exact SFC matches + 14 corpus fallbacks in three CI engines; 40-case local fidelity exact in Chromium/WebKit and CI within tolerance; live font/isolation/offline checks pass both local engines; more theme audits, remaining features/full rendering/phone gates open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -1205,3 +1205,40 @@ records the measured results. Publication/tag approvals remain outstanding.
   are still running at this checkpoint. Further theme audits, remaining client
   features, full source-corpus fidelity and complete-runtime phone timing remain
   open. Phase 3 stays unimplemented.
+
+
+### Deployed font acceptance (2026-11-18)
+
+- Implementation `f54aa0df` and expanded visual gate `d8adffab` are pushed on
+  `main`. The final [deployment run 44413051970](https://github.com/curtcox/slidev/actions/runs/44413051970)
+  passes units, Chromium/Firefox/WebKit, independent publication verification,
+  all 40 visual comparisons and deployment. Actual Firefox logs confirm font
+  loading, offline subsets, Google mock responses, failures/retry, isolation,
+  **141** exact compiler SFC comparisons and **14** corpus fallbacks ran.
+- Both local visual reports have **40 exact matches** and no errors. Downloaded
+  final CI evidence contains **34** exact matches and six within tolerance,
+  with no errors. Both new font cases match exactly in CI. All three reports
+  share runtime SHA-256
+  `2968d24e99a99a2df1de0209657070b2c951a3532bad5c0a212eb2a92640eb1e`.
+  CI measures initial JS/CSS at **1,008,073 bytes gzip**, versus **1,007,975**
+  locally with identical source bytes. Compression sizes differ by Node version.
+- The live [recovery site](https://curtcox.github.io/slidev/) reports `d8adffab`
+  with `dirty:false`. Actual live Chromium and WebKit pass the complete font
+  suite and welcome/isolation/offline suite, including bundled non-Latin subsets,
+  fully offline seriph rendering and readable custom-font failures. The live font
+  audit matches all locally reviewed versions, hashes, byte counts and licenses.
+  Google service responses remain mocked in online acceptance. Custom Google
+  fonts are not included in offline caching.
+- [Repository CI](https://github.com/curtcox/slidev/actions/runs/44413051162)
+  passes typecheck, Cypress and Linux/Windows/macOS tests. Final local checks
+  retain all **396** repository tests and **23** online units, plus lint,
+  typechecks, runtime builds, actionlint and static/vendor/offline integrity.
+  Local Firefox cannot open its temporary profile in either the default directory
+  or `/private/tmp`; Firefox acceptance comes from the actual Linux CI run.
+- The first implementation deployment uploaded its Pages artifact, then failed
+  to find it. Retrying only that job produced two same-named artifacts and also
+  failed. The newer commit's fresh run deployed successfully. No artifact was
+  deleted, workflow pin changed or immutable vendor file edited.
+- Phase 2 stays open for further theme audits, remaining client features,
+  full source-corpus rendering/fidelity and complete-runtime phone timing.
+  Phase 3 remains unimplemented. This follow-up changes only the plan and index.
