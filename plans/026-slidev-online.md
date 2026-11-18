@@ -832,7 +832,9 @@ records the measured results. Publication/tag approvals remain outstanding.
   notices and rendering all seven collections after a fully offline reload.
   Existing runtime integration suites pass in both engines. All **26** product
   fidelity cases match the CLI with zero exact differing pixels in each engine,
-  including a new icon fixture in each official theme.
+  including a new icon fixture in each official theme. The icon fixture also
+  asserts that all eight expected SVGs exist in both renderers; visual review
+  caught and corrected a Markdown-escaped colon tag before that assertion landed.
 - Runtime build/typecheck, root typecheck, targeted lint, eight online units and
   static/vendor/offline integrity pass. Initial JS/CSS is **1,027,805 bytes gzip**
   with Node's gzip measurement. The separate collections total **33,398,204 bytes**
