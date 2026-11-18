@@ -932,3 +932,31 @@ records the measured results. Publication/tag approvals remain outstanding.
   Stale Turbo build artifacts were refreshed before the successful test run.
   Initial JS/CSS is **994,693 bytes gzip**; lazy math styles/fonts are **265,884
   bytes gzip**. These are payload observations, not phone performance acceptance.
+
+### Math and Mermaid continuation verification (2026-11-18)
+
+- Both implementation commits are pushed on `main`: `b3d54d76` (math styles/
+  fonts) and `68b39002` (lazy Mermaid). Clean release staging at `68b39002`
+  reports `dirty:false`. No upstream package or immutable vendor bytes changed.
+- Final local Chromium 156.0.8078.4 and WebKit 27.2 pass the runtime integration,
+  welcome/isolation/offline, math and diagram suites. Compiler characterization
+  still passes **139** exact slide/title SFC matches plus **14** explicit corpus
+  fallbacks in each engine. Both local visual reports have **34** exact matches,
+  no errors, and runtime SHA-256
+  `4d6d48655ba13a96acd94c87e2b1f15e798c087e81399e431ac0e4af1df3bb78`.
+- [Repository CI](https://github.com/curtcox/slidev/actions/runs/44381703117)
+  passes typecheck, Cypress and Linux/Windows/macOS tests. The separate Continuous
+  Releases workflow still fails on this fork's existing pkg-pr-new access issue.
+- [Mermaid CI/deployment](https://github.com/curtcox/slidev/actions/runs/44381703728)
+  passes units, independent kit verification, Firefox, WebKit and the visual
+  report at this checkpoint. Downloaded CI evidence contains **34** exact visual
+  matches with the same runtime hash as local reports. CI's Node gzip measurement
+  is **993,314 bytes**, versus **994,693** locally; the source bytes are identical.
+  Actual WebKit job logs confirm all integration/offline suites and the full
+  compiler comparisons ran. Chromium dependency installation and deployment
+  remain pending; a live deployment is not yet claimed for these commits.
+- The earlier math-only run's WebKit setup timed out after ten minutes downloading
+  Ubuntu packages, before product tests started. Its deployment was skipped.
+  The newer run has already passed those WebKit tests. Phase 2 remains open for
+  remote theme fonts, drag writeback, more theme audits, remaining client features,
+  full source-corpus fidelity and complete-runtime phone timing.
