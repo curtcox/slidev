@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — themes/icons/grammars/math/Mermaid plus drag and source-writeback bridge verified; 141 exact SFC matches and 14 corpus fallbacks in Chromium/WebKit; 36-case local fidelity passes both engines and Chromium CI; deployed drag/writeback/offline verified; remaining features/full rendering/phone gates open |
+| 2 | Slidev runtime | IN PROGRESS — themes/icons/grammars/math/Mermaid, drag/writeback and per-deck PlantUML consent implemented; 141 exact SFC matches and 14 corpus fallbacks in Chromium/WebKit; 38-case local fidelity passes both engines; deployed drag/writeback/offline verified; PlantUML CI/deployment pending; remaining features/full rendering/phone gates open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -1076,3 +1076,38 @@ records the measured results. Publication/tag approvals remain outstanding.
 - The superseded retry `44381703728` is confirmed canceled under the owner's
   explicit authorization. Phase 2 stays open for theme fonts, more theme audits,
   remaining client features, full source-corpus fidelity and phone performance.
+
+### Phase 2 PlantUML consent (2026-11-18)
+
+- Implementation `fdbc69c2` is pushed on `main`. PlantUML blocks show source and
+  a consent button before any diagram request. One trusted click enables all
+  diagrams in the current preview without running author code again. Navigation
+  retains permission. A new render or frame resets it. No permission enters
+  documents, links or storage. Direct and imported built-in components use the
+  same control.
+- Only the default `https://www.plantuml.com/plantuml` server is supported.
+  Custom servers produce a visible notice. The page permits images from that
+  server's SVG path. Script, connection and frame permissions stay unchanged.
+  Scale and alternate text match the upstream component. Requests omit the
+  referrer. WebKit acceptance caught an attribute-order issue, fixed by setting
+  the policy before the image URL.
+- Failed requests and the 15-second deadline show source with a retry button.
+  Actual local Chromium and WebKit pass consent, synthetic-click rejection,
+  navigation, replacement, no author-code rerun, options, custom-server rejection,
+  direct/imported components, retry and offline fallback. Tests mock the remote
+  service. This does not establish external service availability or offline
+  PlantUML rendering.
+- Chromium and WebKit each pass all **38** visual cases with zero exact differing
+  pixels. The new fixture compares enabled diagrams in both official themes.
+  Visual review caught a test interception gap. The final harness intercepts all
+  requests, blocks external traffic, and asserts the mock image dimensions in both
+  renderers. It permits local Blob modules required by WebKit. Earlier visual
+  runs that contacted the real service are excluded from final mock evidence.
+- Both engines retain **141** exact compiler comparisons and **14** corpus
+  fallback cases. PlantUML compilation now emits the consent component instead
+  of a static notice. The corpus still counts it as an intentional CLI deviation.
+  All **396** repository tests and **22** online units pass. Root typecheck/lint,
+  runtime build/typecheck, actionlint and static/vendor/offline integrity pass.
+- CI and deployment for this change remain pending. Theme fonts, further theme
+  audits, remaining client features, full source-corpus fidelity and complete
+  runtime phone timing remain open. Phase 3 is still unimplemented.

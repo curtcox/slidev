@@ -122,7 +122,9 @@ async function main() {
         const url = new URL(route.request().url())
         if (url.href.startsWith('https://www.plantuml.com/plantuml/svg/'))
           return route.fulfill({ contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="80"><text x="10" y="30">Alice to Bob</text></svg>' })
-        return url.hostname === '127.0.0.1' ? route.continue() : route.abort()
+        if (url.hostname === '127.0.0.1' || url.protocol === 'blob:' || url.protocol === 'data:')
+          return route.continue()
+        return route.abort()
       })
     }
     await onlinePage.goto(online.url)
