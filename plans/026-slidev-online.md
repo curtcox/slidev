@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — themes/icons/grammars/math/Mermaid plus drag and source-writeback bridge verified; 141 exact SFC matches and 14 corpus fallbacks in Chromium/WebKit; 36-case local fidelity passes both engines; remaining features/full rendering/phone gates open |
+| 2 | Slidev runtime | IN PROGRESS — themes/icons/grammars/math/Mermaid plus drag and source-writeback bridge verified; 141 exact SFC matches and 14 corpus fallbacks in Chromium/WebKit; 36-case local fidelity passes both engines and Chromium CI; deployed drag/writeback/offline verified; remaining features/full rendering/phone gates open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -1048,3 +1048,31 @@ records the measured results. Publication/tag approvals remain outstanding.
   inline comment instead of adding a second quoted key. A shipped-bundle
   regression covers the numeric directive form. All **22** online units and
   runtime typecheck pass. CI/deployment for this follow-up remain pending.
+
+### Deployed drag and writeback acceptance (2026-11-18)
+
+- Follow-up `4eca7bfe` is pushed on `main`. Its
+  [deployment run 44391662693](https://github.com/curtcox/slidev/actions/runs/44391662693)
+  passes units, Chromium/Firefox/WebKit, independent publication verification,
+  visual comparison and deployment. Actual Firefox job logs confirm the complete
+  drag/offline suite and **141** exact SFC comparisons plus **14** corpus fallback
+  cases ran successfully after explicit test deselection.
+- [Repository CI](https://github.com/curtcox/slidev/actions/runs/44391661099)
+  passes typecheck, Cypress and Linux/Windows/macOS. Local verification has all
+  **396** repository tests and **22** online units passing. The separate Continuous
+  Releases job still lacks pkg-pr-new access to this fork.
+- Downloaded final CI evidence contains **36 exact visual matches**, no errors,
+  and the same runtime SHA-256 as both local reports:
+  `89d2cb8185f3b1355735c20bc894721f1034b929902d91c070b1e7d73b3f8e05`.
+  CI measures initial JS/CSS at **1,005,960 bytes gzip**, versus **1,005,916**
+  locally with identical source bytes. The final parent parser/writeback module
+  is **147,159 bytes** (**39,271 gzip**) locally.
+- Live recovery metadata reports `4eca7bfe` with `dirty:false`. Actual live
+  Chromium and WebKit each pass the full drag/writeback suite and welcome/
+  isolation/offline suite. This includes scale/zoom, rotation, repeated source
+  targets, no author-code rerun while writing back, stale-source rejection and
+  geometry retention across navigation and offline reload. Tests use the bridge
+  API with a textarea host; the Phase 3 editor UI remains unimplemented.
+- The superseded retry `44381703728` is confirmed canceled under the owner's
+  explicit authorization. Phase 2 stays open for theme fonts, more theme audits,
+  remaining client features, full source-corpus fidelity and phone performance.
