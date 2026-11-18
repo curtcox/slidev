@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — compiler, opaque bridge and official default/seriph themes verified; 20-case product fidelity passes local Chromium/WebKit and CI Chromium; remaining features/corpus/phone gates open |
+| 2 | Slidev runtime | IN PROGRESS — navigation/built-ins/TOC/motion and virtual coverage verified; source corpus has 50 exact SFC matches plus 21 explicit fallbacks; 24-case product fidelity passes local Chromium/WebKit; remaining features/full rendering/phone gates open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -753,3 +753,53 @@ records the measured results. Publication/tag approvals remain outstanding.
   [Repository CI](https://github.com/curtcox/slidev/actions/runs/44342957694)
   passes Ubuntu/Windows/macOS, typecheck and Cypress. The separate Continuous
   Releases job still cannot publish because pkg-pr-new lacks access to this fork.
+
+### Phase 2 navigation and client continuation (2026-11-18)
+
+- Continued on `main` with four separately pushed implementation commits:
+  `f0e326d6` (navigation and built-ins), `1096ed66` (TOC and virtual coverage),
+  `3eb021f9` (motion/markers and expanded visual checks), and `ef8e1ecb`
+  (real-corpus regressions and compiler fixes).
+- The bundled adapter supports slide aliases, navigation APIs, slide counters,
+  upstream Link/RenderWhen/LightOrDark/Transform/AutoFitText/CodeGroup components,
+  slide-enter/leave hooks, Shiki magic-move, and upstream motion/marker directives.
+  Navigation and dark state stay in memory inside the opaque frame. Browser
+  integration checks cover code-tab switching, fitted text, click animations,
+  TOC hierarchy/hidden entries/active state, aliases, and directive cleanup.
+- TOC titles use the CLI's actual virtual-title template and Markdown pipeline.
+  One manifest supplies Vite aliases for all **18** current client virtual
+  imports. Builds and static checks parse TS/Vue imports and fail when upstream
+  adds an unimplemented virtual module; tests verify that failure. Empty setup
+  lists represent the single-document format's lack of setup directories,
+  while Monaco remains an explicit static-code fallback.
+- Characterization now includes the actual starter, composable-vue and every
+  online example. Local Chromium 156.0.8078.4 and WebKit 27.2 each pass **50 exact
+  slide/title SFC comparisons** and **21 explicit corpus fallback/error cases**.
+  Unsupported languages, Monaco, PlantUML and file imports are not counted as
+  exact matches. Per-browser JSON reports record those distinctions. This is
+  compilation evidence, not full rendering or fidelity for those source decks.
+- The corpus caught two runtime defects: hidden/disabled slides were retained,
+  and Vue's static-tree optimization tried to use `Function()` under the frame
+  CSP. Filtering/renumbering now matches the CLI while preserving source ranges
+  and document headmatter; disabling that optimization preserves the existing
+  CSP and keeps all author execution inside the SDK's opaque frame.
+- The product fidelity suite now includes **24 cases**, adding built-in
+  components and TOC in both themes. Local Chromium and WebKit both have zero
+  exact differing pixels. Screenshots are separated by browser so one run cannot
+  overwrite another's evidence. Final JS/CSS is **1,023,062 bytes gzip**, runtime
+  SHA-256 `a1348bfbf0166fc28af195d11468d5e3e02fe8ac72d9837e457a11483c3e5203`.
+  Complete-runtime phone timing and physical-phone acceptance remain unverified.
+- Local runtime build/typecheck, frozen offline install, all seven online units,
+  static/vendor/offline integrity, both integration/offline browser suites,
+  repository build/typecheck/lint and all **392** repository tests pass. Stale
+  local Turbo artifacts were refreshed before the final repository test run.
+- [Navigation deployment](https://github.com/curtcox/slidev/actions/runs/44347840037),
+  [TOC deployment](https://github.com/curtcox/slidev/actions/runs/44348533963) and
+  [motion deployment](https://github.com/curtcox/slidev/actions/runs/44349402402)
+  passed their actual test/publication/deploy gates. The recovery site's release
+  metadata was verified at `3eb021f9` with `dirty:false`; final compiler-fix run
+  [44351136683](https://github.com/curtcox/slidev/actions/runs/44351136683) was still
+  in progress at this checkpoint.
+- Phase 2 remains open for icons, additional/lazy grammars and diagrams/fonts,
+  drag writeback, additional theme audits, remaining client features, full
+  source-corpus rendering/fidelity, and complete-runtime phone performance.

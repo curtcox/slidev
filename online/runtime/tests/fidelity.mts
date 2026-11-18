@@ -151,7 +151,7 @@ async function main() {
           actual: [...actual],
         })
         assert.equal(diff.error, undefined)
-        const folder = resolve(cache, 'screenshots', theme)
+        const folder = resolve(cache, 'screenshots', engine, theme)
         await mkdir(folder, { recursive: true })
         await writeFile(resolve(folder, `${index + 1}-cli.png`), reference)
         await writeFile(resolve(folder, `${index + 1}-online.png`), actual)
