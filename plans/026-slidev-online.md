@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — client/virtual modules, seven lazy icon collections, 40 lazy grammars and offline math fonts and lazy Mermaid verified; 139 exact SFC matches in Chromium/WebKit plus 14 corpus fallbacks; 34-case local fidelity passes Chromium/WebKit; remaining features/full rendering/phone gates open |
+| 2 | Slidev runtime | IN PROGRESS — client/virtual modules, seven lazy icon collections, 40 lazy grammars and offline math fonts and lazy Mermaid verified; 139 exact SFC matches in Chromium/WebKit plus 14 corpus fallbacks; 34-case local fidelity passes Chromium/WebKit and Chromium CI; live math/diagrams/offline verified; remaining features/full rendering/phone gates open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -972,3 +972,20 @@ records the measured results. Publication/tag approvals remain outstanding.
   immutable shared workflow and vendored bytes stay unchanged. Actionlint and
   fixtures for regional/bare EC2, official archive and security URLs pass.
   CI and deployment for this infrastructure repair are not yet verified.
+
+### Deployed math and diagrams (2026-11-18)
+
+- Runner mirror repair is pushed as `a8b7f152`. Its
+  [deployment run 44383980419](https://github.com/curtcox/slidev/actions/runs/44383980419)
+  passes unit, Chromium/Firefox/WebKit, independent publication verification,
+  visual comparison and deployment. All three browser jobs completed dependency
+  installation and ran the actual product suites after the mirror normalization.
+- The live [recovery site](https://curtcox.github.io/slidev/) reports `a8b7f152`
+  with `dirty:false`. Actual live Chromium and WebKit each pass the math suite,
+  Mermaid suite and welcome/isolation/offline-reload suite, including offline
+  seriph rendering. No physical-phone performance acceptance is implied.
+- The older `68b39002` Chromium-only retry remains active at this checkpoint.
+  Automatic approval review rejected its cancellation because workflow
+  cancellation was not explicitly authorized. It was left running; its runtime
+  source is identical to the deployed repair, which only changes CI setup.
+  The evidence-only follow-up changes this plan and its index.
