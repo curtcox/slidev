@@ -1,8 +1,9 @@
 # Slidev Online scaffold
 
-Phase 1 mounts a fixed welcome deck using the real Slidev client inside the
-published SDK's opaque DOM frame. Authoring and the full browser compiler are
-tracked in Plan 026; this scaffold does not expose editing or sharing yet.
+The welcome deck is compiled in the browser and mounted using the real Slidev
+client inside the published SDK's opaque DOM frame. Phase 2 adds the rendering
+bridge, bundled module registry, click navigation, scoped styles and UnoCSS.
+The shell does not expose editing or sharing yet.
 
 The shell uses native modules. Only `runtime/` is built with Vite. Vendored kit
 bytes are immutable; use its vendor-sync tool to upgrade an exact release.
@@ -21,6 +22,7 @@ npm test
 npm run check
 npm run serve
 node tests/browser/all.cjs http://127.0.0.1:8000/ chromium
+node tests/browser/runtime.cjs http://127.0.0.1:8000/ chromium
 node runtime/tests/run.mjs
 # Repeat the compiler checks with BROWSER=webkit or BROWSER=firefox.
 ```
@@ -35,4 +37,6 @@ The Phase 2 compiler reuses Slidev's Markdown plugin chain and pure layout
 wrapper inside the opaque frame. Its browser characterization compares seven
 generated SFCs with the real CLI transforms and checks unsupported features,
 UTF-8 limits and incremental caching. The complete starter/composable fixture
-matrix, live rendering bridge and full-runtime fidelity/budget gates remain open.
+matrix and full-runtime fidelity/budget gates remain open. The runtime browser
+suite exercises author scripts, style isolation, slots, click navigation,
+hostile-deck isolation, document replacement and visible unsupported features.

@@ -1,0 +1,39 @@
+@import '@unocss/reset/tailwind.css';
+@import '../../../packages/client/styles/vars.css';
+@import '../../../packages/client/styles/index.css';
+@import '../../../packages/client/styles/code.css';
+@import '../../../packages/client/styles/vclick.css';
+@import '../../../packages/client/styles/layouts-base.css';
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+body {
+  color: #181818;
+  background: white;
+}
+.dark body {
+  color: #ddd;
+  background: #121212;
+}
+#app {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: center;
+}
+#online-notices {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 8px;
+  font: 14px/1.4 system-ui;
+  white-space: pre-line;
+  background: #fff3cd;
+  color: #332700;
+  z-index: 1000;
+}

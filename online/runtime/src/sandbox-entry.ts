@@ -1,66 +1,60 @@
-import type { SlideRoute } from '@slidev/types'
-import { createApp, h, nextTick, reactive } from 'vue'
-import { createFixedClicks } from '../../../packages/client/composables/useClicks'
-import { injectionSlidevContext } from '../../../packages/client/constants'
-import SlideWrapper from '../../../packages/client/internals/SlideWrapper.vue'
-import { parseSync } from '../../../packages/parser/src/core'
-import Welcome from './Welcome.vue'
-import './style.css'
+import { parseCommand } from './protocol'
+import { createRenderer } from './renderer'
 
 export { createDeckCompiler } from './compiler'
 export { rewriteModuleImports } from './compiler/modules'
+export { parseCommand } from './protocol'
 
-// Phase 1 mounts a trusted welcome deck. Author compilation belongs to Phase 2.
-export function start() {
+export async function start() {
   if (globalThis.origin !== 'null')
     throw new Error('Slidev must run in an opaque sandbox')
-  const slide = parseSync('# Hello, Slidev.', 'welcome.md').slides[0]
-  const route: SlideRoute = {
-    no: 1,
-    component: Welcome,
-    load: async () => ({ default: Welcome }),
-    meta: {
-      __clicksContext: null,
-      slide: {
-        ...slide,
-        no: 1,
-        id: 0,
-        sourceIndex: 0,
-        noteHTML: '',
-      },
-    },
-  }
-  const app = createApp({
-    render: () => h(SlideWrapper, {
-      route,
-      clicksContext: createFixedClicks(route),
-    }),
+  // The SDK proxies this request through the parent's verified offline cache.
+  const response = await fetch('runtime/sandbox.css')
+  if (!response.ok)
+    throw new Error('Slide styles are unavailable')
+  const style = document.createElement('style')
+  style.textContent = await response.text()
+  document.head.append(style)
+  const report = (message: Record<string, unknown>) => postMessage({ protocol: 1, ...message })
+  const renderer = createRenderer(report)
+  let queue = Promise.resolve()
+  const fail = (error: unknown) => report({
+    type: 'error',
+    message: String(error).slice(0, 2000),
   })
-  app.provide(injectionSlidevContext, reactive({
-    nav: {
-      next() {},
-      openInEditor() {},
-    },
-  }) as any)
-  let mounted = false
-  addEventListener('message', async ({ data }) => {
-    if (mounted || data?.protocol !== 1 || data.type !== 'mount' || typeof data.css !== 'string' || data.css.length > 1_000_000)
+  addEventListener('message', ({ data }) => {
+    // The SDK forwards its private MessagePort into synthetic frame events;
+    // native window messages are blocked by the immutable SDK bootstrap.
+    try {
+      const command = parseCommand(data)
+      queue = queue.then(async () => {
+        if (command.type === 'render')
+          await renderer.render(command)
+        else
+          await renderer.goto(command.slide, command.click)
+      }).then(() => {}, fail)
+    }
+    catch (error) { fail(error) }
+  })
+  addEventListener('resize', renderer.resize)
+  addEventListener('keydown', (event) => {
+    if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey
+      || (event.target as HTMLElement)?.closest('button, a, input, textarea, select, [contenteditable]')) {
       return
-    mounted = true
-    const style = document.createElement('style')
-    style.textContent = data.css
-    const container = document.createElement('div')
-    container.id = 'app'
-    document.head.append(style)
-    document.body.append(container)
-    app.mount(container)
-    await nextTick()
-    postMessage({
-      protocol: 1,
-      type: 'rendered',
-      slides: 1,
-      origin: globalThis.origin,
-    })
+    }
+    if ([
+      'ArrowRight',
+      'ArrowDown',
+      'PageDown',
+      ' ',
+    ].includes(event.key)) {
+      event.preventDefault()
+      queue = queue.then(renderer.next).then(() => {}, fail)
+    }
+    else if (['ArrowLeft', 'ArrowUp', 'PageUp'].includes(event.key)) {
+      event.preventDefault()
+      queue = queue.then(renderer.prev).then(() => {}, fail)
+    }
   })
-  postMessage({ protocol: 1, type: 'ready' })
+  report({ type: 'ready' })
 }

@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — browser compiler matches seven CLI transforms in Chromium/WebKit; live rendering bridge next |
+| 2 | Slidev runtime | IN PROGRESS — compiler and opaque rendering bridge verified in Chromium/WebKit; remaining themes/features and fidelity gates open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -665,3 +665,35 @@ records the measured results. Publication/tag approvals remain outstanding.
 - This verifies compilation, not full client execution or visual parity. The
   starter/composable corpus, module registry, bridge, styles/themes, virtual
   coverage and full-runtime performance/fidelity gates remain Phase 2 work.
+
+### Phase 2 rendering bridge (2026-11-18)
+
+- The welcome deck now takes the actual browser-compiler path. A bundled module
+  registry supplies Vue, Slidev context/constants, built-in layouts and an initial
+  set of built-in components. Author modules import from Blob URLs only inside
+  the opaque SDK frame. Unknown imports fail visibly; missing components and
+  directives get text notices even with production Vue's warnings disabled.
+- The versioned bridge validates bounded document bytes, command fields and
+  integer positions. Replacing a document terminates the previous SDK sandbox;
+  revision guards discard stale events. Timeouts/errors destroy failed frames.
+  Rendering and navigation are serialized inside the frame.
+- Real SlideWrapper/click contexts implement slide navigation and click steps.
+  UnoCSS utilities/directives, Vue scoped styles and document CSS are generated
+  inside the sandbox. The parent fetch proxy delivers emitted component CSS
+  through the same offline path as the runtime bundle.
+- Actual local Chromium and WebKit integration suites pass script-setup button
+  interaction, TypeScript, scoped/utility/document CSS, style isolation between
+  slides, two-column slots, next/previous clicks, parent DOM/storage/cookie
+  denial, teardown of old author intervals, and visible missing-module/component
+  errors. Welcome rendering and fully offline reload pass in both engines.
+  The schema/packaging units and targeted runtime typecheck/lint pass too.
+- This remains an initial rendering subset: official theme selection, more
+  components/directives/virtual modules, icons, lazy grammars/diagrams, the full
+  characterization corpus, visual fidelity and full-runtime phone timing are
+  still open. The current local bundle is about 981 KB gzip plus emitted CSS;
+  that is a size observation, not completion of the final S4 gate.
+- Repository-wide verification for this continuation: refreshed package builds,
+  all 392 Vitest tests and root typecheck pass. The initial stale-build/local-port
+  failures were resolved by rebuilding and running the HMR tests with local ports.
+  Root typecheck also caught the earlier seam test missing Vue's required style
+  filename; that small correction was committed separately.

@@ -28,6 +28,7 @@ jobs:
       server-command: npm run serve
       browser-command: |
         node tests/browser/all.cjs http://127.0.0.1:8000/ "$BROWSER"
+        node tests/browser/runtime.cjs http://127.0.0.1:8000/ "$BROWSER"
         node runtime/tests/run.mjs
       gallery-command: npm run gallery:check
   kit:

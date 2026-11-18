@@ -16,7 +16,12 @@ const count = ref<number>(42)
     expect(compiled.content).toContain('ref<number>(42)')
     expect(descriptor.template?.content).toContain(`_frontmatterToProps($frontmatter,${index})`)
     expect(descriptor.styles).toHaveLength(1)
-    const style = compileStyle({ source: descriptor.styles[0].content, id: 'data-v-slide', scoped: true, filename: 'slide.vue' })
+    const style = compileStyle({
+      source: descriptor.styles[0].content,
+      id: 'data-v-slide',
+      scoped: true,
+      filename: 'slide.vue',
+    })
     expect(style.errors).toEqual([])
     expect(style.code).toContain('[data-v-slide]')
   })

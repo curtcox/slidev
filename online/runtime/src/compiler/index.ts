@@ -37,6 +37,8 @@ export async function createDeckCompiler(src: string, { plantUmlAllowed = false 
   const parsed = parseSync(src, 'slides.md')
   if (!parsed.slides.length || parsed.slides.every(slide => !slide.content.trim()))
     throw new Error('The deck must contain at least one slide')
+  if (parsed.slides.length > 10000)
+    throw new Error('The deck exceeds the 10,000 slide limit')
   for (const slide of parsed.slides) {
     if (slide.frontmatterDoc?.errors.length)
       throw new Error(`Slide ${slide.index + 1}: ${slide.frontmatterDoc.errors[0].message}`)
