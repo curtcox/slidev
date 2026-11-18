@@ -185,6 +185,15 @@ Page <SlideCurrentNo /> of <SlidesTotal />
     await frame.getByText('after', { exact: true }).waitFor()
     assert.equal(await frame.locator('#online-notices').count(), 0)
 
+    const hiddenSlides = '---\ntheme: seriph\nhide: true\n---\n# Hidden cover\n\n---\n\n# First visible\n\nPage <SlideCurrentNo /> of <SlidesTotal />\n\n---\ndisabled: true\n---\n# Disabled slide\n\n---\n\n# Last visible'
+    assert.deepEqual(await render(hiddenSlides), [])
+    frame = page.frameLocator('#runtime-test iframe')
+    assert.equal(await frame.locator('h1').textContent(), 'First visible')
+    assert.match(await frame.locator('.slidev-layout').textContent(), /Page 1 of 2/)
+    await page.evaluate(() => window.runtimeTest.bridge.goto(2))
+    await frame.getByRole('heading', { name: 'Last visible' }).waitFor()
+    assert.equal(await frame.locator('h1').evaluate(element => getComputedStyle(element).color), 'rgb(93, 131, 146)')
+
     const codeGroup = '# Code groups\n\n<AutoFitText :min="20" :max="40" model-value="Fitted text" />\n\n<CodeGroup>\n\n```ts [first.ts]\nconst first = 1\n```\n\n```ts [second.ts]\nconst second = 2\n```\n\n</CodeGroup>'
     assert.deepEqual(await render(codeGroup), [])
     frame = page.frameLocator('#runtime-test iframe')

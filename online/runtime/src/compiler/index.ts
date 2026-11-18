@@ -37,7 +37,15 @@ function compileSfc(sfc: string, id: string, warnings: string[]): CompiledSlide 
   const { descriptor, errors } = parseSfc(sfc, { filename: `${id}.vue` })
   if (errors.length)
     throw errors[0]
-  const compiled = compileScript(descriptor, { id, inlineTemplate: true })
+  const compiled = compileScript(descriptor, {
+    id,
+    inlineTemplate: true,
+    // Vue's large-static-tree stringifier evaluates constant expressions with
+    // Function(). Keep template generation compatible with the SDK frame CSP.
+    templateOptions: {
+      compilerOptions: { hoistStatic: false },
+    },
+  })
   const code = transform(compiled.content, {
     transforms: ['typescript'],
     disableESTransforms: true,
@@ -67,12 +75,23 @@ export async function createDeckCompiler(src: string, { plantUmlAllowed = false 
     if (slide.frontmatterDoc?.errors.length)
       throw new Error(`Slide ${slide.index + 1}: ${slide.frontmatterDoc.errors[0].message}`)
   }
-  const slides = parsed.slides.map(source => ({ ...source, no: source.index + 1, source }))
-  const headmatter = slides[0].frontmatter
+  const slides = parsed.slides.filter(source => !source.frontmatter.disabled && !source.frontmatter.hide)
+    .map((source, index) => ({
+      ...source,
+      index,
+      no: index + 1,
+      source,
+    }))
+  if (!slides.length)
+    throw new Error('The deck must contain at least one visible slide')
+  // Headmatter belongs to the source document, even when its first slide is
+  // hidden. The CLI infers the presentation title from the first visible slide.
+  const headmatter = { ...parsed.slides[0].frontmatter }
+  headmatter.title ??= slides[0].title
   const theme = resolveTheme(headmatter.theme ?? headmatter.config?.theme)
   const config = resolveConfig(headmatter, theme.meta)
   config.theme = theme.name
-  const requestedTwoslash = slides[0].frontmatter.twoslash != null && slides[0].frontmatter.twoslash !== false
+  const requestedTwoslash = headmatter.twoslash != null && headmatter.twoslash !== false
   config.twoslash = false
   const shiki = await highlighter
   let currentWarnings: string[] = []
@@ -117,7 +136,7 @@ export async function createDeckCompiler(src: string, { plantUmlAllowed = false 
   const hook = typeof markdown.transform === 'function'
     ? markdown.transform
     : markdown.transform!.handler
-  const configKey = await digest(JSON.stringify([slides[0].frontmatter, config, plantUmlAllowed]))
+  const configKey = await digest(JSON.stringify([headmatter, config, plantUmlAllowed]))
   let queue = Promise.resolve()
 
   return {

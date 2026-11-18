@@ -1,9 +1,12 @@
 import assert from 'node:assert/strict'
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises'
+import { createHash } from 'node:crypto'
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
+import { parseSync } from '@slidev/parser/core'
 import { chromium, firefox, webkit } from 'playwright'
+import YAML from 'yaml'
 import { resolveOptions } from '../../../packages/slidev/node/options'
 import { templateTitleRendererMd } from '../../../packages/slidev/node/virtual/titles'
 import { createLayoutWrapperPlugin } from '../../../packages/slidev/node/vite/layoutWrapper'
@@ -35,6 +38,10 @@ const fixtures = [
   {
     name: 'magic-move',
     src: `---\ntheme: default\n---\n# Magic Move\n\n\`\`\`\`md magic-move\n\`\`\`ts\nconst count = 1\n\`\`\`\n\`\`\`ts\nconst count = 2\n\`\`\`\n\`\`\`\`\n`,
+  },
+  {
+    name: 'disabled-slides',
+    src: '---\ntheme: seriph\nhide: true\n---\n# Hidden cover\n\n---\n\n# First visible\n\n---\ndisabled: true\n---\n# Disabled slide\n\n---\n\n# Last visible',
   },
 ]
 
@@ -68,7 +75,7 @@ hashbinSandbox.import('runtime/sandbox.js').then(module => {
       const compiler = await module.createDeckCompiler(data.oversize ? 'é'.repeat(3000000) : data.src,{plantUmlAllowed:data.plantUmlAllowed===true});
       const result = data.titles ? await compiler.compileTitles() : await compiler.compile(data.index ?? 0,data.layoutImport ?? 'online:layout/default');
       postMessage({ok:true,result});
-    } catch(error) { postMessage({ok:false,error:String(error)}); }
+    } catch(error) { postMessage({ok:false,error:[String(error),error.stack].filter(Boolean).join("\n")}); }
   };
   postMessage({ready:true});
 }).catch(error => postMessage({ok:false,error:String(error)}));
@@ -91,9 +98,38 @@ async function main() {
     const page = await browser.newPage()
     await page.goto(url)
     const expected = []
-    for (const fixture of fixtures) {
+    const corpusProbes: { fixture: string, src: string, index: number, expectedError?: string, expectedNotice?: string }[] = []
+    const corpus = await Promise.all([
+      'demo/starter/slides.md',
+      'demo/composable-vue/slides.md',
+      ...(await readdir(resolve(root, 'online/examples'))).filter(file => file.endsWith('.md')).map(file => `online/examples/${file}`),
+    ].map(async path => ({
+      name: path.replaceAll('/', '-'),
+      src: await readFile(resolve(root, path), 'utf8'),
+      corpus: true,
+    })))
+    for (const fixture of [
+      ...fixtures,
+      ...corpus,
+    ]) {
+      const isCorpus = 'corpus' in fixture
+      const parsed = parseSync(fixture.src, 'slides.md')
+      const visible = parsed.slides.filter(slide => !slide.frontmatter.disabled && !slide.frontmatter.hide)
+      // Keep imported slides as one explicit negative case, rather than letting
+      // the CLI expand local files that online deliberately cannot access.
+      const reference = isCorpus
+        ? parsed.slides.map((slide) => {
+            const { src, ...frontmatter } = slide.frontmatter
+            return `---\n${YAML.stringify({
+              ...frontmatter,
+              ...(src
+                ? { onlineExcludedSrc: src }
+                : {}),
+            })}---\n${slide.content}\n`
+          }).join('\n')
+        : fixture.src
       const entry = resolve(temporary, `${fixture.name}.md`)
-      await writeFile(entry, fixture.src)
+      await writeFile(entry, reference)
       const options = await resolveOptions({ entry }, 'build')
       const markdown = await createMarkdownPlugin(options, {})
       const wrapper = createLayoutWrapperPlugin(options)
@@ -104,8 +140,55 @@ async function main() {
         titles: true,
         sfc: await transform(markdown, titleSource, '/@slidev/title-renderer.md'),
       })
+      assert.equal(options.data.slides.length, visible.length, `${fixture.name}: reference must preserve visible slide positions`)
       for (let index = 0; index < options.data.slides.length; index++) {
         const slide = options.data.slides[index]
+        if (isCorpus) {
+          const original = visible[index]
+          let expectedError: string | undefined
+          let expectedNotice: string | undefined
+          if (original.frontmatter.src) {
+            expectedError = 'Slide imports'
+          }
+          else if (/^<<<\s/m.test(original.content)) {
+            expectedError = 'File snippets'
+          }
+          else if (/^```[^\n]*\{monaco/m.test(original.content)) {
+            expectedNotice = 'Monaco editing and execution are not available yet'
+          }
+          else if (/^```plantuml\b/m.test(original.content)) {
+            expectedNotice = 'PlantUML is off'
+          }
+          else {
+            for (const [, lang, info] of original.content.matchAll(/^`{3,}([^\s`]+)([^\n]*)/gm)) {
+              if (![
+                'ts',
+                'typescript',
+                'js',
+                'javascript',
+                'yaml',
+                'yml',
+                'text',
+                'txt',
+                'plaintext',
+                'mermaid',
+              ].includes(lang) && !info.includes('magic-move')) {
+                expectedNotice = `Language ${lang} is unavailable; showing plain text`
+                break
+              }
+            }
+          }
+          if (expectedError || expectedNotice) {
+            corpusProbes.push({
+              fixture: fixture.name,
+              src: fixture.src,
+              index,
+              expectedError,
+              expectedNotice,
+            })
+            continue
+          }
+        }
         const id = `slides.md__slidev_${index + 1}.md`
         const sfc = await transform(wrapper, await transform(markdown, slide.content, id), id)
         const layout = slide.frontmatter.layout || (index === 0
@@ -128,10 +211,12 @@ async function main() {
       { src: '---\nsrc: ./other.md\n---\n# Imported', expectedError: 'Slide imports' },
       { src: '---\ninvalid: [\n---\n# Broken', expectedError: 'Slide 1' },
       { src: '', oversize: true, expectedError: '5 MiB' },
+      { src: '---\nhide: true\n---\n# Hidden\n\n---\ndisabled: true\n---\n# Disabled', expectedError: 'visible slide' },
     ]
     const probes = [
       ...expected.map(({ src, index, layoutImport, titles }) => ({ src, index, layoutImport, titles })),
       ...negative,
+      ...corpusProbes,
       { src: '# Static\n\n```js {monaco-run}\nconsole.log(1)\n```', expectedNotice: 'Monaco editing and execution are not available yet' },
       { src: '# Diagram\n\n```plantuml\n@startuml\nA -> B\n@enduml\n```', expectedNotice: 'PlantUML is off', noPlantUml: true },
       { src: '# Diagram\n\n```plantuml\n@startuml\nA -> B\n@enduml\n```', plantUmlAllowed: true, expectedNotice: '<PlantUml' },
@@ -163,9 +248,18 @@ async function main() {
       assert.equal(result.ok, false, 'Unsupported source must fail visibly')
       assert.ok(result.error.includes(negative[i].expectedError), result.error)
     }
-    const fallbackProbes = probes.slice(expected.length + negative.length, -1) as { expectedNotice: string, noPlantUml?: boolean }[]
-    for (let i = 0; i < fallbackProbes.length; i++) {
+    for (let i = 0; i < corpusProbes.length; i++) {
+      const probe = corpusProbes[i]
       const result = results[expected.length + negative.length + i]
+      const label = `${probe.fixture} slide ${probe.index + 1}`
+      assert.equal(result.ok, !probe.expectedError, `${label}: ${result.error}`)
+      assert.ok((probe.expectedError
+        ? result.error
+        : [result.result.sfc, ...result.result.warnings].join('\n')).includes(probe.expectedError || probe.expectedNotice), label)
+    }
+    const fallbackProbes = probes.slice(expected.length + negative.length + corpusProbes.length, -1) as { expectedNotice: string, noPlantUml?: boolean }[]
+    for (let i = 0; i < fallbackProbes.length; i++) {
+      const result = results[expected.length + negative.length + corpusProbes.length + i]
       assert.equal(result.ok, true, result.error)
       assert.ok([result.result.sfc, ...result.result.warnings].join('\n').includes(fallbackProbes[i].expectedNotice))
       if (fallbackProbes[i].noPlantUml)
@@ -175,7 +269,24 @@ async function main() {
       ok: true,
       result: { reused: true, invalidated: true, separateWarnings: true },
     })
-    process.stdout.write(`${engine}: ${expected.length} SFCs match CLI; unsupported imports, UTF-8 limits and incremental caching pass\n`)
+    await writeFile(resolve(cache, `characterization-${engine}.json`), `${JSON.stringify({
+      browser: `${engine} ${browser.version()}`,
+      scope: 'Compiler output only; supported slides and title renderers compared exactly against CLI transforms. Documented unsupported features checked for visible errors/notices, not counted as exact matches.',
+      exact: expected.map(({ fixture, index, titles, src }) => ({
+        fixture,
+        slide: titles
+          ? 'titles'
+          : index + 1,
+        sourceSha256: createHash('sha256').update(src).digest('hex'),
+      })),
+      fallbacks: corpusProbes.map(({ fixture, index, expectedError, expectedNotice }) => ({
+        fixture,
+        slide: index + 1,
+        expectedError,
+        expectedNotice,
+      })),
+    }, null, 2)}\n`)
+    process.stdout.write(`${engine}: ${expected.length} SFCs match CLI; ${corpusProbes.length} corpus fallbacks, unsupported imports, UTF-8 limits and incremental caching pass\n`)
   }
   finally {
     await browser?.close()

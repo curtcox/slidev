@@ -66,8 +66,14 @@ export function createNavigation(
     next,
     prev,
     go,
-    nextSlide: (lastClicks = false) => go(Math.min(total.value, position.value + 1), lastClicks ? 999999 : 0),
-    prevSlide: (lastClicks = false) => go(Math.max(1, position.value - 1), lastClicks ? 999999 : 0),
+    async nextSlide(lastClicks = false) {
+      if (position.value < total.value)
+        await go(position.value + 1, lastClicks ? 999999 : 0)
+    },
+    async prevSlide(lastClicks = false) {
+      if (position.value > 1)
+        await go(position.value - 1, lastClicks ? 999999 : 0)
+    },
     goFirst: () => go(1),
     goLast: () => go(total.value),
   }

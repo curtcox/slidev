@@ -291,6 +291,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
   async function next() {
     if (!compiler || !clicks.value)
       return
+    navigation.clicksDirection.value = 1
     if (clicks.value.current < clicks.value.total) {
       clicks.value.current++
       sendPosition()
@@ -303,6 +304,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
   async function prev() {
     if (!clicks.value)
       return
+    navigation.clicksDirection.value = -1
     if (clicks.value.current > clicks.value.clicksStart) {
       clicks.value.current--
       sendPosition()
