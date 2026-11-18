@@ -4,10 +4,21 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "vite build"
+    "build": "vue-tsc --noEmit -p tsconfig.json && vite build",
+    "test": "node tests/run.mjs"
   },
   "dependencies": {
     "@slidev/client": "workspace:*",
+    "@slidev/parser": "workspace:*",
+    "@slidev/types": "workspace:*",
+    "@vue/compiler-sfc": "catalog:demo",
+    "es-module-lexer": "catalog:prod",
+    "magic-string": "catalog:prod",
+    "magic-string-stack": "catalog:prod",
+    "shiki": "catalog:frontend",
+    "sucrase": "catalog:prod",
+    "unocss": "catalog:prod",
+    "unplugin-vue-markdown": "catalog:prod",
     "vue": "catalog:frontend"
   },
   "devDependencies": {

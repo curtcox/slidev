@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — extracting browser-safe transform seams and implementing the compiler/bridge |
+| 2 | Slidev runtime | IN PROGRESS — browser compiler matches seven CLI transforms in Chromium/WebKit; live rendering bridge next |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -643,3 +643,25 @@ records the measured results. Publication/tag approvals remain outstanding.
 - Phase 0's throwaway-prototype gates are complete with published dependencies.
   Its recorded payload/timing scope stays explicit; the complete product's
   payload and first-render budgets must be checked again during Phase 2.
+
+### Phase 2 compiler continuation (2026-11-18)
+
+- Continued on `main`, preserving the existing runtime work. The upstreamable
+  layout wrapper seam is committed separately with characterization tests.
+- Browser compilation reuses the CLI Markdown plugin chain and layout wrapping,
+  then Vue's browser SFC compiler and TypeScript stripping. Syntax-aware module
+  rewriting rejects nonliteral dynamic imports and delegates allowed modules to
+  a bundled registry. No author code is compiled or evaluated on the editor origin.
+- Unsupported file imports fail visibly; Monaco is static with a notice,
+  Twoslash is disabled with a notice, and PlantUML stays off unless explicitly
+  enabled. Shiki currently bundles JavaScript, TypeScript and YAML; other
+  languages fall back to text with a notice. The cache is bounded by bytes/count
+  and invalidated by headmatter/config changes.
+- Actually ran locally: Chromium and WebKit each match seven generated SFCs
+  against the CLI (Markdown, script/style, slots/clicks, highlighting, drag/
+  Mermaid markup, magic-move). Negative input, UTF-8 byte-limit, fallback and
+  incremental-cache probes pass. Three online unit tests, runtime typecheck/build,
+  static/vendor/offline integrity checks and targeted ESLint pass.
+- This verifies compilation, not full client execution or visual parity. The
+  starter/composable corpus, module registry, bridge, styles/themes, virtual
+  coverage and full-runtime performance/fidelity gates remain Phase 2 work.

@@ -21,6 +21,8 @@ npm test
 npm run check
 npm run serve
 node tests/browser/all.cjs http://127.0.0.1:8000/ chromium
+node runtime/tests/run.mjs
+# Repeat the compiler checks with BROWSER=webkit or BROWSER=firefox.
 ```
 
 Release staging uses `node scripts/build.mjs --release`, which rejects a dirty
@@ -28,3 +30,9 @@ checkout and writes `release.json` with the exact commit and dirty state.
 Every offline asset is hashed. Optional AI engines are excluded from automatic
 offline downloads. The canonical host is unset; the shell uses the recovery URL
 until a later phase registers and deploys the canonical origin.
+
+The Phase 2 compiler reuses Slidev's Markdown plugin chain and pure layout
+wrapper inside the opaque frame. Its browser characterization compares seven
+generated SFCs with the real CLI transforms and checks unsupported features,
+UTF-8 limits and incremental caching. The complete starter/composable fixture
+matrix, live rendering bridge and full-runtime fidelity/budget gates remain open.

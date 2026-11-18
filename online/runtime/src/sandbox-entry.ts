@@ -3,20 +3,33 @@ import { createApp, h, nextTick, reactive } from 'vue'
 import { createFixedClicks } from '../../../packages/client/composables/useClicks'
 import { injectionSlidevContext } from '../../../packages/client/constants'
 import SlideWrapper from '../../../packages/client/internals/SlideWrapper.vue'
+import { parseSync } from '../../../packages/parser/src/core'
 import Welcome from './Welcome.vue'
 import './style.css'
+
+export { createDeckCompiler } from './compiler'
+export { rewriteModuleImports } from './compiler/modules'
 
 // Phase 1 mounts a trusted welcome deck. Author compilation belongs to Phase 2.
 export function start() {
   if (globalThis.origin !== 'null')
     throw new Error('Slidev must run in an opaque sandbox')
-  const route = {
+  const slide = parseSync('# Hello, Slidev.', 'welcome.md').slides[0]
+  const route: SlideRoute = {
     no: 1,
     component: Welcome,
+    load: async () => ({ default: Welcome }),
     meta: {
-      slide: { no: 1, frontmatter: {} },
+      __clicksContext: null,
+      slide: {
+        ...slide,
+        no: 1,
+        id: 0,
+        sourceIndex: 0,
+        noteHTML: '',
+      },
     },
-  } as SlideRoute
+  }
   const app = createApp({
     render: () => h(SlideWrapper, {
       route,

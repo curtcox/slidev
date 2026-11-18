@@ -144,6 +144,7 @@ catalogs:
     chokidar: ^6.0.0
     cli-progress: ^3.12.0
     connect: ^3.7.0
+    es-module-lexer: 2.3.2
     fast-deep-equal: ^3.1.3
     fast-glob: ^3.3.3
     get-port-please: ^3.2.0
@@ -171,6 +172,7 @@ catalogs:
     resolve-global: ^2.0.0
     sirv: ^3.0.2
     source-map-js: ^1.2.2
+    sucrase: 3.35.1
     tinyexec: ^1.3.1
     unocss: ^66.12.0
     unplugin-icons: ^24.0.0

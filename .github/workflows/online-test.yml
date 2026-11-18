@@ -26,7 +26,9 @@ jobs:
         pnpm -C online/runtime build
         npm --prefix online run build
       server-command: npm run serve
-      browser-command: node tests/browser/all.cjs http://127.0.0.1:8000/ "$BROWSER"
+      browser-command: |
+        node tests/browser/all.cjs http://127.0.0.1:8000/ "$BROWSER"
+        node runtime/tests/run.mjs
       gallery-command: npm run gallery:check
   kit:
     uses: curtcox/Tools-for-pages-with-state-in-URL-fragments/.github/workflows/kit-check.yml@v2
