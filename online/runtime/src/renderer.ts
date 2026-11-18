@@ -38,6 +38,7 @@ import unoConfig from '../../../packages/client/uno.config'
 import { createDeckCompiler } from './compiler'
 import { rewriteModuleImports } from './compiler/modules'
 import { resolveIcon } from './icons'
+import { loadMathStyles } from './math'
 import { createNavigation, useNav } from './navigation'
 import RouterLink from './RouterLink.vue'
 import commonCss from './runtime.css?inline'
@@ -221,6 +222,12 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
       warnings.push(`Layout ${requestedLayout} is unavailable; using default`)
     const compiled = await compiler.compile(index, `online:layout/${layout}`)
     warnings.push(...compiled.warnings)
+    if (/class="katex(?: |")/.test(compiled.sfc)) {
+      try {
+        await loadMathStyles()
+      }
+      catch (error) { warnings.push(String(error)) }
+    }
     // Vue omits resolution warnings in production. Inspect only the compiler's
     // generated resolver calls so unsupported widgets always get a visible notice.
     warnings.push(...await resolveComponents(compiled.code))

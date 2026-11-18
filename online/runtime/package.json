@@ -17,6 +17,7 @@
     "@slidev/types": "workspace:*",
     "@vue/compiler-sfc": "catalog:demo",
     "es-module-lexer": "catalog:prod",
+    "katex": "catalog:frontend",
     "magic-string": "catalog:prod",
     "magic-string-stack": "catalog:prod",
     "shiki": "catalog:frontend",

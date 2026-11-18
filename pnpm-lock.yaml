@@ -982,6 +982,9 @@ importers:
       es-module-lexer:
         specifier: catalog:prod
         version: 2.3.2
+      katex:
+        specifier: catalog:frontend
+        version: 0.19.1
       magic-string:
         specifier: catalog:prod
         version: 1.4.5

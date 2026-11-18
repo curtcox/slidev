@@ -7,6 +7,7 @@ import { browserAliases, browserTransforms } from './browser-aliases.ts'
 import { checkVirtualModules, virtualModules } from './check-virtual-modules.ts'
 import { bundleGrammars } from './grammar-assets.ts'
 import { bundleIcons } from './icon-assets.ts'
+import { bundleMathStyles } from './math-assets.ts'
 import { auditThemes } from './theme-audit.ts'
 
 const local = (path: string) => fileURLToPath(new URL(path, import.meta.url))
@@ -19,6 +20,7 @@ export default defineConfig({
     auditThemes(),
     bundleIcons(),
     bundleGrammars(),
+    bundleMathStyles(),
     {
       name: 'slidev-online-virtual-coverage',
       async buildStart() { await checkVirtualModules() },

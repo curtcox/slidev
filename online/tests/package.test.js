@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict'
+import { Buffer } from 'node:buffer'
 import { createHash } from 'node:crypto'
 import fs from 'node:fs/promises'
 import { it } from 'node:test'
@@ -89,4 +90,32 @@ it('ships forty pinned grammar bundles, embedded dependencies and the license in
     assert.deepEqual(JSON.parse(bytes).map(grammar => grammar.name), language.dependencies)
     assert.ok(language.dependencies.includes(language.name))
   }
+})
+
+it('ships audited KaTeX fonts in a self-contained offline stylesheet', async () => {
+  const base = new URL('../dist/runtime/', import.meta.url)
+  const audit = JSON.parse(await fs.readFile(new URL('math/audit.json', base), 'utf8'))
+  assert.equal(audit.version, '0.19.1')
+  assert.equal(audit.license, 'MIT')
+  assert.equal(audit.fonts.length, 20)
+  const css = await fs.readFile(new URL(audit.fileName, base))
+  assert.equal(css.length, audit.bytes)
+  assert.equal(createHash('sha256').update(css).digest('hex'), audit.sha256)
+  const embedded = [
+    ...css.toString().matchAll(/data:font\/woff2;base64,([A-Za-z0-9+/=]+)/g),
+  ]
+  assert.equal(embedded.length, 20)
+  for (const [index, font] of audit.fonts.entries()) {
+    const upstream = await fs.readFile(new URL(`../../node_modules/katex/dist/fonts/${font.name}`, import.meta.url))
+    assert.deepEqual(Buffer.from(embedded[index][1], 'base64'), upstream)
+    assert.equal(upstream.length, font.bytes)
+    assert.equal(createHash('sha256').update(upstream).digest('hex'), font.sha256)
+  }
+  assert.deepEqual(await fs.readFile(new URL(audit.licenseFile, base)), await fs.readFile(new URL('../../node_modules/katex/LICENSE', import.meta.url)))
+  const scope = {
+    module: { exports: {} },
+    globalThis: {},
+  }
+  vm.runInNewContext(await fs.readFile(new URL('../offline-assets.js', base), 'utf8'), scope)
+  assert.equal(scope.module.exports.hashes[`runtime/${audit.fileName}`], audit.sha256)
 })

@@ -25,6 +25,7 @@ node tests/browser/all.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/runtime.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/icons.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/languages.cjs http://127.0.0.1:8000/ chromium
+node tests/browser/math.cjs http://127.0.0.1:8000/ chromium
 node runtime/tests/run.mjs
 node runtime/tests/fidelity.mjs
 # Repeat the compiler checks with BROWSER=webkit or BROWSER=firefox.
@@ -62,9 +63,9 @@ The offline browser suite also renders a seriph fact slide after a fully
 offline reload, checking that theme-specific styles survive cached delivery.
 
 The runtime fidelity harness compares the actual staged bundle through the
-editor bridge with `slidev build` on a separate origin. Fourteen deterministic
+editor bridge with `slidev build` on a separate origin. Fifteen deterministic
 fixtures in both themes cover the six theme layouts, Markdown, columns, scoped
-styles, code, built-in components, TOC, icons, lazy syntax languages and initial click states. Reports and CLI/online/diff PNGs go to
+styles, code, built-in components, TOC, icons, lazy syntax languages, math and initial click states. Reports and CLI/online/diff PNGs go to
 `runtime/.cache/fidelity/`, with screenshots separated by browser. Use `--skip-reference-build` only when the fixtures
 and CLI are unchanged; `BROWSER=webkit` selects WebKit. CI uploads a nonblocking
 Chromium report while platform/font coverage stabilizes. This is a subset of
@@ -103,3 +104,11 @@ The runtime pins the JavaScript regex target to ES2018 for consistent browser
 support; characterization disables Shiki's elapsed-time cutoff in both test compilers to
 compare complete output under CI load. Product renders retain the CLI's default
 500 ms line budget.
+
+KaTeX styles and all twenty WOFF2 fonts load only when a slide contains math.
+The stylesheet embeds unchanged font bytes as data URLs so opaque frames can
+use the fonts without cross-origin requests. The build audits KaTeX 0.19.1,
+its MIT license, font count and size. Styles, license and audit metadata ship
+under `runtime/math/` and are cached offline. Equation click ranges use the
+upstream wrapper and highlighting rules. Failed delivery produces a visible
+notice. The page CSP permits data fonts; script permissions are unchanged.

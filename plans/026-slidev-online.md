@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — client/virtual modules, seven lazy icon collections and 40 lazy grammars verified; 139 exact SFC matches in Chromium/WebKit plus 14 corpus fallbacks; 28-case local fidelity passes both engines; remaining features/full rendering/phone gates open |
+| 2 | Slidev runtime | IN PROGRESS — client/virtual modules, seven lazy icon collections, 40 lazy grammars and offline math fonts verified; 139 exact SFC matches in Chromium/WebKit plus 14 corpus fallbacks; 30-case Chromium fidelity passes; math integration passes Chromium/WebKit; remaining features/full rendering/phone gates open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -887,3 +887,20 @@ records the measured results. Publication/tag approvals remain outstanding.
   live deployment are not yet verified. Diagrams/fonts, drag writeback,
   additional theme audits, full source-corpus rendering and complete-runtime
   phone timing remain open.
+
+### Phase 2 offline math styles and fonts (2026-11-18)
+
+- KaTeX 0.19.1 styles and all twenty unchanged WOFF2 fonts ship as a separate,
+  self-contained stylesheet, loaded only for math slides through the SDK proxy.
+  Builds audit the MIT license, version, font list, hashes and byte budget;
+  offline staging covers styles, license and audit metadata. The page CSP adds
+  data fonts without changing script permissions or opaque-frame isolation.
+- Actual local Chromium and WebKit pass inline/display equations, loaded fonts,
+  click-based equation highlighting, reuse on later slides, visible missing-
+  asset notices and complete offline reload. Ten online units and static/vendor/
+  offline checks pass; runtime build/typecheck and targeted lint pass.
+- Chromium visual comparison passes all thirty CLI/online cases with zero exact
+  differing pixels, including equations in both official themes. This is local
+  evidence; CI/deployment and the new WebKit visual run are not yet verified.
+  Mermaid delivery, remote theme fonts, drag writeback, further theme audits,
+  full corpus rendering and complete-runtime phone timing remain open.

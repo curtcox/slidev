@@ -15,6 +15,17 @@ import { serve } from '../../vendor/fragment-kit-v0.4.4/tools/serve.mjs'
 const root = fileURLToPath(new URL('../../../', import.meta.url))
 const cache = resolve(root, 'online/runtime/.cache/fidelity')
 const fixtures = [
+  { layout: 'default', expectedMath: 2, content: String.raw`# Equations
+
+Inline $E = mc^2$.
+
+$$ {1|2|all}
+\begin{aligned}
+a &= b + c \\
+x &= y + z
+\end{aligned}
+$$
+` },
   { layout: 'cover', content: '# Theme cover\n\nA browser presentation.' },
   { layout: 'default', content: '# Markdown\n\nA **strong** statement and *emphasis*.\n\n- First\n- Second\n\n> A quotation.\n\n| Name | Value |\n| --- | --- |\n| Answer | 42 |' },
   { layout: 'section', content: '# Section heading' },
@@ -142,6 +153,12 @@ async function main() {
         assert.equal(await frame.evaluate(() => globalThis.origin), 'null')
         assert.equal(await onlinePage.locator('iframe').getAttribute('sandbox'), 'allow-scripts')
         assert.equal(await frame.locator('#online-notices').count(), 0)
+        if (fixtures[index].expectedMath) {
+          for (const slide of [actualSlide, referenceSlide]) {
+            assert.equal(await slide.locator('.katex').count(), fixtures[index].expectedMath)
+            assert.ok(await slide.locator('.katex .dishonored').count() > 0)
+          }
+        }
         if (fixtures[index].expectedIcons) {
           assert.equal(await actualSlide.locator('svg.slidev-icon').count(), fixtures[index].expectedIcons, 'Every fixture icon must render as SVG online')
           assert.equal(await referenceSlide.locator('svg.slidev-icon').count(), fixtures[index].expectedIcons, 'Every fixture icon must render as SVG in the CLI')
