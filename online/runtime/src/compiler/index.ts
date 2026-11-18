@@ -1,7 +1,5 @@
 import type { ResolvedSlidevOptions } from '@slidev/types'
 import { compileScript, parse as parseSfc } from '@vue/compiler-sfc/dist/compiler-sfc.esm-browser.js'
-import { createHighlighterCore } from 'shiki/core'
-import { createJavaScriptRegexEngine } from 'shiki/engine/javascript'
 import { transform } from 'sucrase'
 import { version as vueVersion } from 'vue'
 import { resolveConfig } from '../../../../packages/parser/src/config'
@@ -10,15 +8,11 @@ import { templateTitleRendererMd } from '../../../../packages/slidev/node/virtua
 import { wrapSlideLayout } from '../../../../packages/slidev/node/vite/layoutWrapperCore'
 import { createMarkdownPlugin } from '../../../../packages/slidev/node/vite/markdown'
 import { resolveTheme } from '../themes'
+import { loadLanguage } from './languages'
 
 const MAX_BYTES = 5 * 1024 * 1024
 const compiledCache = new Map<string, { value: CompiledSlide, bytes: number }>()
 let compiledCacheBytes = 0
-const highlighter = createHighlighterCore({
-  engine: createJavaScriptRegexEngine({ target: 'ES2018' }),
-  themes: [import('@shikijs/themes/vitesse-light'), import('@shikijs/themes/vitesse-dark')],
-  langs: [import('@shikijs/langs/javascript'), import('@shikijs/langs/typescript'), import('@shikijs/langs/yaml')],
-})
 
 export interface CompiledSlide {
   sfc: string
@@ -93,19 +87,21 @@ export async function createDeckCompiler(src: string, { plantUmlAllowed = false 
   config.theme = theme.name
   const requestedTwoslash = headmatter.twoslash != null && headmatter.twoslash !== false
   config.twoslash = false
-  const shiki = await highlighter
   let currentWarnings: string[] = []
-  const safeShiki = { ...shiki }
+  const safeShiki: Record<string, unknown> = {}
   for (const method of ['codeToHtml', 'codeToTokens'] as const) {
-    safeShiki[method] = (code: string, options: any) => {
-      let lang = options.lang || 'text'
-      lang = ({ js: 'javascript', ts: 'typescript', yml: 'yaml' } as Record<string, string>)[lang] ?? lang
-      if (!['text', 'txt', 'plaintext'].includes(lang) && !shiki.getLoadedLanguages().includes(lang)) {
-        currentWarnings.push(`Language ${lang} is unavailable; showing plain text`)
-        lang = 'text'
+    safeShiki[method] = (async (code: string, options: any) => {
+      const lang = options.lang || 'text'
+      let language: Awaited<ReturnType<typeof loadLanguage>>
+      try {
+        language = await loadLanguage(lang)
       }
-      return (shiki[method] as any)(code, { ...options, lang })
-    }
+      catch {
+        currentWarnings.push(`Language ${lang} is unavailable; showing plain text`)
+        language = await loadLanguage('text')
+      }
+      return (language.shiki[method] as any)(code, { ...options, lang: language.lang })
+    }) as any
   }
   const options = {
     userRoot: '/',

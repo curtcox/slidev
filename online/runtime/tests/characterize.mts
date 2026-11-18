@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url'
 import { parseSync } from '@slidev/parser/core'
 import { chromium, firefox, webkit } from 'playwright'
 import YAML from 'yaml'
+import languages from '../src/compiler/languages.json' with { type: 'json' }
 import { resolveOptions } from '../../../packages/slidev/node/options'
 import { templateTitleRendererMd } from '../../../packages/slidev/node/virtual/titles'
 import { createLayoutWrapperPlugin } from '../../../packages/slidev/node/vite/layoutWrapper'
@@ -15,6 +16,10 @@ import { serve } from '../../vendor/fragment-kit-v0.4.4/tools/serve.mjs'
 
 const root = fileURLToPath(new URL('../../../', import.meta.url))
 const fixtures = [
+  ...Object.keys(languages).map(language => ({
+    name: `grammar-${language}`,
+    src: `# Grammar ${language}\n\n\`\`\`${language}\nconst answer = 42\n\`\`\`\n`,
+  })),
   {
     name: 'markdown',
     src: `---\ntheme: default\n---\n# Browser compiler\n\nA [slide link](#2), an [external link](https://example.com), and \`{{ literal }}\`.\n\n- [x] Checked task\n\n> [!NOTE]\n> A GitHub alert.\n\nFootnote[^one].\n\n[^one]: Footnote text\n\nInline math: $x^2$.\n`,
@@ -34,6 +39,10 @@ const fixtures = [
   {
     name: 'diagrams-and-drag',
     src: `---\ntheme: default\n---\n# Diagrams\n\n<v-drag>[A draggable box]</v-drag>\n\n\`\`\`mermaid\ngraph TD\n A --> B\n\`\`\`\n`,
+  },
+  {
+    name: 'lazy-grammars',
+    src: '# Lazy grammars\n\n```py\ndef greet(name):\n    return f\"Hello {name}\"\n```\n\n```vue\n<script setup lang=\"ts\">const n: number = 1</script>\n<template><div>{{ n }}</div></template>\n```\n\n```rs\nfn main() { println!(\"hello\"); }\n```',
   },
   {
     name: 'magic-move',
@@ -62,7 +71,7 @@ hashbinSandbox.import('runtime/sandbox.js').then(module => {
   onmessage = async ({data}) => {
     try {
       if (data.cache) {
-        const src = ['# Cached', '', '\x60\x60\x60rust', 'fn main() {}', '\x60\x60\x60', '---', '# Two'].join('\n');
+        const src = ['# Cached', '', '\x60\x60\x60not-bundled', 'fn main() {}', '\x60\x60\x60', '---', '# Two'].join('\n');
         const first = await module.createDeckCompiler(src);
         const [a,b] = await Promise.all([first.compile(0,'online:layout/cover'),first.compile(1,'online:layout/default')]);
         const changed = await module.createDeckCompiler(src.replace('# Two','# Edited'));
@@ -162,12 +171,8 @@ async function main() {
           else {
             for (const [, lang, info] of original.content.matchAll(/^`{3,}([^\s`]+)([^\n]*)/gm)) {
               if (![
-                'ts',
-                'typescript',
-                'js',
-                'javascript',
-                'yaml',
-                'yml',
+                ...Object.keys(languages),
+                ...Object.values(languages).flat(),
                 'text',
                 'txt',
                 'plaintext',
@@ -221,6 +226,7 @@ async function main() {
       { src: '# Diagram\n\n```plantuml\n@startuml\nA -> B\n@enduml\n```', expectedNotice: 'PlantUML is off', noPlantUml: true },
       { src: '# Diagram\n\n```plantuml\n@startuml\nA -> B\n@enduml\n```', plantUmlAllowed: true, expectedNotice: '<PlantUml' },
       { src: '---\ntwoslash: true\n---\n# Type information\n\n```ts\nconst count = 1\n```', expectedNotice: 'Twoslash is unavailable' },
+      { src: '# Unknown\n\n```not-bundled\nplain\n```', expectedNotice: 'Language not-bundled is unavailable; showing plain text' },
       { cache: true },
     ]
     const results = await page.evaluate(`(async () => {
@@ -239,6 +245,8 @@ async function main() {
       const actual = results[i]
       assert.equal(actual.ok, true, `${expected[i].fixture}: ${actual.error}`)
       assert.equal(actual.result.sfc, expected[i].sfc, `${expected[i].fixture} slide ${expected[i].index + 1} must match CLI transforms`)
+      if (expected[i].fixture.startsWith('grammar-'))
+        assert.deepEqual(actual.result.warnings, [], `${expected[i].fixture} must highlight without falling back`)
       assert.ok(actual.result.code.includes('export default'))
       if (expected[i].fixture === 'script-and-style')
         assert.ok(!actual.result.code.includes('ref<number>'), 'TypeScript annotations must be stripped')
@@ -286,7 +294,7 @@ async function main() {
         expectedNotice,
       })),
     }, null, 2)}\n`)
-    process.stdout.write(`${engine}: ${expected.length} SFCs match CLI; ${corpusProbes.length} corpus fallbacks, unsupported imports, UTF-8 limits and incremental caching pass\n`)
+    process.stdout.write(`${engine}: ${expected.length} SFCs match CLI; all 40 grammars highlight without fallback; ${corpusProbes.length} corpus fallbacks, unsupported imports, UTF-8 limits and incremental caching pass\n`)
   }
   finally {
     await browser?.close()

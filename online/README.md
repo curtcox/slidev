@@ -24,6 +24,7 @@ npm run serve
 node tests/browser/all.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/runtime.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/icons.cjs http://127.0.0.1:8000/ chromium
+node tests/browser/languages.cjs http://127.0.0.1:8000/ chromium
 node runtime/tests/run.mjs
 node runtime/tests/fidelity.mjs
 # Repeat the compiler checks with BROWSER=webkit or BROWSER=firefox.
@@ -88,3 +89,16 @@ trigger network requests. Original collection attribution/license metadata is
 shipped at `runtime/icons/attribution.json` and in each unchanged collection.
 All seven collections total about 33.4 MB before compression (8.74 MB gzip),
 separate from the initial runtime payload. They are included in offline caching.
+
+Forty syntax languages and their upstream aliases are listed in
+`runtime/src/compiler/languages.json`. Grammar data from Shiki 4.6.0 loads only
+when code is highlighted, through the SDK's verified offline proxy. Bundles
+include embedded dependencies (including Markdown's optional HTML grammar).
+Each root language has an isolated TextMate registry so Vue injections cannot
+change previously compiled Markdown. The registry cache is bounded by the
+curated catalog. The unchanged package license, version, dependency lists,
+byte counts and hashes ship at `runtime/grammars/` and are cached offline.
+Unknown or unavailable languages show readable plain code and a visible notice.
+The runtime pins the JavaScript regex target to ES2018 for consistent browser
+support; characterization reports distinguish exact CLI output from token-color
+differences against the Node CLI's automatic regex target.

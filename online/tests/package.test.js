@@ -65,3 +65,28 @@ it('ships all curated icon collections with original attribution and verified of
     assert.ok(collection.info.license.spdx)
   }
 })
+
+it('ships forty pinned grammar bundles, embedded dependencies and the license in the verified offline artifact', async () => {
+  const base = new URL('../dist/runtime/', import.meta.url)
+  const audit = JSON.parse(await fs.readFile(new URL('grammars/audit.json', base), 'utf8'))
+  const catalog = JSON.parse(await fs.readFile(new URL('../runtime/src/compiler/languages.json', import.meta.url), 'utf8'))
+  assert.equal(audit.version, '4.6.0')
+  assert.equal(audit.license, 'MIT')
+  assert.equal(audit.languages.length, 40)
+  assert.deepEqual(audit.languages.map(language => language.name), Object.keys(catalog))
+  assert.match(await fs.readFile(new URL(audit.licenseFile, base), 'utf8'), /Copyright.*Anthony Fu/)
+  const scope = {
+    module: { exports: {} },
+    globalThis: {},
+  }
+  vm.runInNewContext(await fs.readFile(new URL('../offline-assets.js', base), 'utf8'), scope)
+  for (const language of audit.languages) {
+    const bytes = await fs.readFile(new URL(language.fileName, base))
+    assert.equal(bytes.length, language.bytes)
+    assert.equal(createHash('sha256').update(bytes).digest('hex'), language.sha256)
+    assert.equal(scope.module.exports.hashes[`runtime/${language.fileName}`], language.sha256)
+    assert.deepEqual(language.aliases, catalog[language.name])
+    assert.deepEqual(JSON.parse(bytes).map(grammar => grammar.name), language.dependencies)
+    assert.ok(language.dependencies.includes(language.name))
+  }
+})

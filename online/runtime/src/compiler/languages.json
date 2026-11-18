@@ -1,0 +1,85 @@
+{
+  "javascript": [
+    "js",
+    "cjs",
+    "mjs"
+  ],
+  "typescript": [
+    "ts",
+    "cts",
+    "mts"
+  ],
+  "yaml": [
+    "yml"
+  ],
+  "json": [],
+  "jsonc": [],
+  "json5": [],
+  "html": [],
+  "css": [],
+  "scss": [],
+  "less": [],
+  "vue": [],
+  "jsx": [],
+  "tsx": [],
+  "markdown": [
+    "md"
+  ],
+  "mdx": [],
+  "shellscript": [
+    "bash",
+    "sh",
+    "shell",
+    "zsh"
+  ],
+  "python": [
+    "py"
+  ],
+  "ruby": [
+    "rb"
+  ],
+  "rust": [
+    "rs"
+  ],
+  "go": [],
+  "java": [],
+  "c": [],
+  "cpp": [
+    "c++"
+  ],
+  "csharp": [
+    "c#",
+    "cs"
+  ],
+  "kotlin": [
+    "kt",
+    "kts"
+  ],
+  "swift": [],
+  "php": [],
+  "sql": [],
+  "graphql": [
+    "gql"
+  ],
+  "docker": [
+    "dockerfile"
+  ],
+  "make": [
+    "makefile"
+  ],
+  "cmake": [],
+  "diff": [],
+  "ini": [
+    "properties"
+  ],
+  "toml": [],
+  "xml": [],
+  "powershell": [
+    "ps",
+    "ps1",
+    "pwsh"
+  ],
+  "r": [],
+  "lua": [],
+  "perl": []
+}
