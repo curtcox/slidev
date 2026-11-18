@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — compiler, opaque bridge and official default/seriph themes verified in Chromium/WebKit; remaining features and full-runtime fidelity/budget gates open |
+| 2 | Slidev runtime | IN PROGRESS — compiler, opaque bridge and official default/seriph themes verified; 20-case product fidelity passes local Chromium/WebKit and CI Chromium; remaining features/corpus/phone gates open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -733,3 +733,23 @@ records the measured results. Publication/tag approvals remain outstanding.
   coverage stabilizes. This is local verification, not a claim that the new
   CI job or deployment has passed. The full example corpus, remote assets/fonts
   and full-runtime phone performance remain open.
+
+### Theme continuation verification (2026-11-18)
+
+- Implementation pushed on `main` as `fc65ae5e` (themes), `e7cd8dfe`
+  (product fidelity and default text-color correction) and `b9482b54`
+  (preserve reviewed theme pins through the pre-commit catalog formatter).
+  The final manifest and lockfile pass pinned pnpm's frozen install.
+- [CI fidelity job](https://github.com/curtcox/slidev/actions/runs/44342959061/job/134937615314)
+  passed its actual comparison step and uploaded all PNGs plus the report.
+  The downloaded report has twenty exact matches, no errors, and the same
+  runtime SHA-256 as the local Chromium 156.0.8078.4 and WebKit 27.2 runs:
+  `930af87236d9cf2f5f81e703776f80274554f95904e256b6eb2f8eba1249b5d9`.
+  Current JavaScript + CSS is **979,892 bytes gzip**; complete-runtime timing
+  and physical-phone acceptance remain unverified.
+- Local build, lint, typecheck and all **392** repository tests pass. Five
+  online units, static/vendor/offline checks, both browser integration/offline
+  suites, and both browser compiler characterizations pass.
+  [Repository CI](https://github.com/curtcox/slidev/actions/runs/44342957694)
+  passes Ubuntu/Windows/macOS, typecheck and Cypress. The separate Continuous
+  Releases job still cannot publish because pkg-pr-new lacks access to this fork.
