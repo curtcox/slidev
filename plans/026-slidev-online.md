@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — client/virtual modules, seven lazy icon collections, 40 lazy grammars and offline math fonts verified; 139 exact SFC matches in Chromium/WebKit plus 14 corpus fallbacks; 30-case Chromium fidelity passes; math integration passes Chromium/WebKit; remaining features/full rendering/phone gates open |
+| 2 | Slidev runtime | IN PROGRESS — client/virtual modules, seven lazy icon collections, 40 lazy grammars and offline math fonts and lazy Mermaid verified; 139 exact SFC matches in Chromium/WebKit plus 14 corpus fallbacks; 34-case local fidelity passes Chromium/WebKit; remaining features/full rendering/phone gates open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -904,3 +904,31 @@ records the measured results. Publication/tag approvals remain outstanding.
   evidence; CI/deployment and the new WebKit visual run are not yet verified.
   Mermaid delivery, remote theme fonts, drag writeback, further theme audits,
   full corpus rendering and complete-runtime phone timing remain open.
+
+### Phase 2 lazy Mermaid rendering (2026-11-18)
+
+- Bundled Mermaid 12.3.0 as a standalone module fetched through the SDK's
+  opaque-frame import/offline proxy only for diagrams. Builds pin the reviewed
+  version and MIT license, bound the output size, and parse emitted JavaScript
+  to reject any unresolved module imports. Offline staging verifies the module,
+  original license and audit record. The initial runtime excludes the diagram
+  engine; its separate payload is 1,696,335 bytes gzip using Node compression.
+- Reused the upstream Mermaid Vue component for shadow styles, scale, themes,
+  dark mode and text-rendered errors. Serial rendering prevents Mermaid's global
+  configuration crossing between concurrent diagrams; SVG caching is bounded.
+  Local Chromium and WebKit pass multiple concurrent diagrams, separate themes,
+  scale, flowcharts, sequence and pie diagrams, invalid-source recovery, a real
+  missing-bundle error, dark mode and complete offline reload.
+- Both local engines pass all **34** CLI/online visual cases with zero exact
+  differing pixels. Diagram fixtures caught an undefined theme option overriding
+  the CLI default; matching the CLI's undefined-option filtering fixes it.
+  All eleven online units pass. This does not establish full diagram-catalog or
+  source-corpus fidelity. Remote theme fonts, drag writeback, more theme audits,
+  remaining client features and complete-runtime phone timing remain open.
+  New Mermaid CI/deployment results have not yet been verified.
+
+- Final local runtime build/typecheck, all eleven online units, static/vendor/
+  offline integrity, root typecheck/lint and all **392** repository tests pass.
+  Stale Turbo build artifacts were refreshed before the successful test run.
+  Initial JS/CSS is **994,693 bytes gzip**; lazy math styles/fonts are **265,884
+  bytes gzip**. These are payload observations, not phone performance acceptance.

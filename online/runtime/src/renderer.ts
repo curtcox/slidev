@@ -10,6 +10,7 @@ import CodeGroup from '../../../packages/client/builtin/CodeGroup.vue'
 import KaTexBlockWrapper from '../../../packages/client/builtin/KaTexBlockWrapper.vue'
 import LightOrDark from '../../../packages/client/builtin/LightOrDark.vue'
 import Link from '../../../packages/client/builtin/Link.vue'
+import Mermaid from '../../../packages/client/builtin/Mermaid.vue'
 import PoweredBySlidev from '../../../packages/client/builtin/PoweredBySlidev.vue'
 import RenderWhen from '../../../packages/client/builtin/RenderWhen.vue'
 import ShikiMagicMove from '../../../packages/client/builtin/ShikiMagicMove.vue'
@@ -57,6 +58,7 @@ const components = {
   CodeGroup,
   LightOrDark,
   Link,
+  Mermaid,
   RenderWhen,
   RouterLink,
   ShikiMagicMove,

@@ -37,6 +37,8 @@ export function browserTransforms(): Plugin {
     resolveId(source, importer) {
       const file = importer?.replaceAll('\\', '/') ?? ''
       if (file.includes('/packages/client/')) {
+        if (source.endsWith('/modules/mermaid'))
+          return shim('mermaid')
         if (source.endsWith('/useNav'))
           return fileURLToPath(new URL('./src/navigation.ts', import.meta.url))
         if (source.endsWith('/logic/dark'))

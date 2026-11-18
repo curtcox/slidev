@@ -26,6 +26,7 @@ node tests/browser/runtime.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/icons.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/languages.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/math.cjs http://127.0.0.1:8000/ chromium
+node tests/browser/diagrams.cjs http://127.0.0.1:8000/ chromium
 node runtime/tests/run.mjs
 node runtime/tests/fidelity.mjs
 # Repeat the compiler checks with BROWSER=webkit or BROWSER=firefox.
@@ -63,9 +64,9 @@ The offline browser suite also renders a seriph fact slide after a fully
 offline reload, checking that theme-specific styles survive cached delivery.
 
 The runtime fidelity harness compares the actual staged bundle through the
-editor bridge with `slidev build` on a separate origin. Fifteen deterministic
+editor bridge with `slidev build` on a separate origin. Seventeen deterministic
 fixtures in both themes cover the six theme layouts, Markdown, columns, scoped
-styles, code, built-in components, TOC, icons, lazy syntax languages, math and initial click states. Reports and CLI/online/diff PNGs go to
+styles, code, built-in components, TOC, icons, lazy syntax languages, math, Mermaid flowcharts/sequence diagrams and initial click states. Reports and CLI/online/diff PNGs go to
 `runtime/.cache/fidelity/`, with screenshots separated by browser. Use `--skip-reference-build` only when the fixtures
 and CLI are unchanged; `BROWSER=webkit` selects WebKit. CI uploads a nonblocking
 Chromium report while platform/font coverage stabilizes. This is a subset of
@@ -112,3 +113,14 @@ its MIT license, font count and size. Styles, license and audit metadata ship
 under `runtime/math/` and are cached offline. Equation click ranges use the
 upstream wrapper and highlighting rules. Failed delivery produces a visible
 notice. The page CSP permits data fonts; script permissions are unchanged.
+
+Mermaid 12.3.0 is a separate standalone module, imported through the SDK only
+when the upstream Mermaid component renders a diagram. The build rejects
+external module imports and audits the version, MIT license and payload size.
+The module, unchanged license and hash metadata ship under `runtime/diagrams/`
+and are cached offline. A serial queue keeps Mermaid's global configuration
+from crossing between diagrams. Its SVG cache is bounded by count and bytes.
+The upstream component retains scale, per-diagram themes, dark mode, shadow
+styles and visible errors. Missing module bytes fail visibly and a later
+render can retry. Flowcharts, sequence diagrams and pie charts pass integration
+checks in Chromium and WebKit; the full diagram catalog is not yet verified.

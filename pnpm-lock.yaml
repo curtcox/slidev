@@ -985,12 +985,18 @@ importers:
       katex:
         specifier: catalog:frontend
         version: 0.19.1
+      lz-string:
+        specifier: catalog:frontend
+        version: 1.5.0
       magic-string:
         specifier: catalog:prod
         version: 1.4.5
       magic-string-stack:
         specifier: catalog:prod
         version: 2.0.0
+      mermaid:
+        specifier: catalog:frontend
+        version: 12.3.0
       shiki:
         specifier: catalog:frontend
         version: 4.6.0

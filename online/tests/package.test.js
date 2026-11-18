@@ -119,3 +119,20 @@ it('ships audited KaTeX fonts in a self-contained offline stylesheet', async () 
   vm.runInNewContext(await fs.readFile(new URL('../offline-assets.js', base), 'utf8'), scope)
   assert.equal(scope.module.exports.hashes[`runtime/${audit.fileName}`], audit.sha256)
 })
+
+it('ships the pinned standalone Mermaid module and its license in the verified offline artifact', async () => {
+  const base = new URL('../dist/runtime/', import.meta.url)
+  const audit = JSON.parse(await fs.readFile(new URL('diagrams/audit.json', base), 'utf8'))
+  assert.equal(audit.version, '12.3.0')
+  assert.equal(audit.license, 'MIT')
+  const bytes = await fs.readFile(new URL(audit.fileName, base))
+  assert.equal(bytes.length, audit.bytes)
+  assert.equal(createHash('sha256').update(bytes).digest('hex'), audit.sha256)
+  assert.deepEqual(await fs.readFile(new URL(audit.licenseFile, base)), await fs.readFile(new URL('../../node_modules/mermaid/LICENSE', import.meta.url)))
+  const scope = {
+    module: { exports: {} },
+    globalThis: {},
+  }
+  vm.runInNewContext(await fs.readFile(new URL('../offline-assets.js', base), 'utf8'), scope)
+  assert.equal(scope.module.exports.hashes[`runtime/${audit.fileName}`], audit.sha256)
+})

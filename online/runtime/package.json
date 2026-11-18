@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "vue-tsc --noEmit -p tsconfig.json && vite build",
+    "build": "vue-tsc --noEmit -p tsconfig.json && vite build && vite build --config mermaid.config.ts",
     "test": "node tests/run.mjs"
   },
   "dependencies": {
@@ -18,8 +18,10 @@
     "@vue/compiler-sfc": "catalog:demo",
     "es-module-lexer": "catalog:prod",
     "katex": "catalog:frontend",
+    "lz-string": "catalog:frontend",
     "magic-string": "catalog:prod",
     "magic-string-stack": "catalog:prod",
+    "mermaid": "catalog:frontend",
     "shiki": "catalog:frontend",
     "sucrase": "catalog:prod",
     "unocss": "catalog:prod",

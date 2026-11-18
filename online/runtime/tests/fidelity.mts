@@ -15,6 +15,8 @@ import { serve } from '../../vendor/fragment-kit-v0.4.4/tools/serve.mjs'
 const root = fileURLToPath(new URL('../../../', import.meta.url))
 const cache = resolve(root, 'online/runtime/.cache/fidelity')
 const fixtures = [
+  { layout: 'default', expectedDiagrams: 1, content: '# A diagram\n\n```mermaid\ngraph LR\n A[Author] --> B[Preview] --> C[Present]\n```' },
+  { layout: 'default', expectedDiagrams: 1, content: '# A conversation\n\n```mermaid\nsequenceDiagram\n Alice->>Bob: Hello\n Bob-->>Alice: Hi\n```' },
   { layout: 'default', expectedMath: 2, content: String.raw`# Equations
 
 Inline $E = mc^2$.
@@ -153,6 +155,12 @@ async function main() {
         assert.equal(await frame.evaluate(() => globalThis.origin), 'null')
         assert.equal(await onlinePage.locator('iframe').getAttribute('sandbox'), 'allow-scripts')
         assert.equal(await frame.locator('#online-notices').count(), 0)
+        if (fixtures[index].expectedDiagrams) {
+          for (const slide of [actualSlide, referenceSlide]) {
+            await slide.locator('.mermaid svg').nth(fixtures[index].expectedDiagrams! - 1).waitFor()
+            assert.equal(await slide.locator('.mermaid svg').count(), fixtures[index].expectedDiagrams)
+          }
+        }
         if (fixtures[index].expectedMath) {
           for (const slide of [actualSlide, referenceSlide]) {
             assert.equal(await slide.locator('.katex').count(), fixtures[index].expectedMath)
