@@ -11,6 +11,7 @@ import YAML from 'yaml'
 import { build } from '../../../packages/slidev/node/commands/build'
 import { resolveOptions } from '../../../packages/slidev/node/options'
 import { serve } from '../../vendor/fragment-kit-v0.4.4/tools/serve.mjs'
+import fontCatalog from '../src/font-catalog.json' with { type: 'json' }
 
 const root = fileURLToPath(new URL('../../../', import.meta.url))
 const cache = resolve(root, 'online/runtime/.cache/fidelity')
@@ -49,19 +50,46 @@ $$
 async function main() {
   await mkdir(cache, { recursive: true })
   const docs: Record<string, string> = {}
-  for (const theme of ['default', 'seriph']) {
-    const deck = fixtures.map((fixture, index) => `---\n${YAML.stringify({
+  type Fixture = typeof fixtures[number] & { expectedFonts?: string[] }
+  const variants = ['default', 'seriph'].flatMap(theme => [
+    {
+      name: theme,
+      theme,
+      cases: fixtures as Fixture[],
+      themeFonts: false,
+    },
+    {
+      name: `${theme}-fonts`,
+      theme,
+      themeFonts: true,
+      cases: [
+        {
+          layout: 'default',
+          expectedFonts: theme === 'default'
+            ? ['Nunito Sans', 'Fira Code']
+            : ['PT Serif', 'PT Mono'],
+          content: `# Bundled theme fonts\n\n<div style="font-family: '${theme === 'default'
+            ? 'Nunito Sans'
+            : 'PT Serif'}'">Regular, <strong>bold</strong> and <em>italic</em>. Latin: Āā. Cyrillic: Привет.</div>\n\n\`\`\`js\nconst answer = 42\n\`\`\``,
+        },
+      ] as Fixture[],
+    },
+  ])
+  for (const { name, theme, cases, themeFonts } of variants) {
+    const deck = cases.map((fixture, index) => `---\n${YAML.stringify({
       ...(index === 0
         ? {
             theme,
             background: '#e2e8f0',
-            fonts: {
-              sans: 'Arial',
-              serif: 'Georgia',
-              mono: 'monospace',
-              provider: 'none',
-              local: ['Arial', 'Georgia', 'monospace'],
-            },
+            fonts: themeFonts
+              ? {}
+              : {
+                  sans: 'Arial',
+                  serif: 'Georgia',
+                  mono: 'monospace',
+                  provider: 'none',
+                  local: ['Arial', 'Georgia', 'monospace'],
+                },
             routerMode: 'hash',
             drawings: { enabled: false },
             record: false,
@@ -77,8 +105,8 @@ async function main() {
         : {}),
       layout: fixture.layout,
     })}---\n\n${fixture.content}\n`).join('\n')
-    docs[theme] = deck
-    const folder = resolve(cache, 'decks', theme)
+    docs[name] = deck
+    const folder = resolve(cache, 'decks', name)
     await mkdir(folder, { recursive: true })
     const entry = resolve(folder, 'slides.md')
     await writeFile(entry, deck)
@@ -87,7 +115,7 @@ async function main() {
         base: './',
         logLevel: 'warn',
         build: {
-          outDir: resolve(cache, 'reference', theme),
+          outDir: resolve(cache, 'reference', name),
           emptyOutDir: true,
         },
       }, {} as any)
@@ -116,10 +144,22 @@ async function main() {
       serviceWorkers: 'block',
     })
     const errors: string[] = []
+    const fontCss = new Map(await Promise.all(Object.entries(fontCatalog).map(async ([family, entry]) => [
+      family,
+      await readFile(resolve(root, 'online/dist/runtime/fonts', `${entry.id}.css`), 'utf8'),
+    ] as const)))
     onlinePage.on('pageerror', error => errors.push(String(error)))
     for (const page of [referencePage, onlinePage]) {
       await page.context().route('**/*', (route) => {
         const url = new URL(route.request().url())
+        if (url.origin === 'https://fonts.googleapis.com') {
+          const families = url.searchParams.getAll('family').map(value => value.split(':')[0])
+          assert.ok(families.length && families.every(family => fontCss.has(family)), 'CLI must only request the reviewed theme fonts')
+          return route.fulfill({
+            contentType: 'text/css',
+            body: families.map(family => fontCss.get(family)).join('\n'),
+          })
+        }
         if (url.href.startsWith('https://www.plantuml.com/plantuml/svg/'))
           return route.fulfill({ contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="80"><text x="10" y="30">Alice to Bob</text></svg>' })
         if (url.hostname === '127.0.0.1' || url.protocol === 'blob:' || url.protocol === 'data:')
@@ -148,7 +188,8 @@ async function main() {
       path: resolve(root, 'online/spikes/phase-0/compare-pixels.js'),
     })
     const results = []
-    for (const [theme, src] of Object.entries(docs)) {
+    for (const { name: theme, cases } of variants) {
+      const src = docs[theme]
       await onlinePage.evaluate((src) => {
         const state = (window as any).fidelity
         state.rendered = false
@@ -156,7 +197,7 @@ async function main() {
       }, src)
       await onlinePage.waitForFunction(() => (window as any).fidelity.rendered || (window as any).fidelity.errors.length)
       assert.deepEqual(await onlinePage.evaluate(() => (window as any).fidelity.errors), [])
-      for (let index = 0; index < fixtures.length; index++) {
+      for (let index = 0; index < cases.length; index++) {
         await referencePage.goto(`${baseline.url}${theme}/index.html#/${index + 1}`)
         const referenceSlide = referencePage.locator(`.slidev-page[data-slidev-no="${index + 1}"]:visible`).first()
         await referenceSlide.waitFor()
@@ -167,7 +208,7 @@ async function main() {
         assert.equal(await frame.evaluate(() => globalThis.origin), 'null')
         assert.equal(await onlinePage.locator('iframe').getAttribute('sandbox'), 'allow-scripts')
         assert.equal(await frame.locator('#online-notices').count(), 0)
-        if (fixtures[index].expectedPlantUml) {
+        if (cases[index].expectedPlantUml) {
           await actualSlide.getByRole('button', { name: 'Enable PlantUML for this deck' }).click()
           for (const slide of [actualSlide, referenceSlide]) {
             const image = slide.getByAltText('Conversation')
@@ -183,30 +224,41 @@ async function main() {
             assert.equal(await image.evaluate(element => (element as HTMLImageElement).naturalWidth), 240, 'Both renderers must receive the mocked SVG')
           }
         }
-        if (fixtures[index].expectedDragElements) {
+        if (cases[index].expectedDragElements) {
           for (const slide of [actualSlide, referenceSlide])
-            assert.equal(await slide.locator('[data-drag-id]').count(), fixtures[index].expectedDragElements)
+            assert.equal(await slide.locator('[data-drag-id]').count(), cases[index].expectedDragElements)
         }
-        if (fixtures[index].expectedDiagrams) {
+        if (cases[index].expectedDiagrams) {
           for (const slide of [actualSlide, referenceSlide]) {
-            await slide.locator('.mermaid svg').nth(fixtures[index].expectedDiagrams! - 1).waitFor()
-            assert.equal(await slide.locator('.mermaid svg').count(), fixtures[index].expectedDiagrams)
+            await slide.locator('.mermaid svg').nth(cases[index].expectedDiagrams! - 1).waitFor()
+            assert.equal(await slide.locator('.mermaid svg').count(), cases[index].expectedDiagrams)
           }
         }
-        if (fixtures[index].expectedMath) {
+        if (cases[index].expectedMath) {
           for (const slide of [actualSlide, referenceSlide]) {
-            assert.equal(await slide.locator('.katex').count(), fixtures[index].expectedMath)
+            assert.equal(await slide.locator('.katex').count(), cases[index].expectedMath)
             assert.ok(await slide.locator('.katex .dishonored').count() > 0)
           }
         }
-        if (fixtures[index].expectedIcons) {
-          assert.equal(await actualSlide.locator('svg.slidev-icon').count(), fixtures[index].expectedIcons, 'Every fixture icon must render as SVG online')
-          assert.equal(await referenceSlide.locator('svg.slidev-icon').count(), fixtures[index].expectedIcons, 'Every fixture icon must render as SVG in the CLI')
+        if (cases[index].expectedIcons) {
+          assert.equal(await actualSlide.locator('svg.slidev-icon').count(), cases[index].expectedIcons, 'Every fixture icon must render as SVG online')
+          assert.equal(await referenceSlide.locator('svg.slidev-icon').count(), cases[index].expectedIcons, 'Every fixture icon must render as SVG in the CLI')
         }
-        if (fixtures[index].expectedCodeBlocks) {
+        if (cases[index].expectedCodeBlocks) {
           for (const slide of [actualSlide, referenceSlide]) {
-            assert.equal(await slide.locator('pre.slidev-code').count(), fixtures[index].expectedCodeBlocks)
+            assert.equal(await slide.locator('pre.slidev-code').count(), cases[index].expectedCodeBlocks)
             assert.ok(await slide.locator('pre.slidev-code span[style]').count() > 10, 'Grammar fixtures must contain highlighted tokens')
+          }
+        }
+        if (cases[index].expectedFonts) {
+          for (const slide of [actualSlide, referenceSlide]) {
+            const families = await slide.evaluate(async () => {
+              document.body.getBoundingClientRect()
+              await document.fonts.ready
+              return [...document.fonts].filter(font => font.status === 'loaded').map(font => font.family.replaceAll('"', '').replaceAll('\'', ''))
+            })
+            for (const family of cases[index].expectedFonts!)
+              assert.ok(families.includes(family), `${theme}: ${family} must actually render in both clients`)
           }
         }
         await referencePage.evaluate(() => document.fonts.ready)
@@ -229,18 +281,18 @@ async function main() {
         results.push({
           theme,
           slide: index + 1,
-          layout: fixtures[index].layout,
+          layout: cases[index].layout,
           ...pixels,
         })
-        process.stdout.write(`${theme} ${index + 1} (${fixtures[index].layout}): ${diff.changed} differing pixels (${diff.exactChanged} exact)\n`)
+        process.stdout.write(`${theme} ${index + 1} (${cases[index].layout}): ${diff.changed} differing pixels (${diff.exactChanged} exact)\n`)
       }
     }
     const runtime = await readFile(resolve(root, 'online/dist/runtime/sandbox.js'))
     const css = await readFile(resolve(root, 'online/dist/runtime/sandbox.css'))
     const report = {
       browser: `${engine} ${browser.version()}`,
-      scope: `Actual staged runtime and editor bridge; ${fixtures.length} deterministic fixtures in each official theme. Full example corpus and phone timing remain open.`,
-      adaptations: 'Local Arial/Georgia/monospace fonts, fixed cover background, mocked PlantUML SVG after explicit consent, no external network, disabled nonvisual services, initial click position.',
+      scope: `Actual staged runtime and editor bridge; ${fixtures.length} deterministic fixtures in each official theme plus two theme-font fixtures. Full example corpus and phone timing remain open.`,
+      adaptations: 'Local Arial/Georgia/monospace fonts in the original fixtures; pinned font bytes supplied identically to both clients in theme-font fixtures; fixed cover background, mocked PlantUML SVG after explicit consent, no external network, disabled nonvisual services, initial click position.',
       tolerance: { channelDelta: 8, changedPixelRatio: 0.001 },
       fixtures: Object.fromEntries(Object.entries(docs).map(([name, src]) => [
         name,
@@ -248,6 +300,7 @@ async function main() {
       ])),
       runtimeSha256: createHash('sha256').update(runtime).digest('hex'),
       currentPayloadGzip: gzipSync(runtime).length + gzipSync(css).length,
+      bundledFontPayloadGzip: Object.fromEntries([...fontCss].map(([family, css]) => [family, gzipSync(css).length])),
       results,
       errors,
     }

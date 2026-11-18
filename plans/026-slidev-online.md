@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — themes/icons/grammars/math/Mermaid, drag/writeback and per-deck PlantUML consent deployed; 141 exact SFC matches and 14 corpus fallbacks in Chromium/Firefox/WebKit CI; 38-case local fidelity passes Chromium/WebKit and CI passes within tolerance; live PlantUML/offline verified in both local engines; remaining features/full rendering/phone gates open |
+| 2 | Slidev runtime | IN PROGRESS — themes/icons/grammars/math/Mermaid, drag/writeback and per-deck PlantUML consent deployed; offline theme fonts and Google font support implemented; 141 exact SFC matches and 14 corpus fallbacks in Chromium/Firefox/WebKit CI; 40-case local fidelity passes Chromium/WebKit; earlier 38-case CI passes within tolerance; live PlantUML/offline verified in both local engines; remaining features/full rendering/phone gates open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -1161,3 +1161,47 @@ records the measured results. Publication/tag approvals remain outstanding.
   features, full source-corpus fidelity and complete runtime phone timing.
   The Phase 3 editor remains unimplemented. This final follow-up changes only
   the plan and its index.
+
+### Phase 2 theme and headmatter fonts (2026-11-18)
+
+- Implementation `f54aa0df` is pushed on `main`. The official themes now load
+  Nunito Sans, Fira Code, PT Serif and PT Mono from pinned Fontsource 5.3.0
+  packages (OFL-1.1). Four separate self-contained stylesheets contain all 37
+  available faces/subsets. Original WOFF2 bytes, attribution and licenses are
+  audited and hashed during builds and included in verified offline staging.
+  No upstream packages or immutable vendor bytes changed.
+- Font selection follows the existing parser's theme/headmatter resolution.
+  The SDK delivers bundled styles into the opaque frame. Navigation reuses
+  them. New renders replace the font set. Local lists, explicit webfont lists,
+  disabled providers, weights and italics are respected. Additional Google fonts
+  use native stylesheet loading inside the frame with no page referrer.
+  Only Google style/font hosts are added to CSP; script, connection and frame
+  permissions stay unchanged. Coollabs is visibly unsupported. Font failures
+  and bounded loading deadlines preserve readable local/system fallbacks.
+- Actual local Chromium and WebKit pass bundled-font loading, non-Latin subsets,
+  full offline reload, navigation reuse, Google CSS/font loading, local/disabled
+  overrides, unsupported providers, invalid settings, stylesheet/font failures,
+  retry and opaque isolation. Remote-font responses are mocked. External Google
+  service availability and offline custom Google fonts are not claimed.
+- The existing runtime, icons, grammars, math, Mermaid, PlantUML, drag/writeback
+  and welcome/isolation/offline suites pass both local engines. Each engine
+  retains **141** exact compiler SFC matches plus **14** explicit corpus
+  fallbacks. All **396** repository tests and **23** online units pass, with
+  runtime build/typecheck, root build/typecheck/lint, actionlint and static/vendor/
+  offline integrity checks. Stale Turbo artifacts were refreshed; four test
+  workers avoid a syntax-test timeout under simultaneous browser load.
+- The visual harness adds two actual theme-font cases to the original 38
+  system-font fixtures. The CLI receives the same pinned font bytes, without
+  external traffic. Both clients must report loaded fonts before screenshots.
+  Chromium and WebKit pass all **40** cases with zero exact differing pixels.
+  CI for these new visual fixtures remains pending.
+- Local runtime SHA-256 is
+  `2968d24e99a99a2df1de0209657070b2c951a3532bad5c0a212eb2a92640eb1e`.
+  Initial JS/CSS is **1,007,975 bytes gzip**, plus **337,956** for the default
+  theme's fonts or **507,059** for seriph. These are payload observations,
+  not complete-runtime phone performance acceptance.
+- First implementation CI has passed units, independent publication checks,
+  Chromium, WebKit and the original 38-case visual report. Firefox and deployment
+  are still running at this checkpoint. Further theme audits, remaining client
+  features, full source-corpus fidelity and complete-runtime phone timing remain
+  open. Phase 3 stays unimplemented.

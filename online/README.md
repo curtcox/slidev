@@ -80,9 +80,10 @@ The offline browser suite also renders a seriph fact slide after a fully
 offline reload, checking that theme-specific styles survive cached delivery.
 
 The runtime fidelity harness compares the actual staged bundle through the
-editor bridge with `slidev build` on a separate origin. Eighteen deterministic
-fixtures in both themes cover the six theme layouts, Markdown, columns, scoped
-styles, code, built-in components, TOC, icons, lazy syntax languages, math, Mermaid flowcharts/sequence diagrams, positioned drag elements and initial click states. Reports and CLI/online/diff PNGs go to
+editor bridge with `slidev build` on a separate origin. Nineteen deterministic
+fixtures in both themes plus two font fixtures cover the six theme layouts, Markdown, columns, scoped
+styles, code, built-in components, TOC, icons, lazy syntax languages, math, Mermaid flowcharts/sequence diagrams, positioned drag elements and initial click states. The font fixtures supply identical
+pinned bytes to the CLI and online runtime and require loaded fonts in both. Reports and CLI/online/diff PNGs go to
 `runtime/.cache/fidelity/`, with screenshots separated by browser. Use `--skip-reference-build` only when the fixtures
 and CLI are unchanged; `BROWSER=webkit` selects WebKit. CI uploads a nonblocking
 Chromium report while platform/font coverage stabilizes. This is a subset of
