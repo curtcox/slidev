@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — all five themes and HTTPS images deployed; 141 exact SFC matches + 14 corpus fallbacks, 52-slide corpus DOM gate and 76 visual cases pass CI; CSS transitions implemented, acceptance pending; remaining features/full source-corpus visual fidelity/phone gates open |
+| 2 | Slidev runtime | IN PROGRESS — all five themes and HTTPS images deployed; 141 exact SFC matches + 14 corpus fallbacks, 52-slide corpus DOM gate and 76 visual cases pass CI; CSS transitions pass local Chromium/WebKit, CI/deployment pending; remaining features/full source-corpus visual fidelity/phone gates open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -1414,7 +1414,21 @@ records the measured results. Publication/tag approvals remain outstanding.
   click state, rapid reversals, frame replacement, fallback notices and offline
   rendering. Existing runtime assertions now target the active slide where
   departing and incoming slides briefly coexist.
-- Local browser acceptance, final visual reports, CI and deployment are being
-  verified. Phase 2 remains open for native view transitions, other remaining
-  client features, full source-corpus visual fidelity and phone performance.
-  Phase 3 remains unimplemented.
+- Implementation `07e1d9c1` is pushed on `main`. Actual local Chromium
+  156.0.8078.4 and WebKit 27.2 pass the new transition suite, including native
+  fallback notices and offline rendering. Both engines retain **141 exact SFC
+  matches**, **14 corpus fallbacks** and all **52 visible corpus cases**.
+  Runtime, icons and drag regressions also pass both engines.
+- Final local visual reports pass all **76 cases**. Chromium has **74 exact
+  matches** and two within tolerance. WebKit has **76 exact matches**.
+  Both visual and corpus reports use runtime SHA-256
+  `fe0961350615c8e70c4f103981b05c0d5b3f0f0ce7ac79c3a18aeeb2690c612e`.
+  Initial JS/CSS measures **1,071,342 bytes gzip** locally. This measurement
+  does not establish phone performance.
+- All **396** repository tests and **23** online units pass locally.
+  Runtime/root builds, typechecks, root lint, actionlint and static/vendor/offline
+  integrity also pass. The HMR tests require local server access outside the
+  restricted network sandbox. No local Firefox run is claimed.
+- CI and deployment are being verified. Phase 2 remains open for native view
+  transitions, other remaining client features, full source-corpus visual
+  fidelity and phone performance. Phase 3 remains unimplemented.

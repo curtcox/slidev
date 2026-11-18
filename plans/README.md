@@ -45,7 +45,7 @@ high-confidence security + correctness, then larger refactors. You may cherry-pi
 | 023 | Decompose god functions in `export.ts`/`cli.ts` | P3 | L | MED | 022 | TODO |
 | 024 | Incremental HMR parse cache | P3 | L | MED | — | TODO |
 | 025 | Guard `skills/`-vs-`docs/` drift in CI | P3 | S-M | LOW | — | TODO |
-| 026 | Slidev Online (browser editor on Fragment Kit, GitHub Pages) | P1 | XL | MED-HIGH | SDK v0.6.0 / kit v0.4.4 / workflow `@v4` verified | IN PROGRESS — Phases 0–1 done; five themes and HTTPS images deployed; 141 exact SFC matches + 14 fallbacks, 52-slide corpus DOM gate and 76 visual cases pass CI; CSS transitions implemented, acceptance pending; corpus visual fidelity/phone gates and remaining features open |
+| 026 | Slidev Online (browser editor on Fragment Kit, GitHub Pages) | P1 | XL | MED-HIGH | SDK v0.6.0 / kit v0.4.4 / workflow `@v4` verified | IN PROGRESS — Phases 0–1 done; five themes and HTTPS images deployed; 141 exact SFC matches + 14 fallbacks, 52-slide corpus DOM gate and 76 visual cases pass CI; CSS transitions pass local Chromium/WebKit, CI/deployment pending; corpus visual fidelity/phone gates and remaining features open |
 
 Status values: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED` (one-line reason) |
 `REJECTED` (one-line rationale).
