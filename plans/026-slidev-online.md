@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — all five planned themes and earlier runtime integrations deployed; 141 exact SFC matches + 14 corpus fallbacks and 76-case visual gate pass in CI; new 52-slide source-corpus DOM gate and HTTPS image fix pass local Chromium/WebKit, CI/deployment pending; remaining features/full source-corpus visual fidelity/phone gates open |
+| 2 | Slidev runtime | IN PROGRESS — all five themes and earlier integrations deployed; 141 exact SFC matches + 14 corpus fallbacks, 52-slide corpus DOM gate and 76 visual cases pass CI; HTTPS image fix deployed and live corpus passes Chromium/WebKit; remaining features/full source-corpus visual fidelity/phone gates open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -1355,3 +1355,41 @@ records the measured results. Publication/tag approvals remain outstanding.
   bytes. Both local engines pass this mode and decode all **18** remote image
   elements. Root lint passes. The new CI unit and independent publication jobs
   pass. Browser, visual and deployment acceptance remain pending.
+
+### Deployed source-corpus and image acceptance (2026-11-18)
+
+- Implementation `f6075e72` and the deployment-harness follow-up `365752f1`
+  are pushed on `main`. The final
+  [deployment run 44421741572](https://github.com/curtcox/slidev/actions/runs/44421741572)
+  passes every job, including units, independent publication verification,
+  Chromium/Firefox/WebKit, visual comparisons and Pages deployment. Actual
+  Firefox logs confirm **141 exact SFC comparisons**, **14 corpus fallbacks**
+  and the complete **52-slide corpus gate** ran successfully.
+- The live [recovery site](https://curtcox.github.io/slidev/) reports
+  `365752f1` with `dirty:false`. Actual final live Chromium 156.0.8078.4 and
+  WebKit 27.2 each pass all **52 visible corpus cases**. Fifty slides mount,
+  two report their expected file-import errors and three hidden source slides
+  remain excluded. Both engines decode all **18** remote image elements.
+  Initial, final and restored click states, diagrams, equations, highlighting,
+  static Monaco notices, missing-widget notices and error recovery pass.
+- Before deployment, the gate reproduced the image failure on the old recovery
+  page. After deployment, remote image requests receive the mock SVG bytes and
+  omit the referrer. No PlantUML request occurs without consent. Opaque origin
+  and sandbox checks pass. External images remain mocked, so these results do
+  not establish image-host availability or offline custom-image support.
+- Downloaded final CI visual evidence has **76 passing cases**, comprising
+  **70 exact matches** and six within tolerance, with no errors. Both final
+  local corpus reports, both live reports, the Firefox job and the visual
+  report share runtime SHA-256
+  `dc6f96b0b13b599c70f144f718fa2928972c81377d8d18c36345ce42efad43e0`.
+  This change fixes the inherited page policy. Runtime bundle bytes are
+  unchanged from the deployed official-theme acceptance.
+- [Repository CI](https://github.com/curtcox/slidev/actions/runs/44421740744)
+  passes typecheck, Cypress and Linux/Windows/macOS tests. Local checks pass
+  all **23 online units**, root lint, actionlint and static/vendor/offline
+  integrity. Existing runtime, isolation, PlantUML consent and offline suites
+  pass local Chromium and WebKit. The separate Continuous Releases workflow
+  still fails because `pkg-pr-new` lacks access to this fork.
+- Phase 2 remains open for remaining client features, full source-corpus visual
+  fidelity and complete-runtime phone timing. Phase 3 stays unimplemented.
+  This final acceptance follow-up changes only the plan and its index.
