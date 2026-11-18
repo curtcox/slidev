@@ -83,7 +83,7 @@ hashbinSandbox.import('runtime/sandbox.js').then(module => {
         postMessage({ok:true,result:{reused:a===reused,invalidated:b!==invalidated,separateWarnings:a.warnings.length>0&&b.warnings.length===0}});
         return;
       }
-      const compiler = await module.createDeckCompiler(data.oversize ? 'é'.repeat(3000000) : data.src,{plantUmlAllowed:data.plantUmlAllowed===true});
+      const compiler = await module.createDeckCompiler(data.oversize ? 'é'.repeat(3000000) : data.src,{plantUmlAllowed:data.plantUmlAllowed===true,tokenizeTimeLimit:0});
       const result = data.titles ? await compiler.compileTitles() : await compiler.compile(data.index ?? 0,data.layoutImport ?? 'online:layout/default');
       postMessage({ok:true,result});
     } catch(error) { postMessage({ok:false,error:[String(error),error.stack].filter(Boolean).join("\n")}); }
@@ -142,6 +142,9 @@ async function main() {
       const entry = resolve(temporary, `${fixture.name}.md`)
       await writeFile(entry, reference)
       const options = await resolveOptions({ entry }, 'build')
+      // Compare complete tokenization, excluding wall-clock truncation under
+      // CI load. Product rendering keeps the CLI's default 500 ms line budget.
+      options.utils.shikiOptions.tokenizeTimeLimit = 0
       const markdown = await createMarkdownPlugin(options, {})
       const wrapper = createLayoutWrapperPlugin(options)
       const titleSource = await templateTitleRendererMd.getContent.call({} as any, options)
@@ -243,21 +246,10 @@ async function main() {
         return results;
       } finally { sandbox.terminate(); }
     })()`)
-    const grammarDifferences: { fixture: string, slide: number, cliSha256: string, onlineSha256: string }[] = []
     for (let i = 0; i < expected.length; i++) {
       const actual = results[i]
       assert.equal(actual.ok, true, `${expected[i].fixture}: ${actual.error}`)
-      if (expected[i].fixture.startsWith('grammar-') && actual.result.sfc !== expected[i].sfc) {
-        grammarDifferences.push({
-          fixture: expected[i].fixture,
-          slide: expected[i].index + 1,
-          cliSha256: createHash('sha256').update(expected[i].sfc).digest('hex'),
-          onlineSha256: createHash('sha256').update(actual.result.sfc).digest('hex'),
-        })
-      }
-      else {
-        assert.equal(actual.result.sfc, expected[i].sfc, `${expected[i].fixture} slide ${expected[i].index + 1} must match CLI transforms`)
-      }
+      assert.equal(actual.result.sfc, expected[i].sfc, `${expected[i].fixture} slide ${expected[i].index + 1} must match CLI transforms`)
       if (expected[i].fixture.startsWith('grammar-'))
         assert.deepEqual(actual.result.warnings, [], `${expected[i].fixture} must highlight without falling back`)
       assert.ok(actual.result.code.includes('export default'))
@@ -292,9 +284,9 @@ async function main() {
     })
     await writeFile(resolve(cache, `characterization-${engine}.json`), `${JSON.stringify({
       browser: `${engine} ${browser.version()}`,
-      scope: 'Compiler output only; exact CLI matches counted separately from browser grammar token-color differences and visible unsupported-feature errors/notices.',
-      grammarDifferences,
-      exact: expected.filter(item => !grammarDifferences.some(difference => difference.fixture === item.fixture && difference.slide === item.index + 1)).map(({ fixture, index, titles, src }) => ({
+      scope: 'Compiler output only; complete tokenization compared exactly against CLI transforms with elapsed-time cutoffs disabled in both test compilers. Product rendering retains the default 500 ms per line. Unsupported features checked for visible errors/notices, not counted as exact matches.',
+      tokenizeTimeLimit: 0,
+      exact: expected.map(({ fixture, index, titles, src }) => ({
         fixture,
         slide: titles
           ? 'titles'
@@ -308,10 +300,7 @@ async function main() {
         expectedNotice,
       })),
     }, null, 2)}\n`)
-    // C++ has a known token-color difference between JavaScript regex engines.
-    // Keep this narrowly reviewed exception out of the exact-match count.
-    assert.ok(grammarDifferences.every(difference => difference.fixture === 'grammar-cpp'), JSON.stringify(grammarDifferences))
-    process.stdout.write(`${engine}: ${expected.length - grammarDifferences.length} SFCs match CLI; ${grammarDifferences.length} recorded C++ grammar differences; all 40 grammars highlight without fallback; ${corpusProbes.length} corpus fallbacks, unsupported imports, UTF-8 limits and incremental caching pass\n`)
+    process.stdout.write(`${engine}: ${expected.length} SFCs match CLI; all 40 grammars highlight without fallback; ${corpusProbes.length} corpus fallbacks, unsupported imports, UTF-8 limits and incremental caching pass\n`)
   }
   finally {
     await browser?.close()

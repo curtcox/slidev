@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — client/virtual modules, seven lazy icon collections and 40 lazy grammars verified; 139 Chromium / 138 WebKit exact SFC matches plus one recorded WebKit C++ color difference and 14 corpus fallbacks; 28-case local fidelity passes both engines; remaining features/full rendering/phone gates open |
+| 2 | Slidev runtime | IN PROGRESS — client/virtual modules, seven lazy icon collections and 40 lazy grammars verified; 139 exact SFC matches in Chromium/WebKit plus 14 corpus fallbacks; 28-case local fidelity passes both engines; remaining features/full rendering/phone gates open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -862,20 +862,28 @@ records the measured results. Publication/tag approvals remain outstanding.
   service worker blocked, and highlighting after a complete offline reload.
   Existing runtime integration passes both engines; Chromium welcome/isolation/
   offline/theme checks pass. No new execution permission or vendor change.
-- Characterization exercises all forty languages without fallback. Chromium has
-  **139 exact SFC comparisons**; WebKit has **138** plus one recorded C++ token-
-  color difference against the Node CLI. That narrowly permitted difference is
-  hashed in the report and excluded from exact counts. The corpus now has **14**
+- Characterization exercises all forty languages without fallback. Chromium and
+  WebKit each have **139 exact SFC comparisons**. Expanded runs caught Shiki's
+  default 500 ms line budget truncating C++/magic-move output under concurrent
+  load. Both test compilers now disable that elapsed-time cutoff so assertions
+  compare complete tokenization, with no browser exceptions. Product renders
+  retain the default 500 ms line budget. The corpus now has **14**
   explicit unsupported-feature cases instead of 21. These are compiler checks,
   not claims of full rendering parity for starter/composable-vue.
 - Added Python/Rust/Vue to product visual fidelity, with assertions that code
   contains highlighted tokens. All **28** cases have zero exact differing pixels
-  in both local engines. Initial JS/CSS is **993,547 bytes gzip**; forty separate
+  in both local engines. Initial JS/CSS is **993,580 bytes gzip**; forty separate
   grammar bundles total **8,719,550 bytes** (**1,070,900 gzip**). Both visual
   reports record runtime SHA-256
-  `379a7845c017ef5346ed03afea0db67fd9f8af313b6d7e5b4eebf4c75e9ff661`.
-- Runtime build/typecheck, nine online units and static/vendor/offline integrity
-  pass. The implementation was pushed to `main` as `3c951890`; deployment and
-  final CI results are still being checked. Diagrams/fonts, drag writeback,
+  `e85665b4b8d1a0b2dd3c5fd7a244c035ba5dee3bedc3dfab151314d0a12883f0`.
+- Runtime build/typecheck, root lint/typecheck, all **392** repository tests,
+  nine online units and static/vendor/offline integrity pass. Local stale Turbo
+  artifacts were refreshed before the final repository tests. Implementation
+  and visual verification were pushed to `main` as `3c951890` and `bbc301fc`.
+  The latter [deployment run](https://github.com/curtcox/slidev/actions/runs/44367241326)
+  passed unit, Chromium, Firefox, vendor publication and visual-report jobs at
+  this checkpoint; WebKit and deployment were still pending. The follow-up
+  removes elapsed-time truncation from compiler comparisons; its final CI and
+  live deployment are not yet verified. Diagrams/fonts, drag writeback,
   additional theme audits, full source-corpus rendering and complete-runtime
   phone timing remain open.

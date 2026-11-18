@@ -57,7 +57,7 @@ function compileSfc(sfc: string, id: string, warnings: string[]): CompiledSlide 
   }
 }
 
-export async function createDeckCompiler(src: string, { plantUmlAllowed = false } = {}) {
+export async function createDeckCompiler(src: string, { plantUmlAllowed = false, tokenizeTimeLimit = 500 } = {}) {
   if (typeof src !== 'string' || new TextEncoder().encode(src).byteLength > MAX_BYTES)
     throw new Error('The deck exceeds the 5 MiB limit')
   const parsed = parseSync(src, 'slides.md')
@@ -122,6 +122,7 @@ export async function createDeckCompiler(src: string, { plantUmlAllowed = false 
       shikiOptions: {
         themes: { dark: 'vitesse-dark', light: 'vitesse-light' },
         defaultColor: false,
+        tokenizeTimeLimit,
       },
       katexOptions: { throwOnError: false, strict: false },
     },
@@ -132,7 +133,12 @@ export async function createDeckCompiler(src: string, { plantUmlAllowed = false 
   const hook = typeof markdown.transform === 'function'
     ? markdown.transform
     : markdown.transform!.handler
-  const configKey = await digest(JSON.stringify([headmatter, config, plantUmlAllowed]))
+  const configKey = await digest(JSON.stringify([
+    headmatter,
+    config,
+    plantUmlAllowed,
+    tokenizeTimeLimit,
+  ]))
   let queue = Promise.resolve()
 
   return {

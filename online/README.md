@@ -38,9 +38,8 @@ until a later phase registers and deploys the canonical origin.
 
 The Phase 2 compiler reuses Slidev's Markdown plugin chain and pure layout
 wrapper inside the opaque frame. Characterization includes the real starter,
-composable-vue and all online example decks: 139 Chromium / 138 WebKit slide/title SFCs match CLI transforms exactly,
-including forty grammar probes. One WebKit C++ token-color difference is recorded
-separately, and 14 corpus cases assert documented errors or fallbacks
+composable-vue and all online example decks: 139 slide/title SFCs match CLI transforms exactly in both Chromium and WebKit,
+including forty grammar probes, and 14 corpus cases assert documented errors or fallbacks
 for file imports, Monaco, PlantUML and unavailable grammars. These fallback
 cases are not exact-match claims. Reports go to
 `runtime/.cache/characterization-<browser>.json`. Hidden/disabled slides follow
@@ -101,5 +100,6 @@ curated catalog. The unchanged package license, version, dependency lists,
 byte counts and hashes ship at `runtime/grammars/` and are cached offline.
 Unknown or unavailable languages show readable plain code and a visible notice.
 The runtime pins the JavaScript regex target to ES2018 for consistent browser
-support; characterization reports distinguish exact CLI output from token-color
-differences against the Node CLI's automatic regex target.
+support; characterization disables Shiki's elapsed-time cutoff in both test compilers to
+compare complete output under CI load. Product renders retain the CLI's default
+500 ms line budget.
