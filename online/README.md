@@ -27,6 +27,7 @@ node tests/browser/icons.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/languages.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/math.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/diagrams.cjs http://127.0.0.1:8000/ chromium
+node tests/browser/drag.cjs http://127.0.0.1:8000/ chromium
 node runtime/tests/run.mjs
 node runtime/tests/fidelity.mjs
 # Repeat the compiler checks with BROWSER=webkit or BROWSER=firefox.
@@ -40,7 +41,7 @@ until a later phase registers and deploys the canonical origin.
 
 The Phase 2 compiler reuses Slidev's Markdown plugin chain and pure layout
 wrapper inside the opaque frame. Characterization includes the real starter,
-composable-vue and all online example decks: 139 slide/title SFCs match CLI transforms exactly in both Chromium and WebKit,
+composable-vue and all online example decks: 141 slide/title SFCs match CLI transforms exactly in both Chromium and WebKit,
 including forty grammar probes, and 14 corpus cases assert documented errors or fallbacks
 for file imports, Monaco, PlantUML and unavailable grammars. These fallback
 cases are not exact-match claims. Reports go to
@@ -64,9 +65,9 @@ The offline browser suite also renders a seriph fact slide after a fully
 offline reload, checking that theme-specific styles survive cached delivery.
 
 The runtime fidelity harness compares the actual staged bundle through the
-editor bridge with `slidev build` on a separate origin. Seventeen deterministic
+editor bridge with `slidev build` on a separate origin. Eighteen deterministic
 fixtures in both themes cover the six theme layouts, Markdown, columns, scoped
-styles, code, built-in components, TOC, icons, lazy syntax languages, math, Mermaid flowcharts/sequence diagrams and initial click states. Reports and CLI/online/diff PNGs go to
+styles, code, built-in components, TOC, icons, lazy syntax languages, math, Mermaid flowcharts/sequence diagrams, positioned drag elements and initial click states. Reports and CLI/online/diff PNGs go to
 `runtime/.cache/fidelity/`, with screenshots separated by browser. Use `--skip-reference-build` only when the fixtures
 and CLI are unchanged; `BROWSER=webkit` selects WebKit. CI uploads a nonblocking
 Chromium report while platform/font coverage stabilizes. This is a subset of
@@ -124,3 +125,24 @@ The upstream component retains scale, per-diagram themes, dark mode, shadow
 styles and visible errors. Missing module bytes fail visibly and a later
 render can retry. Flowcharts, sequence diagrams and pie charts pass integration
 checks in Chromium and WebKit; the full diagram catalog is not yet verified.
+
+The runtime supports `<VDrag>`, `<VDragArrow>` and `v-drag` with the upstream
+move, resize, rotation and keyboard controls. Drag state stays in memory;
+positions survive slide navigation and account for frame scale and slide zoom.
+Initial layout does not modify source, and writeback does not rerun author code.
+Named positions use up to 128 letters, numbers, underscores or hyphens.
+
+The parent bridge accepts `onSourceChange(src, patch)`, `getSource()` and
+`onDragError(message)` callbacks for the future editor. A separate parse-only
+bundle at `runtime/editor/document.js` validates bounded position messages and
+rebuilds edits against the original render snapshot. This preserves repeated
+inline element offsets, notes, scripts, frontmatter comments and CRLF/BOM.
+Named positions update YAML, including empty, missing and fenced blocks.
+Manual Markdown changes require Render before further writeback. A render can
+retain up to 1,024 changed elements. The current welcome shell still does not
+expose the Phase 3 editor; browser tests use a textarea host to verify this API.
+
+The local Vite drag adapter checks its upstream transformation anchors at build
+time. Builds also reject client storage-state modules without an opaque-origin
+adapter. The two upstream Markdown fixes for PascalCase and repeated/nested
+drag sources have their own separately committed regression tests.

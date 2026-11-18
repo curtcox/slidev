@@ -1012,6 +1012,9 @@ importers:
       vue:
         specifier: catalog:frontend
         version: 3.5.44(typescript@6.0.3)
+      yaml:
+        specifier: catalog:prod
+        version: 2.9.1
     devDependencies:
       '@iconify/json':
         specifier: catalog:icons

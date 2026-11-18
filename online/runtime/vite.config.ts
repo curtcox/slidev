@@ -22,6 +22,17 @@ export default defineConfig({
     bundleGrammars(),
     bundleMathStyles(),
     {
+      name: 'slidev-online-storage-coverage',
+      generateBundle(_options, bundle) {
+        for (const output of Object.values(bundle)) {
+          if (output.type !== 'chunk')
+            continue
+          if (Object.keys(output.modules).some(id => id.replaceAll('\\', '/').includes('/packages/client/state/')))
+            this.error('Client storage state needs an opaque-origin adapter before it can ship online')
+        }
+      },
+    },
+    {
       name: 'slidev-online-virtual-coverage',
       async buildStart() { await checkVirtualModules() },
     },

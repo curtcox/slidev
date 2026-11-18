@@ -1,5 +1,7 @@
+import { flushDragUpdates } from './drag'
 import { parseCommand } from './protocol'
 import { createRenderer } from './renderer'
+import { activeDragElement } from './shims/drag-state'
 
 export { createDeckCompiler } from './compiler'
 export { rewriteModuleImports } from './compiler/modules'
@@ -37,9 +39,18 @@ export async function start() {
     catch (error) { fail(error) }
   })
   addEventListener('resize', renderer.resize)
+  addEventListener('pointerup', flushDragUpdates)
+  addEventListener('keyup', flushDragUpdates)
   addEventListener('keydown', (event) => {
     if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey
       || (event.target as HTMLElement)?.closest('button, a, input, textarea, select, [contenteditable]')) {
+      return
+    }
+    if (activeDragElement.value) {
+      if (event.key === 'Escape') {
+        flushDragUpdates()
+        activeDragElement.value.stopDragging()
+      }
       return
     }
     if ([

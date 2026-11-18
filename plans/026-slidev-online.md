@@ -117,7 +117,7 @@ online/                          npm package (own package.json + package-lock.js
 
 The bridge protocol is versioned, with bounded, schema-checked messages:
 - parent → sandbox: `render {src, css, slide, click, dark}`, `goto {slide, click}`, `print`
-- sandbox → parent: `ready`, `rendered {slides, errors[]}`, `position {slide, click}`, `error {slide, message, line}`
+- sandbox → parent: `ready`, `rendered {slides, errors[]}`, `position {slide, click}`, `error {slide, message, line}`, and bounded `drag {patch}` updates
 
 Slidev's client uses `localStorage`, `BroadcastChannel` and similar APIs, which
 throw in an opaque origin. `src/shims/` replaces them with in-memory versions. Dark
@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — client/virtual modules, seven lazy icon collections, 40 lazy grammars and offline math fonts and lazy Mermaid verified; 139 exact SFC matches in Chromium/WebKit plus 14 corpus fallbacks; 34-case local fidelity passes Chromium/WebKit and Chromium CI; live math/diagrams/offline verified; remaining features/full rendering/phone gates open |
+| 2 | Slidev runtime | IN PROGRESS — themes/icons/grammars/math/Mermaid plus drag and source-writeback bridge verified; 141 exact SFC matches and 14 corpus fallbacks in Chromium/WebKit; 36-case local fidelity passes both engines; remaining features/full rendering/phone gates open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -989,3 +989,43 @@ records the measured results. Publication/tag approvals remain outstanding.
   cancellation was not explicitly authorized. It was left running; its runtime
   source is identical to the deployed repair, which only changes CI setup.
   The evidence-only follow-up changes this plan and its index.
+
+### Phase 2 drag controls and source-writeback bridge (2026-11-18)
+
+- The owner explicitly authorized canceling the superseded workflow. Run
+  `44381703728` was canceled and its final state verified as `cancelled`.
+- Continued on `main`. Two upstream fixes were committed and pushed separately:
+  `45b21e84` preserves PascalCase drag metadata; `d389a30c` preserves distinct
+  source offsets for repeated/nested components/directives and single-quoted
+  directive values. All seven upstream drag-transform regressions pass.
+- Reused upstream drag components, directive and controls. A guarded local Vite
+  adapter replaces server writeback with bounded reports and retains geometry
+  in memory across navigation. Storage access is shimmed; builds reject client
+  storage-state modules without an opaque adapter. No immutable vendor changes.
+- The parent bridge exposes source-change, source-read and error callbacks.
+  Its separate parse-only bundle never compiles or executes author text. Numeric
+  patches are schema/range checked, rebuilt against the original render snapshot,
+  limited to 1,024 elements and bounded by the total 5 MiB document allowance.
+  Stale Markdown edits reject writeback visibly. Tests preserve notes, scripts,
+  comments, CRLF/BOM, hidden-slide numbering, repeated element offsets, and
+  existing/empty/missing/fenced YAML. The Phase 3 editor UI is still unimplemented;
+  this verification uses the bridge API with a textarea host.
+- Actual local Chromium and WebKit pass move/resize/rotation, keyboard movement
+  without slide navigation, arrows, named/auto-height positions, repeated inline
+  elements, scaled/zoomed previews, navigation retention, cumulative writeback,
+  no author-code rerun during writeback, stale-source rejection and offline reload.
+  Existing runtime and welcome/isolation/offline suites pass both engines.
+- Both engines pass **141** exact compiler SFC comparisons plus **14** explicit
+  corpus fallbacks. All **36** visual cases match the CLI with zero exact differing
+  pixels. The new fixture caught missing drag-component utility CSS; including
+  the upstream component sources in utility generation fixes padding and arrow
+  placement. Reports record runtime SHA-256
+  `89d2cb8185f3b1355735c20bc894721f1034b929902d91c070b1e7d73b3f8e05`.
+- Runtime build/typecheck, targeted lint, actionlint, all **21** online units,
+  static/vendor/offline integrity, refreshed root builds/typecheck/lint and all
+  **396** repository tests pass. Current initial sandbox JS/CSS is **1,005,916
+  bytes gzip**; the separate parent parser/writeback module is **39,217 bytes
+  gzip**. These are payload observations, not phone performance acceptance.
+  CI and live deployment for the new drag adapter have not yet been checked.
+  Remote theme fonts, further theme audits, remaining client features, full
+  source-corpus rendering/fidelity and complete-runtime phone timing stay open.

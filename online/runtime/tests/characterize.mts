@@ -16,6 +16,10 @@ import languages from '../src/compiler/languages.json' with { type: 'json' }
 
 const root = fileURLToPath(new URL('../../../', import.meta.url))
 const fixtures = [
+  {
+    name: 'multiple-drag-sources',
+    src: '# Drag elements\n\n<VDrag pos="1,2,100,80">One</VDrag> <VDrag>Two</VDrag> <span v-drag="[100,200,80,60]">Three</span>\n\n<VDragArrow pos="1,2,100,80" />',
+  },
   ...Object.keys(languages).map(language => ({
     name: `grammar-${language}`,
     src: `# Grammar ${language}\n\n\`\`\`${language}\n${language === 'cpp'

@@ -1,7 +1,8 @@
+import { applyDragPatches, dragPatchKey, parseDragPatch } from '../runtime/editor/document.js'
 import { createSandbox } from '../vendor/fragment-kit-v0.4.4/vendor/hashbin-sdk-v0.6.0.mjs'
 
 /** A document replacement always destroys the previous author's execution world. */
-export function createPreviewBridge({ container, onStatus, onPosition = () => {}, onError = () => {} }) {
+export function createPreviewBridge({ container, onStatus, onPosition = () => {}, onError = () => {}, onSourceChange = () => {}, getSource, onDragError = onError }) {
   const base = new URL('../', import.meta.url).href
   let sandbox
   let timer
@@ -24,6 +25,10 @@ export function createPreviewBridge({ container, onStatus, onPosition = () => {}
     }
     stop()
     const current = revision
+    const cssBytes = new TextEncoder().encode(css).byteLength
+    const baseline = src
+    let updatedSource = src
+    const dragUpdates = new Map()
     onStatus('loading')
     sandbox = createSandbox({
       origin: 'opaque',
@@ -68,6 +73,24 @@ export function createPreviewBridge({ container, onStatus, onPosition = () => {}
         && Number.isSafeInteger(data.slide) && data.slide > 0 && data.slide <= 10000
         && Number.isSafeInteger(data.click) && data.click >= 0 && data.click <= 1000000) {
         onPosition({ slide: data.slide, click: data.click })
+      }
+      else if (data.type === 'drag' && ready) {
+        try {
+          const patch = parseDragPatch(data.patch)
+          if (getSource && getSource() !== updatedSource)
+            throw new Error('The Markdown changed. Render again before moving an element.')
+          const next = new Map(dragUpdates)
+          next.set(dragPatchKey(patch), patch)
+          const changed = applyDragPatches(baseline, [
+            ...next.values(),
+          ])
+          if (new TextEncoder().encode(changed).byteLength + cssBytes > 5 * 1024 * 1024)
+            throw new Error('The updated document exceeds the 5 MiB limit')
+          onSourceChange(changed, patch)
+          updatedSource = changed
+          dragUpdates.set(dragPatchKey(patch), patch)
+        }
+        catch (error) { onDragError(String(error).slice(0, 500)) }
       }
       else if (data.type === 'error' && typeof data.message === 'string') {
         fail(data.message)

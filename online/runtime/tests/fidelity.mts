@@ -15,6 +15,7 @@ import { serve } from '../../vendor/fragment-kit-v0.4.4/tools/serve.mjs'
 const root = fileURLToPath(new URL('../../../', import.meta.url))
 const cache = resolve(root, 'online/runtime/.cache/fidelity')
 const fixtures = [
+  { layout: 'default', expectedDragElements: 3, content: '# Positioned elements\n\n<v-drag pos="100,130,180,80" class="bg-blue-100">A draggable box</v-drag>\n\n<div v-drag="[450,200,200,70]" class="bg-red-100">A directive</div>\n\n<v-drag-arrow pos="150,340,300,40" color="red" />' },
   { layout: 'default', expectedDiagrams: 1, content: '# A diagram\n\n```mermaid\ngraph LR\n A[Author] --> B[Preview] --> C[Present]\n```' },
   { layout: 'default', expectedDiagrams: 1, content: '# A conversation\n\n```mermaid\nsequenceDiagram\n Alice->>Bob: Hello\n Bob-->>Alice: Hi\n```' },
   { layout: 'default', expectedMath: 2, content: String.raw`# Equations
@@ -155,6 +156,10 @@ async function main() {
         assert.equal(await frame.evaluate(() => globalThis.origin), 'null')
         assert.equal(await onlinePage.locator('iframe').getAttribute('sandbox'), 'allow-scripts')
         assert.equal(await frame.locator('#online-notices').count(), 0)
+        if (fixtures[index].expectedDragElements) {
+          for (const slide of [actualSlide, referenceSlide])
+            assert.equal(await slide.locator('[data-drag-id]').count(), fixtures[index].expectedDragElements)
+        }
         if (fixtures[index].expectedDiagrams) {
           for (const slide of [actualSlide, referenceSlide]) {
             await slide.locator('.mermaid svg').nth(fixtures[index].expectedDiagrams! - 1).waitFor()

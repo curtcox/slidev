@@ -23,27 +23,33 @@ import VAfter from '../../../packages/client/builtin/VAfter'
 import VClick from '../../../packages/client/builtin/VClick'
 import VClickGap from '../../../packages/client/builtin/VClickGap.vue'
 import VClicks from '../../../packages/client/builtin/VClicks'
+import VDrag from '../../../packages/client/builtin/VDrag.vue'
+import VDragArrow from '../../../packages/client/builtin/VDragArrow.vue'
 import Youtube from '../../../packages/client/builtin/Youtube.vue'
 import { createFixedClicks } from '../../../packages/client/composables/useClicks'
 import { useDarkMode } from '../../../packages/client/composables/useDarkMode'
 import * as constants from '../../../packages/client/constants'
 import * as context from '../../../packages/client/context'
 import * as env from '../../../packages/client/env'
+import DragControl from '../../../packages/client/internals/DragControl.vue'
 import SlideWrapper from '../../../packages/client/internals/SlideWrapper.vue'
 import * as layoutHelper from '../../../packages/client/layoutHelper'
 import * as slideLogic from '../../../packages/client/logic/slides'
 import { createVClickDirectives } from '../../../packages/client/modules/v-click'
+import { createVDragDirective } from '../../../packages/client/modules/v-drag'
 import { createVMarkDirective } from '../../../packages/client/modules/v-mark'
 import { createVMotionDirectives } from '../../../packages/client/modules/v-motion'
 import unoConfig from '../../../packages/client/uno.config'
 import { createDeckCompiler } from './compiler'
 import { rewriteModuleImports } from './compiler/modules'
+import { configureDragUpdates, flushDragUpdates } from './drag'
 import { resolveIcon } from './icons'
 import { loadMathStyles } from './math'
 import { createNavigation, useNav } from './navigation'
 import RouterLink from './RouterLink.vue'
 import commonCss from './runtime.css?inline'
 import { isDark } from './shims/dark'
+import { activeDragElement } from './shims/drag-state'
 import { createGenerator, mergeConfigs } from './shims/uno'
 import configs from './virtual/configs'
 import { slides } from './virtual/slides'
@@ -51,7 +57,9 @@ import TitleRenderer, { titleRenderer } from './virtual/title-renderer'
 
 const layouts = import.meta.glob('../../../packages/client/layouts/*.vue', { eager: true, import: 'default' }) as Record<string, Component>
 const layoutSources = import.meta.glob('../../../packages/client/layouts/*.vue', { eager: true, query: '?raw', import: 'default' })
-const directiveSources = import.meta.glob('../../../packages/client/modules/v-{mark,motion}.ts', { eager: true, query: '?raw', import: 'default' })
+const dragComponentSources = import.meta.glob('../../../packages/client/builtin/{Arrow,VDrag,VDragArrow}.vue', { eager: true, query: '?raw', import: 'default' })
+const dragControlSource = import.meta.glob('../../../packages/client/internals/DragControl.vue', { eager: true, query: '?raw', import: 'default' })
+const directiveSources = import.meta.glob('../../../packages/client/modules/v-{drag,mark,motion}.ts', { eager: true, query: '?raw', import: 'default' })
 const components = {
   Arrow,
   AutoFitText,
@@ -74,6 +82,8 @@ const components = {
   VClick,
   VClickGap,
   VClicks,
+  VDrag,
+  VDragArrow,
   Youtube,
 }
 const layoutByName = Object.fromEntries(Object.entries(layouts).map(([file, component]) => [
@@ -95,6 +105,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
   const clicks = Vue.shallowRef<ClicksContext>()
   const position = Vue.ref(1)
   const navigation = createNavigation(position, clicks, goto, next, prev)
+  const scale = Vue.shallowRef(1)
   let generation = 0
   let stylesheet: HTMLStyleElement | undefined
   let container: HTMLDivElement | undefined
@@ -210,6 +221,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
   async function goto(slide: number, click = 0) {
     if (!compiler)
       return
+    flushDragUpdates()
     const version = ++generation
     const index = Math.max(0, Math.min(compiler.slides.length - 1, slide - 1))
     const source = compiler.slides[index]
@@ -234,8 +246,15 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
     // generated resolver calls so unsupported widgets always get a visible notice.
     warnings.push(...await resolveComponents(compiled.code))
     for (const [, name] of compiled.code.matchAll(/_resolveDirective\("([^"]+)"\)/g)) {
-      if (!['click', 'after', 'mark', 'motion'].includes(name))
+      if (![
+        'click',
+        'after',
+        'drag',
+        'mark',
+        'motion',
+      ].includes(name)) {
         warnings.push(`Directive v-${name} is unavailable online`)
+      }
     }
     const component = await loadComponent(compiled.code, warnings)
     if (generation !== version)
@@ -272,7 +291,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
         throw result.errors[0]
       styles.push(result.code)
     }
-    styles.push((await uno.generate(`${compiled.sfc}\n${JSON.stringify(source.frontmatter)}\n${Object.values(layoutSources).join('\n')}\n${Object.values(directiveSources).join('\n')}\n${compiler.theme.sources.join('\n')}`)).css)
+    styles.push((await uno.generate(`${compiled.sfc}\n${JSON.stringify(source.frontmatter)}\n${Object.values(layoutSources).join('\n')}\n${Object.values(directiveSources).join('\n')}\n${Object.values(dragControlSource).join('\n')}\n${Object.values(dragComponentSources).join('\n')}\n${compiler.theme.sources.join('\n')}`)).css)
     if (generation !== version)
       return
     navigation.navDirection.value = Math.sign(index + 1 - position.value)
@@ -294,9 +313,21 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
     const route = slides.value[index]
     route.component = Vue.markRaw(component)
     clicks.value = createFixedClicks(route, click)
+    const slideElement = Vue.shallowRef<HTMLElement | null>(null)
     app = Vue.createApp({
-      render: () => Vue.h(SlideWrapper, { route, clicksContext: clicks.value! }),
+      render: () => Vue.h('div', {
+        ref: slideElement,
+        style: { width: '100%', height: '100%' },
+      }, [
+        Vue.h(SlideWrapper, { route, clicksContext: clicks.value! }),
+        activeDragElement.value
+          ? Vue.h(DragControl, { data: activeDragElement.value })
+          : null,
+      ]),
     })
+    app.provide(constants.injectionSlideElement, slideElement)
+    app.provide(constants.injectionSlideScale, Vue.computed(() => scale.value))
+    app.use(createVDragDirective())
     app.use(createVClickDirectives())
     app.use(createVMarkDirective())
     app.use(createVMotionDirectives())
@@ -365,9 +396,9 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
     if (!container)
       return
     const height = Math.ceil(configs.canvasWidth / configs.aspectRatio)
-    const scale = Math.min(innerWidth / configs.canvasWidth, innerHeight / height)
-    container.style.transform = `translate(-50%, -50%) scale(${scale})`
-    container.style.setProperty('--slidev-slide-container-scale', String(scale))
+    scale.value = Math.min(innerWidth / configs.canvasWidth, innerHeight / height)
+    container.style.transform = `translate(-50%, -50%) scale(${scale.value})`
+    container.style.setProperty('--slidev-slide-container-scale', String(scale.value))
   }
 
   return {
@@ -377,6 +408,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
     resize,
     async render(input: RenderInput) {
       generation++
+      configureDragUpdates(patch => report({ type: 'drag', patch }))
       app?.unmount()
       app = undefined
       compiler = await createDeckCompiler(input.src)
