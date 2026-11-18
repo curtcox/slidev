@@ -25,6 +25,8 @@ const fixtures = [
   { layout: 'two-cols', content: '# Left column\n\nA paragraph\n\n::right::\n\n# Right column\n\nAnother paragraph' },
   { layout: 'default', content: '# Code and scoped styles\n\n```ts\nconst answer: number = 42\nconsole.log(answer)\n```\n\n<style scoped>h1 { color: rgb(120, 40, 60) }</style>' },
   { layout: 'default', content: '# Click reveals\n\n<v-clicks>\n\n- First reveal\n- Second reveal\n\n</v-clicks>' },
+  { layout: 'default', content: '# Built-in components\n\nPage <SlideCurrentNo /> of <SlidesTotal />\n\n<RenderWhen context="main"><p>Main content</p></RenderWhen>\n\n<RenderWhen context="presenter"><p>Presenter only</p><template #fallback><p>Presenter fallback</p></template></RenderWhen>\n\n<LightOrDark><template #light><p>Light content</p></template><template #dark><p>Dark content</p></template></LightOrDark>\n\n<Transform :scale="0.8"><p>Scaled content</p></Transform>' },
+  { layout: 'default', content: '# Table of contents\n\n<Toc columns="2" maxDepth="1" text-base />' },
 ]
 
 async function main() {
@@ -168,7 +170,7 @@ async function main() {
     const css = await readFile(resolve(root, 'online/dist/runtime/sandbox.css'))
     const report = {
       browser: `${engine} ${browser.version()}`,
-      scope: 'Actual staged runtime and editor bridge; ten deterministic fixtures in each official theme. Full example corpus and phone timing remain open.',
+      scope: `Actual staged runtime and editor bridge; ${fixtures.length} deterministic fixtures in each official theme. Full example corpus and phone timing remain open.`,
       adaptations: 'Local Arial/Georgia/monospace fonts, fixed cover background, no remote assets, disabled nonvisual services, initial click position.',
       tolerance: { channelDelta: 8, changedPixelRatio: 0.001 },
       fixtures: Object.fromEntries(Object.entries(docs).map(([name, src]) => [

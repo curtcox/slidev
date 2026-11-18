@@ -32,6 +32,8 @@ import SlideWrapper from '../../../packages/client/internals/SlideWrapper.vue'
 import * as layoutHelper from '../../../packages/client/layoutHelper'
 import * as slideLogic from '../../../packages/client/logic/slides'
 import { createVClickDirectives } from '../../../packages/client/modules/v-click'
+import { createVMarkDirective } from '../../../packages/client/modules/v-mark'
+import { createVMotionDirectives } from '../../../packages/client/modules/v-motion'
 import unoConfig from '../../../packages/client/uno.config'
 import { createDeckCompiler } from './compiler'
 import { rewriteModuleImports } from './compiler/modules'
@@ -46,6 +48,7 @@ import TitleRenderer, { titleRenderer } from './virtual/title-renderer'
 
 const layouts = import.meta.glob('../../../packages/client/layouts/*.vue', { eager: true, import: 'default' }) as Record<string, Component>
 const layoutSources = import.meta.glob('../../../packages/client/layouts/*.vue', { eager: true, query: '?raw', import: 'default' })
+const directiveSources = import.meta.glob('../../../packages/client/modules/v-{mark,motion}.ts', { eager: true, query: '?raw', import: 'default' })
 const components = {
   Arrow,
   AutoFitText,
@@ -186,7 +189,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
         warnings.push(`Component ${name} is unavailable online`)
     }
     for (const [, name] of compiled.code.matchAll(/_resolveDirective\("([^"]+)"\)/g)) {
-      if (!['click', 'after'].includes(name))
+      if (!['click', 'after', 'mark', 'motion'].includes(name))
         warnings.push(`Directive v-${name} is unavailable online`)
     }
     const component = await loadComponent(compiled.code)
@@ -224,7 +227,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
         throw result.errors[0]
       styles.push(result.code)
     }
-    styles.push((await uno.generate(`${compiled.sfc}\n${JSON.stringify(source.frontmatter)}\n${Object.values(layoutSources).join('\n')}\n${compiler.theme.sources.join('\n')}`)).css)
+    styles.push((await uno.generate(`${compiled.sfc}\n${JSON.stringify(source.frontmatter)}\n${Object.values(layoutSources).join('\n')}\n${Object.values(directiveSources).join('\n')}\n${compiler.theme.sources.join('\n')}`)).css)
     if (generation !== version)
       return
     navigation.navDirection.value = Math.sign(index + 1 - position.value)
@@ -250,6 +253,8 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
       render: () => Vue.h(SlideWrapper, { route, clicksContext: clicks.value! }),
     })
     app.use(createVClickDirectives())
+    app.use(createVMarkDirective())
+    app.use(createVMotionDirectives())
     for (const [name, component] of Object.entries(components))
       app.component(name, component)
     app.provide(constants.injectionSlidevContext, Vue.reactive({

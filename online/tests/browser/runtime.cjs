@@ -1,5 +1,6 @@
 const assert = require('node:assert/strict')
 const process = require('node:process')
+const { expect } = require('@playwright/test')
 const { chromium, firefox, webkit } = require('playwright')
 
 async function main() {
@@ -184,6 +185,45 @@ Page <SlideCurrentNo /> of <SlidesTotal />
     await frame.getByText('after', { exact: true }).waitFor()
     assert.equal(await frame.locator('#online-notices').count(), 0)
 
+    const codeGroup = '# Code groups\n\n<AutoFitText :min="20" :max="40" model-value="Fitted text" />\n\n<CodeGroup>\n\n```ts [first.ts]\nconst first = 1\n```\n\n```ts [second.ts]\nconst second = 2\n```\n\n</CodeGroup>'
+    assert.deepEqual(await render(codeGroup), [])
+    frame = page.frameLocator('#runtime-test iframe')
+    await expect(frame.locator('.slidev-auto-fit-text-inner')).toHaveCSS('font-size', '40px')
+    await expect(frame.locator('.slidev-code-wrapper').filter({ hasText: 'const first' })).toBeVisible()
+    await expect(frame.locator('.slidev-code-wrapper').filter({ hasText: 'const second' })).toBeHidden()
+    await frame.locator('.slidev-code-tab').filter({ hasText: 'second.ts' }).click()
+    await expect(frame.locator('.slidev-code-wrapper').filter({ hasText: 'const first' })).toBeHidden()
+    await expect(frame.locator('.slidev-code-wrapper').filter({ hasText: 'const second' })).toBeVisible()
+    assert.equal(await frame.locator('#online-notices').count(), 0)
+
+    const motion = `---
+clicks: 1
+---
+# Motion and marks
+
+<div class="motion-test" v-motion :initial="{ x: -50, opacity: 0 }" :enter="{ x: 0, opacity: 1, transition: { duration: 0 } }" :click-1="{ x: 50, opacity: 0.5, transition: { duration: 0 } }">Moving content</div>
+
+<span v-mark.red="{ at: 1, animationDuration: 0 }">Marked content</span>
+
+---
+# After motion
+`
+    assert.deepEqual(await render(motion), [])
+    frame = page.frameLocator('#runtime-test iframe')
+    await expect(frame.locator('.motion-test')).toHaveCSS('opacity', '1')
+    await frame.getByRole('heading', { name: 'Motion and marks' }).click()
+    await page.keyboard.press('ArrowRight')
+    await page.waitForFunction(() => window.runtimeTest.events.some(event => event.slide === 1 && event.click === 1))
+    await expect(frame.locator('.motion-test')).toHaveCSS('opacity', '0.5')
+    assert.match(await frame.locator('.motion-test').evaluate(element => getComputedStyle(element).transform), /50/)
+    assert.equal(await frame.locator('svg.rough-annotation').count(), 1)
+    assert.notEqual(await frame.locator('svg.rough-annotation').evaluate(element => getComputedStyle(element).color), 'rgb(0, 0, 0)')
+    await page.keyboard.press('ArrowRight')
+    await frame.getByRole('heading', { name: 'After motion' }).waitFor()
+    assert.equal(await frame.locator('.motion-test').count(), 0)
+    assert.equal(await frame.locator('svg.rough-annotation').count(), 0)
+    assert.equal(await frame.locator('#online-notices').count(), 0)
+
     const contents = `---
 hideInToc: true
 ---
@@ -245,7 +285,7 @@ hideInToc: true
     await page.evaluate(() => window.runtimeTest.bridge.stop())
     assert.equal(await page.locator('#runtime-test iframe').count(), 0)
     assert.deepEqual(pageErrors, [])
-    process.stdout.write(`${engine}: scripts, CSS, slots, clicks, isolation, replacement, navigation APIs, built-ins, magic-move, dark mode, official themes and visible fallbacks passed\n`)
+    process.stdout.write(`${engine}: scripts, CSS, slots, clicks, isolation, replacement, navigation APIs, built-ins, TOC, magic-move, motion, marks, dark mode, official themes and visible fallbacks passed\n`)
   }
   finally { await browser.close() }
 }
