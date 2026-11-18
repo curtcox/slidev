@@ -60,3 +60,39 @@ it.each(['VDrag', 'VDragArrow'])('preserves source metadata for the PascalCase %
 
   expect(result).toContain(`<${tag} :markdownSource="[0,1,0]" pos="1,2,3,4">`)
 })
+
+it('keeps distinct offsets for repeated inline drag components and directives', async () => {
+  const md = MarkdownExit({ html: true })
+  md.use(MarkdownItVDrag, new Map<string, MagicString>())
+  const source = '<VDrag>One</VDrag> <VDrag>Two</VDrag> <span v-drag="[1,2,3,4]">Three</span> <span v-drag>Four</span>'
+
+  const result = await md.renderAsync(source, { id: 'test' })
+
+  for (const [tag, index] of [
+    ['<VDrag', 0],
+    [
+      '<VDrag',
+      source.indexOf('<VDrag', 1),
+    ],
+    [
+      'v-drag="[1,2,3,4]"',
+      source.indexOf('v-drag'),
+    ],
+    [
+      'v-drag',
+      source.lastIndexOf('v-drag'),
+    ],
+  ] as const)
+    expect(result).toContain(`${tag} :markdownSource="[0,1,${index}]"`)
+})
+
+it('keeps original offsets when a drag directive occurs inside a drag component', async () => {
+  const md = MarkdownExit({ html: true })
+  md.use(MarkdownItVDrag, new Map<string, MagicString>())
+  const source = '<v-drag><div v-drag=\'[1,2,3,4]\'>Nested</div></v-drag>'
+
+  const result = await md.renderAsync(source, { id: 'test' })
+
+  expect(result).toContain('<v-drag :markdownSource="[0,1,0]">')
+  expect(result).toContain(`v-drag='[1,2,3,4]' :markdownSource="[0,1,${source.indexOf('v-drag', 2)}]"`)
+})

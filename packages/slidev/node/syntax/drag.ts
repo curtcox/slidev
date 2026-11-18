@@ -4,8 +4,8 @@ import { SourceMapConsumer } from 'source-map-js'
 
 type Token = ReturnType<MarkdownExit['parseInline']>[number]
 
-const dragComponentRegex = /<(v-?drag-?\w*)([\s>])/i
-const dragDirectiveRegex = /(?<![</\w])v-drag(=".*?")?/i
+const dragComponentRegex = /<(v-?drag-?\w*)([\s>])/gi
+const dragDirectiveRegex = /(?<![</\w])v-drag(?:\s*=\s*(?:"[^"]*"|'[^']*'))?(?=[\s/>]|$)/gi
 
 export default function MarkdownItVDrag(md: MarkdownExit, markdownTransformMap: Map<string, MagicString>) {
   const visited = new WeakSet()
@@ -58,12 +58,33 @@ export default function MarkdownItVDrag(md: MarkdownExit, markdownTransformMap: 
       return `[${start},${Math.max(start + 1, end)},${idx}]`
     }
 
-    function replaceChildren(token: Token, regex: RegExp, replacement: string) {
+    function injectSources(content: string, map: [number, number], offset = 0) {
+      const insertions: { index: number, value: string }[] = []
+      content.replace(dragComponentRegex, (full, tag, _space, index) => {
+        insertions.push({ index: index + tag.length + 1, value: ` :markdownSource="${toMarkdownSource(map, offset + index)}"` })
+        return full
+      })
+      content.replace(dragDirectiveRegex, (full, index) => {
+        insertions.push({ index: index + full.length, value: ` :markdownSource="${toMarkdownSource(map, offset + index)}"` })
+        return full
+      })
+      // Derive every position from original text before adding any metadata.
+      for (const { index, value } of insertions.sort((a, b) => b.index - a.index))
+        content = content.slice(0, index) + value + content.slice(index)
+      return content
+    }
+
+    function replaceChildren(token: Token, content: string, map: [number, number], offset = 0) {
+      let cursor = 0
       for (const child of token.children ?? []) {
-        if (child.type === 'html_block' || child.type === 'html_inline') {
-          child.content = child.content.replace(regex, replacement)
-        }
-        replaceChildren(child, regex, replacement)
+        const original = child.content
+        const index = content.indexOf(original, cursor)
+        if (index < 0)
+          continue
+        replaceChildren(child, original, map, offset + index)
+        if (child.type === 'html_block' || child.type === 'html_inline')
+          child.content = injectSources(original, map, offset + index)
+        cursor = index + original.length
       }
     }
 
@@ -72,18 +93,9 @@ export default function MarkdownItVDrag(md: MarkdownExit, markdownTransformMap: 
         if (!['html_block', 'html_inline', 'inline'].includes(token.type) || !token.content.toLowerCase().includes('drag') || visited.has(token))
           return token
 
-        // Iterates all html tokens and replaces <v-drag> with <v-drag :markdownSource="..."> to pass the markdown source to the component
-        token.content = token.content
-          .replace(dragComponentRegex, (_, tag, space, idx) => {
-            const replacement = `<${tag} :markdownSource="${toMarkdownSource(token.map!, idx)}"${space}`
-            replaceChildren(token, dragComponentRegex, replacement)
-            return replacement
-          })
-          .replace(dragDirectiveRegex, (_, value, idx) => {
-            const replacement = `v-drag${value ?? ''} :markdownSource="${toMarkdownSource(token.map!, idx)}"`
-            replaceChildren(token, dragDirectiveRegex, replacement)
-            return replacement
-          })
+        const original = token.content
+        replaceChildren(token, original, token.map!)
+        token.content = injectSources(original, token.map!)
 
         visited.add(token)
         return token
