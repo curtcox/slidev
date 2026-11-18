@@ -4,6 +4,7 @@ import UnoCSS from 'unocss/vite'
 import { defineConfig } from 'vite'
 import unoConfig from '../../packages/client/uno.config.ts'
 import { browserAliases, browserTransforms } from './browser-aliases.ts'
+import { auditThemes } from './theme-audit.ts'
 
 const local = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 
@@ -12,6 +13,7 @@ export default defineConfig({
     vue(),
     UnoCSS({ ...unoConfig, configFile: false }),
     browserTransforms(),
+    auditThemes(),
   ],
   resolve: {
     alias: [

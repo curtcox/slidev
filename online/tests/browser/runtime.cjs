@@ -113,10 +113,34 @@ setInterval(() => postMessage({protocol:1,type:'position',slide:999,click:0}), 2
     assert.equal(await page.locator('#runtime-test iframe').count(), 0)
     assert.deepEqual(await render('# Notice\n<MissingOnlineWidget />'), [])
     assert.match(await page.frameLocator('#runtime-test iframe').locator('#online-notices').textContent(), /Component MissingOnlineWidget is unavailable/)
+
+    for (const theme of ['default', 'seriph', 'unavailable-theme']) {
+      const src = `---\ntheme: ${theme}\nbackground: '#e2e8f0'\nfonts:\n  provider: none\n  sans: Arial\n---\n# Theme cover\n\n---\nlayout: section\n---\n# Theme section\n\n---\nlayout: fact\n---\n# 42\n\nA fact\n\n---\n# Theme default\n`
+      assert.deepEqual(await render(src), [])
+      frame = page.frameLocator('#runtime-test iframe')
+      assert.equal(await frame.locator('.slidev-layout.cover').count(), 1)
+      assert.equal(await frame.locator('h1').evaluate(element => getComputedStyle(element).fontSize), '60px')
+      assert.equal(await frame.locator('.slidev-layout').evaluate(element => getComputedStyle(element).backgroundColor), 'rgb(226, 232, 240)')
+      await page.evaluate(() => window.runtimeTest.bridge.goto(2))
+      await frame.locator('.slidev-layout.section h1').waitFor()
+      assert.equal(await frame.locator('h1').evaluate(element => getComputedStyle(element).fontSize), '60px')
+      await page.evaluate(() => window.runtimeTest.bridge.goto(3))
+      await frame.locator('.slidev-layout.fact h1').waitFor()
+      assert.equal(await frame.locator('h1').evaluate(element => getComputedStyle(element).fontSize), '96px')
+      await page.evaluate(() => window.runtimeTest.bridge.goto(4))
+      await frame.locator('.slidev-layout.default h1').waitFor()
+      assert.equal(await frame.locator('h1').evaluate(element => getComputedStyle(element).color), theme === 'seriph'
+        ? 'rgb(93, 131, 146)'
+        : 'rgb(24, 24, 24)')
+      if (theme === 'unavailable-theme')
+        assert.match(await frame.locator('#online-notices').textContent(), /Theme unavailable-theme is unavailable online; using default/)
+      else
+        assert.equal(await frame.locator('#online-notices').count(), 0)
+    }
     await page.evaluate(() => window.runtimeTest.bridge.stop())
     assert.equal(await page.locator('#runtime-test iframe').count(), 0)
     assert.deepEqual(pageErrors, [])
-    process.stdout.write(`${engine}: script setup, scoped/utility/document CSS, slots, click navigation, isolation, replacement cleanup and visible errors passed\n`)
+    process.stdout.write(`${engine}: scripts, CSS, slots, clicks, isolation, replacement, official themes and visible fallbacks passed\n`)
   }
   finally { await browser.close() }
 }

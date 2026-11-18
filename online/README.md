@@ -40,3 +40,10 @@ UTF-8 limits and incremental caching. The complete starter/composable fixture
 matrix and full-runtime fidelity/budget gates remain open. The runtime browser
 suite exercises author scripts, style isolation, slots, click navigation,
 hostile-deck isolation, document replacement and visible unsupported features.
+
+Official `default` and `seriph` themes are pinned at 0.25.0 (MIT), including all
+six theme layouts, theme styles and config defaults. Unknown themes fall back
+to default with a visible notice. Builds audit versions, license and source size,
+and ship unchanged licenses plus `runtime/theme-audit.json` offline. Theme fonts
+currently use local/system fallbacks; remote font loading remains open along
+with the other proposed themes and the complete-runtime fidelity gate.

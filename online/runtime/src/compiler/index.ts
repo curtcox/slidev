@@ -8,6 +8,7 @@ import { resolveConfig } from '../../../../packages/parser/src/config'
 import { parseSync } from '../../../../packages/parser/src/core'
 import { wrapSlideLayout } from '../../../../packages/slidev/node/vite/layoutWrapperCore'
 import { createMarkdownPlugin } from '../../../../packages/slidev/node/vite/markdown'
+import { resolveTheme } from '../themes'
 
 const MAX_BYTES = 5 * 1024 * 1024
 const compiledCache = new Map<string, { value: CompiledSlide, bytes: number }>()
@@ -44,7 +45,10 @@ export async function createDeckCompiler(src: string, { plantUmlAllowed = false 
       throw new Error(`Slide ${slide.index + 1}: ${slide.frontmatterDoc.errors[0].message}`)
   }
   const slides = parsed.slides.map(source => ({ ...source, no: source.index + 1, source }))
-  const config = resolveConfig(slides[0].frontmatter)
+  const headmatter = slides[0].frontmatter
+  const theme = resolveTheme(headmatter.theme ?? headmatter.config?.theme)
+  const config = resolveConfig(headmatter, theme.meta)
+  config.theme = theme.name
   const requestedTwoslash = slides[0].frontmatter.twoslash != null && slides[0].frontmatter.twoslash !== false
   config.twoslash = false
   const shiki = await highlighter
@@ -96,6 +100,7 @@ export async function createDeckCompiler(src: string, { plantUmlAllowed = false 
   return {
     slides,
     config,
+    theme,
     compile(index: number, layoutImport: string): Promise<CompiledSlide> {
       const pending = queue.then(async () => {
         const slide = slides[index]
@@ -116,9 +121,9 @@ export async function createDeckCompiler(src: string, { plantUmlAllowed = false 
           compiledCache.set(key, cached)
           return cached.value
         }
-        currentWarnings = requestedTwoslash || /^```[^\n]*\btwoslash\b|^\s*\/\/\s*\^[?!]/m.test(slide.content)
-          ? ['Twoslash is unavailable; code blocks use static highlighting']
-          : []
+        currentWarnings = [...theme.warnings]
+        if (requestedTwoslash || /^```[^\n]*\btwoslash\b|^\s*\/\/\s*\^[?!]/m.test(slide.content))
+          currentWarnings.push('Twoslash is unavailable; code blocks use static highlighting')
         const id = `online-${key.slice(0, 16)}`
         const result = await (hook as any).call({
           error(error: unknown) { throw error },

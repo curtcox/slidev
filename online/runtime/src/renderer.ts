@@ -74,6 +74,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
   }
 
   let modules: Record<string, string> = {}
+  let activeLayouts = layoutByName
   function resetModules() {
     for (const url of urls)
       URL.revokeObjectURL(url)
@@ -84,7 +85,11 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
       '@slidev/client/context': moduleUrl('context', context),
       '@slidev/client/constants': moduleUrl('constants', constants),
     }
-    for (const [name, component] of Object.entries(layoutByName))
+    activeLayouts = {
+      ...layoutByName,
+      ...compiler!.theme.layouts,
+    }
+    for (const [name, component] of Object.entries(activeLayouts))
       modules[`online:layout/${name}`] = moduleUrl(`layout/${name}`, { default: component })
     for (const [name, component] of Object.entries(components))
       modules[`@slidev/client/builtin/${name}.vue`] = moduleUrl(`builtin/${name}`, { default: component })
@@ -104,7 +109,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
     const requestedLayout = source.frontmatter.layout || (index === 0
       ? 'cover'
       : 'default')
-    const layout = Object.hasOwn(layoutByName, requestedLayout)
+    const layout = Object.hasOwn(activeLayouts, requestedLayout)
       ? requestedLayout
       : 'default'
     if (layout !== requestedLayout)
@@ -156,6 +161,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
     const styles: string[] = []
     for (const style of [
       { content: commonCss, scoped: false },
+      ...compiler.theme.css.map(content => ({ content, scoped: false })),
       ...compiled.styles,
     ]) {
       const text = new MagicString(style.content)
@@ -170,7 +176,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
         throw result.errors[0]
       styles.push(result.code)
     }
-    styles.push((await uno.generate(`${compiled.sfc}\n${JSON.stringify(source.frontmatter)}\n${Object.values(layoutSources).join('\n')}`)).css)
+    styles.push((await uno.generate(`${compiled.sfc}\n${JSON.stringify(source.frontmatter)}\n${Object.values(layoutSources).join('\n')}\n${compiler.theme.sources.join('\n')}`)).css)
     if (generation !== version)
       return
     app?.unmount()

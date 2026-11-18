@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — compiler and opaque rendering bridge verified in Chromium/WebKit; remaining themes/features and fidelity gates open |
+| 2 | Slidev runtime | IN PROGRESS — compiler, opaque bridge and official default/seriph themes verified in Chromium/WebKit; remaining features and full-runtime fidelity/budget gates open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -697,3 +697,20 @@ records the measured results. Publication/tag approvals remain outstanding.
   failures were resolved by rebuilding and running the HMR tests with local ports.
   Root typecheck also caught the earlier seam test missing Vue's required style
   filename; that small correction was committed separately.
+
+### Phase 2 official themes (2026-11-18)
+
+- Bundled `default` and `seriph` at exactly 0.25.0, using all six theme
+  layouts, theme styles and published config defaults. Built-in layouts remain
+  available. Unknown themes fall back to default with a visible notice.
+- Builds enforce the reviewed version, MIT license, source size and absence of
+  unintegrated setup/component files; stage unchanged licenses and a machine-
+  readable audit record into the verified offline artifact. Source sizes for
+  layouts/styles are 3,572 and 3,841 bytes, respectively.
+- Local Chromium and WebKit pass cover/background, section/fact layout sizing,
+  seriph color, theme replacement and visible fallback checks, alongside the
+  existing script/CSS/click/isolation suite. Runtime build/typecheck, root build/
+  typecheck, five online units, static/vendor/offline checks and targeted lint pass.
+- Remote fonts currently use local/system fallbacks. Other proposed themes,
+  visual comparisons for the actual product runtime, remaining client features
+  and the complete-runtime performance gate remain open.

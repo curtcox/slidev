@@ -958,6 +958,12 @@ importers:
       '@slidev/parser':
         specifier: workspace:*
         version: link:../../packages/parser
+      '@slidev/theme-default':
+        specifier: 0.25.0
+        version: 0.25.0
+      '@slidev/theme-seriph':
+        specifier: 0.25.0
+        version: 0.25.0
       '@slidev/types':
         specifier: workspace:*
         version: link:../../packages/types

@@ -10,6 +10,8 @@
   "dependencies": {
     "@slidev/client": "workspace:*",
     "@slidev/parser": "workspace:*",
+    "@slidev/theme-default": "catalog:themes",
+    "@slidev/theme-seriph": "catalog:themes",
     "@slidev/types": "workspace:*",
     "@vue/compiler-sfc": "catalog:demo",
     "es-module-lexer": "catalog:prod",
