@@ -43,6 +43,7 @@ jobs:
         node tests/browser/plant-uml.cjs http://127.0.0.1:8000/ "$BROWSER"
         node tests/browser/drag.cjs http://127.0.0.1:8000/ "$BROWSER"
         node runtime/tests/run.mjs
+        node runtime/tests/corpus.mjs
       gallery-command: npm run gallery:check
   kit:
     uses: curtcox/Tools-for-pages-with-state-in-URL-fragments/.github/workflows/kit-check.yml@v2

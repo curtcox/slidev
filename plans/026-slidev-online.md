@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — all five planned themes, offline artwork/fonts, icons/grammars/math/diagrams, drag/writeback and PlantUML consent deployed; 141 exact SFC matches + 14 corpus fallbacks in three CI engines; 76 visual cases pass locally in Chromium/WebKit and CI; live themes/fonts/isolation/offline pass both local engines; remaining features/full source-corpus fidelity/phone gates open |
+| 2 | Slidev runtime | IN PROGRESS — all five planned themes and earlier runtime integrations deployed; 141 exact SFC matches + 14 corpus fallbacks and 76-case visual gate pass in CI; new 52-slide source-corpus DOM gate and HTTPS image fix pass local Chromium/WebKit, CI/deployment pending; remaining features/full source-corpus visual fidelity/phone gates open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -1318,3 +1318,34 @@ records the measured results. Publication/tag approvals remain outstanding.
   open for remaining client features, full source-corpus rendering/fidelity and
   complete-runtime phone timing. Phase 3 stays unimplemented. This acceptance
   follow-up changes documentation only.
+
+### Phase 2 source-corpus rendering and HTTPS images (2026-11-18)
+
+- Added a browser gate for the unchanged starter, composable-vue and all online
+  example sources. It covers all **52 visible slides** from **55 source slides**.
+  Fifty slides mount. The two slides with file imports report their exact
+  documented errors, terminate their frames and allow recovery on the next
+  slide. Three hidden slides remain excluded from navigation.
+- The gate checks initial, final and restored click states, highlighted code,
+  all three starter Mermaid diagrams, five rendered math expressions and
+  equation click ranges. It also checks static Monaco notices and PlantUML
+  consent without any request to that service. Missing demo-only components,
+  the unavailable Tweet widget and unbundled icons have explicit expectations.
+  Unexpected errors or notices fail the gate.
+- Checking decoded images exposed a product bug: the inherited page policy
+  blocked ordinary HTTPS deck images. The page now permits HTTPS images and
+  sets a default no-referrer policy. Scripts, connections, frames and opaque
+  sandbox permissions remain unchanged. Actual local Chromium and WebKit
+  receive the mock image bytes and omit the referrer on remote image requests.
+- Both local engines pass the corpus gate. The harness uses the staged bridge,
+  checks origin `null` and `sandbox="allow-scripts"`, mocks external images and
+  blocks other external traffic. It does not establish external image-service
+  availability, offline custom images or full source-corpus visual fidelity.
+  Reports record browser versions, source/runtime hashes and per-slide results.
+  Failed reports enter the shared workflow's existing test artifact directory.
+- The gate is wired into all three CI browser jobs. CI and deployment remain
+  pending. All **23** online units, static/vendor/offline integrity, lint and
+  actionlint pass. Existing runtime, isolation, PlantUML consent and offline
+  suites pass Chromium and WebKit. Phase 2 remains open for the remaining client features, full
+  source-corpus visual fidelity and complete-runtime phone timing. Phase 3
+  stays unimplemented.

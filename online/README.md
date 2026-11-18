@@ -30,6 +30,7 @@ node tests/browser/math.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/diagrams.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/drag.cjs http://127.0.0.1:8000/ chromium
 node runtime/tests/run.mjs
+node runtime/tests/corpus.mjs
 node runtime/tests/fidelity.mjs
 # Repeat the compiler checks with BROWSER=webkit or BROWSER=firefox.
 ```
@@ -51,10 +52,24 @@ CLI numbering, while headmatter and source line ranges remain attached to the
 original document. Vue's eval-dependent static-tree optimization is disabled
 so large templates compile under the unchanged SDK frame CSP.
 
+The corpus gate mounts every visible slide from the unchanged starter,
+composable-vue and online example sources through the staged preview bridge.
+It checks initial, final and restored click states, decoded HTTPS images,
+highlighting, lazy diagrams, equations and visible fallbacks. The current corpus
+has 52 visible slides. Fifty mount, and two report the expected file-import
+errors. The gate checks recovery after each error. Three hidden slides stay
+excluded. Demo-only components, unbundled icons and the unavailable Tweet widget
+have explicit notice expectations. External images receive mock SVG bytes.
+Other external traffic is blocked. Remote image requests send no referrer,
+and PlantUML receives no request without consent. Reports go to
+`runtime/.cache/corpus-<browser>.json`. CI runs the gate in all three engines
+and attaches a report to its test artifact when the gate fails. This gate does
+not compare screenshots.
+
 The runtime browser suite exercises author scripts, style isolation, slots,
 click navigation, hostile-deck isolation, document replacement, built-ins,
 TOC navigation, motion, markers and visible unsupported features. Full source-
-corpus rendering, visual fidelity and phone performance gates remain open.
+corpus visual fidelity and phone performance gates remain open.
 
 The official `default`, `seriph`, `bricks` and `shibainu` themes are pinned at
 0.25.0; `apple-basic` is pinned at 0.25.1. All five use the MIT license.
