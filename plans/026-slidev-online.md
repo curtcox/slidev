@@ -960,3 +960,15 @@ records the measured results. Publication/tag approvals remain outstanding.
   The newer run has already passed those WebKit tests. Phase 2 remains open for
   remote theme fonts, drag writeback, more theme audits, remaining client features,
   full source-corpus fidelity and complete-runtime phone timing.
+
+### Browser runner mirror repair (2026-11-18)
+
+- The Mermaid run's Chromium setup also timed out downloading Ubuntu packages
+  before product tests started. Retrying that job alone preserves all passing
+  results, but the underlying workflow only normalizes Azure mirrors while
+  failing runners use `us-east-2.ec2.archive.ubuntu.com`.
+- The local pre-test now normalizes EC2 archive URLs in the runner's apt source
+  and mirror files before browser installation. Unit jobs are unaffected; the
+  immutable shared workflow and vendored bytes stay unchanged. Actionlint and
+  fixtures for regional/bare EC2, official archive and security URLs pass.
+  CI and deployment for this infrastructure repair are not yet verified.

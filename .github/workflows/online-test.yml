@@ -19,6 +19,11 @@ jobs:
       node-version: '24'
       mobile: false
       pre-test: |
+        # Shared test.yml@v4 handles Azure mirrors, but newer runners use EC2.
+        if [ -n "${BROWSER:-}" ]; then
+          sudo find /etc/apt -maxdepth 2 -type f \( -name '*.sources' -o -name '*.list' -o -name '*-mirrors.txt' \) \
+            -exec sed -i -E 's|https?://([[:alnum:]-]+\.)?ec2\.archive\.ubuntu\.com/ubuntu|https://archive.ubuntu.com/ubuntu|g' {} +
+        fi
         cd "$GITHUB_WORKSPACE"
         corepack enable
         pnpm install --frozen-lockfile
