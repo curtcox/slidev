@@ -56,6 +56,8 @@ to default with a visible notice. Builds audit versions, license and source size
 and ship unchanged licenses plus `runtime/theme-audit.json` offline. Theme fonts
 currently use local/system fallbacks; remote font loading remains open along
 with the other proposed themes and the complete-runtime fidelity gate.
+The offline browser suite also renders a seriph fact slide after a fully
+offline reload, checking that theme-specific styles survive cached delivery.
 
 The runtime fidelity harness compares the actual staged bundle through the
 editor bridge with `slidev build` on a separate origin. Twelve deterministic

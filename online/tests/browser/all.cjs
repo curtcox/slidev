@@ -28,8 +28,24 @@ async function main() {
     await page.reload()
     await page.waitForSelector('body[data-ready="true"]')
     assert.match(await page.frameLocator('#preview iframe').locator('h1').textContent(), /Hello, Slidev/)
+    await page.evaluate(async () => {
+      const { createPreviewBridge } = await import('./src/preview-bridge.js')
+      const host = document.createElement('div')
+      host.id = 'offline-theme-test'
+      document.body.append(host)
+      await new Promise((resolve, reject) => {
+        window.offlineThemeBridge = createPreviewBridge({
+          container: host,
+          onStatus: state => state === 'rendered' && resolve(),
+          onError: message => reject(new Error(message)),
+        })
+        window.offlineThemeBridge.render({ src: '---\ntheme: seriph\nlayout: fact\n---\n# Offline seriph' })
+      })
+    })
+    assert.equal(await page.frameLocator('#offline-theme-test iframe').locator('h1').textContent(), 'Offline seriph')
+    assert.equal(await page.frameLocator('#offline-theme-test iframe').locator('h1').evaluate(element => getComputedStyle(element).fontSize), '96px')
     assert.deepEqual(errors, [])
-    process.stdout.write(`${engine}: welcome deck, opaque boundary and offline reload passed\n`)
+    process.stdout.write(`${engine}: welcome deck, opaque boundary, offline reload and offline seriph theme passed\n`)
     await context.close()
   }
   finally { await browser.close() }
