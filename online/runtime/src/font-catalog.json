@@ -1,0 +1,6 @@
+{
+  "Nunito Sans": { "id": "nunito-sans", "package": "@fontsource-variable/nunito-sans", "styles": ["wght.css", "wght-italic.css"], "faces": 10 },
+  "Fira Code": { "id": "fira-code", "package": "@fontsource-variable/fira-code", "styles": ["wght.css"], "faces": 7 },
+  "PT Serif": { "id": "pt-serif", "package": "@fontsource/pt-serif", "styles": ["400.css", "400-italic.css", "700.css", "700-italic.css"], "faces": 16 },
+  "PT Mono": { "id": "pt-mono", "package": "@fontsource/pt-mono", "styles": ["400.css"], "faces": 4 }
+}

@@ -43,6 +43,7 @@ import unoConfig from '../../../packages/client/uno.config'
 import { createDeckCompiler } from './compiler'
 import { rewriteModuleImports } from './compiler/modules'
 import { configureDragUpdates, flushDragUpdates } from './drag'
+import { loadFonts } from './fonts'
 import { resolveIcon } from './icons'
 import { loadMathStyles } from './math'
 import { createNavigation, useNav } from './navigation'
@@ -118,6 +119,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
   const iconComponents = new Map<string, Component>()
   const iconImportWarnings = new Map<string, string>()
   let titleWarnings: string[] = []
+  let fonts: Awaited<ReturnType<typeof loadFonts>> | undefined
   const registryKey = `__slidevonline_${crypto.randomUUID().replaceAll('-', '')}`
   const registry: Record<string, Record<string, unknown>> = {}
   Object.defineProperty(globalThis, registryKey, { value: registry, configurable: true })
@@ -357,6 +359,8 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
     })
     app.mount(container)
     await Vue.nextTick()
+    if (fonts)
+      warnings.push(...await fonts.ready())
     document.querySelector('#online-notices')?.remove()
     if (warnings.length) {
       const notice = document.createElement('aside')
@@ -420,6 +424,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
       app = undefined
       compiler = await createDeckCompiler(input.src)
       Object.assign(configs, compiler.config)
+      fonts = await loadFonts(configs.fonts)
       slides.value = compiler.slides.map(source => ({
         no: source.index + 1,
         meta: { ...source.frontmatter, slide: source },

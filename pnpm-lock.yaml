@@ -163,6 +163,19 @@ settings:
   excludeLinksFromLockfile: false
 
 catalogs:
+  online:
+    '@fontsource-variable/fira-code':
+      specifier: 5.3.0
+      version: 5.3.0
+    '@fontsource-variable/nunito-sans':
+      specifier: 5.3.0
+      version: 5.3.0
+    '@fontsource/pt-mono':
+      specifier: 5.3.0
+      version: 5.3.0
+    '@fontsource/pt-serif':
+      specifier: 5.3.0
+      version: 5.3.0
   agentic:
     '@antfu/skills':
       specifier: ^0.1.3
@@ -955,6 +968,18 @@ importers:
 
   online/runtime:
     dependencies:
+      '@fontsource-variable/fira-code':
+        specifier: catalog:online
+        version: 5.3.0
+      '@fontsource-variable/nunito-sans':
+        specifier: catalog:online
+        version: 5.3.0
+      '@fontsource/pt-mono':
+        specifier: catalog:online
+        version: 5.3.0
+      '@fontsource/pt-serif':
+        specifier: catalog:online
+        version: 5.3.0
       '@iconify/utils':
         specifier: catalog:icons
         version: 3.1.7
@@ -1565,6 +1590,18 @@ importers:
         version: 2.0.0
 
 packages:
+
+  '@fontsource-variable/fira-code@5.3.0':
+    resolution: {integrity: sha512-ZhvHeknlicraKVSJBa1NrJnXDVByUkC407zwgELYfmnx3p9g8vwIPfQCxx8YD3K7dAeCdLuHJOHlpMfRsIcApQ==}
+
+  '@fontsource-variable/nunito-sans@5.3.0':
+    resolution: {integrity: sha512-Vk1PSfckNDwgw2yGcsvJP3o/0zEW8Rp6KzbD8Ql/6iRHQshnhhAjt+cSIfAUyp5vQuSlleGHFW2LfYaaex0diw==}
+
+  '@fontsource/pt-mono@5.3.0':
+    resolution: {integrity: sha512-AKXUTYCdv53jAJyzk3AEns6PdOvL3u+AD9Y4Ms6BFFRC7WCqYOvywujYT3gs00sMBIPs/J8iY7SQljk3wRfovw==}
+
+  '@fontsource/pt-serif@5.3.0':
+    resolution: {integrity: sha512-ST+j/byBGZw6H+TQMX78o6Qlngfj2Va/Q9fAJxq54Is1ZQk1/FhBIuqyJcLmnpi0trG8V/hWO9Bx6ZY09A0DBQ==}
 
   '@11ty/gray-matter@2.1.0':
     resolution: {integrity: sha512-fNdBOb3MgDz/1UCIoeY4wDuGbp+/3s5y6UrsyfMabECbh/CVycj7Er33JXqSxRwxrRKXcGE1Jipuq/1mODInsQ==}
@@ -9629,6 +9666,14 @@ packages:
     hasBin: true
 
 snapshots:
+
+  '@fontsource-variable/fira-code@5.3.0': {}
+
+  '@fontsource-variable/nunito-sans@5.3.0': {}
+
+  '@fontsource/pt-mono@5.3.0': {}
+
+  '@fontsource/pt-serif@5.3.0': {}
 
   '@11ty/gray-matter@2.1.0':
     dependencies:

@@ -58,9 +58,24 @@ corpus rendering, visual fidelity and phone performance gates remain open.
 Official `default` and `seriph` themes are pinned at 0.25.0 (MIT), including all
 six theme layouts, theme styles and config defaults. Unknown themes fall back
 to default with a visible notice. Builds audit versions, license and source size,
-and ship unchanged licenses plus `runtime/theme-audit.json` offline. Theme fonts
-currently use local/system fallbacks; remote font loading remains open along
-with the other proposed themes and the complete-runtime fidelity gate.
+and ship unchanged licenses plus `runtime/theme-audit.json` offline. Nunito Sans,
+Fira Code, PT Serif and PT Mono ship as separate self-contained stylesheets from
+pinned Fontsource 5.3.0 packages (OFL-1.1). All 37 faces retain their original
+WOFF2 bytes and available Unicode subsets. Builds audit versions, licenses,
+hashes and size. Original licenses and attribution ship at `runtime/fonts/`.
+The SDK delivers these styles into the opaque frame through its offline proxy.
+Navigation reuses the styles. Replacing the document discards its font set.
+
+Headmatter font configuration follows the parser's resolution of `sans`, `serif`,
+`mono`, `custom`, `local`, `webfonts`, weights, italics and disabled providers.
+Additional Google fonts load in the frame through a stylesheet link with no
+referrer. Only Google stylesheet and font hosts are added to the page CSP.
+No script, connection or frame permissions change. Custom remote fonts are not
+cached by the app for offline use. Unavailable fonts, invalid configurations and
+the unsupported coollabs provider produce visible notices with local/system
+fallbacks. Each font-loading stage has a five-second deadline.
+See [fonts and privacy](docs/fonts.html). Further theme audits and the complete
+runtime fidelity gate remain open.
 The offline browser suite also renders a seriph fact slide after a fully
 offline reload, checking that theme-specific styles survive cached delivery.
 

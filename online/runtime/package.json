@@ -8,6 +8,10 @@
     "test": "node tests/run.mjs"
   },
   "dependencies": {
+    "@fontsource-variable/fira-code": "catalog:online",
+    "@fontsource-variable/nunito-sans": "catalog:online",
+    "@fontsource/pt-mono": "catalog:online",
+    "@fontsource/pt-serif": "catalog:online",
     "@iconify/utils": "catalog:icons",
     "@shikijs/magic-move": "catalog:frontend",
     "@slidev/client": "workspace:*",

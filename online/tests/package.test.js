@@ -125,6 +125,45 @@ it('ships audited KaTeX fonts in a self-contained offline stylesheet', async () 
   assert.equal(scope.module.exports.hashes[`runtime/${audit.fileName}`], audit.sha256)
 })
 
+it('ships all theme font subsets with unchanged bytes, licenses and offline hashes', async () => {
+  const base = new URL('../dist/runtime/', import.meta.url)
+  const audit = JSON.parse(await fs.readFile(new URL('fonts/audit.json', base), 'utf8'))
+  assert.deepEqual(audit.map(font => font.family), [
+    'Nunito Sans',
+    'Fira Code',
+    'PT Serif',
+    'PT Mono',
+  ])
+  const scope = {
+    module: { exports: {} },
+    globalThis: {},
+  }
+  vm.runInNewContext(await fs.readFile(new URL('../offline-assets.js', base), 'utf8'), scope)
+  for (const font of audit) {
+    assert.equal(font.version, '5.3.0')
+    assert.equal(font.license, 'OFL-1.1')
+    assert.ok(font.attribution)
+    const css = await fs.readFile(new URL(font.fileName, base))
+    assert.equal(css.length, font.bytes)
+    assert.equal(createHash('sha256').update(css).digest('hex'), font.sha256)
+    const embedded = [
+      ...css.toString().matchAll(/data:font\/woff2;base64,([A-Za-z0-9+/=]+)/g),
+    ]
+    assert.equal(embedded.length, font.fonts.length)
+    for (const [index, face] of font.fonts.entries()) {
+      const upstream = await fs.readFile(new URL(`../runtime/node_modules/${font.package}/files/${face.name}`, import.meta.url))
+      assert.deepEqual(Buffer.from(embedded[index][1], 'base64'), upstream)
+      assert.equal(upstream.length, face.bytes)
+      assert.equal(createHash('sha256').update(upstream).digest('hex'), face.sha256)
+    }
+    const license = await fs.readFile(new URL(font.licenseFile, base))
+    assert.deepEqual(license, await fs.readFile(new URL(`../runtime/node_modules/${font.package}/LICENSE`, import.meta.url)))
+    assert.equal(createHash('sha256').update(license).digest('hex'), font.licenseSha256)
+    assert.equal(scope.module.exports.hashes[`runtime/${font.fileName}`], font.sha256)
+    assert.equal(scope.module.exports.hashes[`runtime/${font.licenseFile}`], font.licenseSha256)
+  }
+})
+
 it('ships the pinned standalone Mermaid module and its license in the verified offline artifact', async () => {
   const base = new URL('../dist/runtime/', import.meta.url)
   const audit = JSON.parse(await fs.readFile(new URL('diagrams/audit.json', base), 'utf8'))
