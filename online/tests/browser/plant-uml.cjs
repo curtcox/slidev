@@ -125,15 +125,20 @@ async function main() {
     await expect(frame.getByRole('button', { name: 'Retry diagram' })).toHaveCount(1)
 
     await page.waitForFunction(() => document.querySelector('#offline-status').textContent === 'Available offline')
+    await page.waitForFunction(() => navigator.serviceWorker.controller)
+    // Firefox's intercepted network channel bypasses offline SW navigation.
+    // Remove the mock so this section exercises real offline image failures.
+    await context.unroute(`${server}**`)
+    const offlineRequests = []
+    page.on('request', request => request.url().startsWith(server) && offlineRequests.push(request.url()))
     await context.setOffline(true)
-    fail = true
-    const beforeReload = requests.length
     await initialize()
     await render()
     await expect(consent()).toBeVisible()
-    assert.equal(requests.length, beforeReload, 'Offline reload must not remember remote consent')
+    assert.equal(offlineRequests.length, 0, 'Offline reload must not remember remote consent')
     await consent().click()
     await expect(frame.getByRole('button', { name: 'Retry diagram' })).toHaveCount(2)
+    assert.ok(offlineRequests.length > 0, 'The enabled diagrams must attempt real offline requests')
     assert.match(await frame.locator('pre').first().textContent(), /Alice -> Bob: Hello/)
     assert.deepEqual(errors, [])
     await context.close()

@@ -1111,3 +1111,9 @@ records the measured results. Publication/tag approvals remain outstanding.
 - CI and deployment for this change remain pending. Theme fonts, further theme
   audits, remaining client features, full source-corpus fidelity and complete
   runtime phone timing remain open. Phase 3 is still unimplemented.
+
+- First CI passed Chromium, WebKit, units, publication verification and visuals.
+  Firefox passed the online PlantUML checks, then failed during offline navigation
+  with request interception active. The follow-up removes the remote mock before
+  switching offline and checks actual image request failures. Firefox acceptance
+  and deployment remain pending until that follow-up runs.
