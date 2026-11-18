@@ -131,7 +131,7 @@ setInterval(() => postMessage({protocol:1,type:'position',slide:999,click:0}), 2
       await frame.locator('.slidev-layout.default h1').waitFor()
       assert.equal(await frame.locator('h1').evaluate(element => getComputedStyle(element).color), theme === 'seriph'
         ? 'rgb(93, 131, 146)'
-        : 'rgb(24, 24, 24)')
+        : 'rgb(0, 0, 0)')
       if (theme === 'unavailable-theme')
         assert.match(await frame.locator('#online-notices').textContent(), /Theme unavailable-theme is unavailable online; using default/)
       else

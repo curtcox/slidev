@@ -24,6 +24,7 @@ npm run serve
 node tests/browser/all.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/runtime.cjs http://127.0.0.1:8000/ chromium
 node runtime/tests/run.mjs
+node runtime/tests/fidelity.mjs
 # Repeat the compiler checks with BROWSER=webkit or BROWSER=firefox.
 ```
 
@@ -47,3 +48,12 @@ to default with a visible notice. Builds audit versions, license and source size
 and ship unchanged licenses plus `runtime/theme-audit.json` offline. Theme fonts
 currently use local/system fallbacks; remote font loading remains open along
 with the other proposed themes and the complete-runtime fidelity gate.
+
+The runtime fidelity harness compares the actual staged bundle through the
+editor bridge with `slidev build` on a separate origin. Ten deterministic
+fixtures in both themes cover the six theme layouts, Markdown, columns, scoped
+styles, code and initial click states. Reports and CLI/online/diff PNGs go to
+`runtime/.cache/fidelity/`. Use `--skip-reference-build` only when the fixtures
+and CLI are unchanged; `BROWSER=webkit` selects WebKit. CI uploads a nonblocking
+Chromium report while platform/font coverage stabilizes. This is a subset of
+the eventual full example-corpus gate and does not measure phone performance.

@@ -714,3 +714,22 @@ records the measured results. Publication/tag approvals remain outstanding.
 - Remote fonts currently use local/system fallbacks. Other proposed themes,
   visual comparisons for the actual product runtime, remaining client features
   and the complete-runtime performance gate remain open.
+
+### Phase 2 product-runtime visual comparison (2026-11-18)
+
+- Added a CLI comparison harness for the **actual staged runtime and preview
+  bridge**, separate from the Phase 0 prototype. Ten deterministic fixtures
+  across both official themes exercise all six theme layouts, Markdown tables/
+  lists, two-column slots, scoped styles, TypeScript highlighting and initial
+  click states. CLI references run on a separate local origin; author modules
+  run only in `allow-scripts`, origin-null frames.
+- The first comparison caught an extra online text color. Removing it gives
+  **zero exact differing pixels in all twenty cases in both Chromium and
+  WebKit**, at 980 × 552. Both use local fonts, a fixed cover background and
+  disabled nonvisual services. Compiler characterization still matches all
+  seven CLI SFCs. Welcome/offline reload passes in both engines.
+- `online-test.yml` now uploads CLI/online/diff PNGs and a machine-readable
+  Chromium report in a nonblocking fidelity job, as planned while CI platform
+  coverage stabilizes. This is local verification, not a claim that the new
+  CI job or deployment has passed. The full example corpus, remote assets/fonts
+  and full-runtime phone performance remain open.
