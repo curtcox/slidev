@@ -26,6 +26,10 @@ export default defineConfig({
         find: '#slidev/global-layers',
         replacement: local('./src/virtual/global-layers.ts'),
       },
+      {
+        find: '#slidev/slides',
+        replacement: local('./src/virtual/slides.ts'),
+      },
     ],
   },
   define: {

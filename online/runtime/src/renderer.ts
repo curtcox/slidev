@@ -4,30 +4,57 @@ import { compileStyle } from '@vue/compiler-sfc/dist/compiler-sfc.esm-browser.js
 import MagicString from 'magic-string'
 import * as Vue from 'vue'
 import Arrow from '../../../packages/client/builtin/Arrow.vue'
+import AutoFitText from '../../../packages/client/builtin/AutoFitText.vue'
 import CodeBlockWrapper from '../../../packages/client/builtin/CodeBlockWrapper.vue'
+import CodeGroup from '../../../packages/client/builtin/CodeGroup.vue'
 import KaTexBlockWrapper from '../../../packages/client/builtin/KaTexBlockWrapper.vue'
+import LightOrDark from '../../../packages/client/builtin/LightOrDark.vue'
+import Link from '../../../packages/client/builtin/Link.vue'
 import PoweredBySlidev from '../../../packages/client/builtin/PoweredBySlidev.vue'
+import RenderWhen from '../../../packages/client/builtin/RenderWhen.vue'
+import ShikiMagicMove from '../../../packages/client/builtin/ShikiMagicMove.vue'
+import SlideCurrentNo from '../../../packages/client/builtin/SlideCurrentNo.vue'
+import SlidesTotal from '../../../packages/client/builtin/SlidesTotal.vue'
+import Transform from '../../../packages/client/builtin/Transform.vue'
 import VAfter from '../../../packages/client/builtin/VAfter'
 import VClick from '../../../packages/client/builtin/VClick'
 import VClickGap from '../../../packages/client/builtin/VClickGap.vue'
 import VClicks from '../../../packages/client/builtin/VClicks'
 import Youtube from '../../../packages/client/builtin/Youtube.vue'
 import { createFixedClicks } from '../../../packages/client/composables/useClicks'
+import { useDarkMode } from '../../../packages/client/composables/useDarkMode'
 import * as constants from '../../../packages/client/constants'
 import * as context from '../../../packages/client/context'
+import * as env from '../../../packages/client/env'
 import SlideWrapper from '../../../packages/client/internals/SlideWrapper.vue'
+import * as layoutHelper from '../../../packages/client/layoutHelper'
+import * as slideLogic from '../../../packages/client/logic/slides'
 import { createVClickDirectives } from '../../../packages/client/modules/v-click'
 import unoConfig from '../../../packages/client/uno.config'
 import { createDeckCompiler } from './compiler'
 import { rewriteModuleImports } from './compiler/modules'
+import { createNavigation, useNav } from './navigation'
+import RouterLink from './RouterLink.vue'
 import commonCss from './runtime.css?inline'
+import { isDark } from './shims/dark'
 import { createGenerator, mergeConfigs } from './shims/uno'
 import configs from './virtual/configs'
+import { slides } from './virtual/slides'
 
 const layouts = import.meta.glob('../../../packages/client/layouts/*.vue', { eager: true, import: 'default' }) as Record<string, Component>
 const layoutSources = import.meta.glob('../../../packages/client/layouts/*.vue', { eager: true, query: '?raw', import: 'default' })
 const components = {
   Arrow,
+  AutoFitText,
+  CodeGroup,
+  LightOrDark,
+  Link,
+  RenderWhen,
+  RouterLink,
+  ShikiMagicMove,
+  SlideCurrentNo,
+  SlidesTotal,
+  Transform,
   CodeBlockWrapper,
   KaTexBlockWrapper,
   PoweredBySlidev,
@@ -53,8 +80,9 @@ export interface RenderInput {
 export function createRenderer(report: (message: Record<string, unknown>) => void) {
   let app: App | undefined
   let compiler: Awaited<ReturnType<typeof createDeckCompiler>> | undefined
-  let clicks: ClicksContext | undefined
-  let position = 1
+  const clicks = Vue.shallowRef<ClicksContext>()
+  const position = Vue.ref(1)
+  const navigation = createNavigation(position, clicks, goto, next, prev)
   let generation = 0
   let stylesheet: HTMLStyleElement | undefined
   let container: HTMLDivElement | undefined
@@ -81,7 +109,17 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
     urls = []
     modules = {
       'vue': moduleUrl('vue', Vue),
-      '@slidev/client': moduleUrl('client', context),
+      '@slidev/client': moduleUrl('client', {
+        ...context,
+        ...env,
+        ...layoutHelper,
+        ...slideLogic,
+        useNav,
+        useDarkMode,
+      }),
+      '@slidev/client/composables/useNav': moduleUrl('useNav', { useNav }),
+      '@slidev/client/composables/useDarkMode': moduleUrl('useDarkMode', { useDarkMode }),
+      '@slidev/client/logic/slides': moduleUrl('slides', slideLogic),
       '@slidev/client/context': moduleUrl('context', context),
       '@slidev/client/constants': moduleUrl('constants', constants),
     }
@@ -96,7 +134,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
   }
 
   function sendPosition() {
-    report({ type: 'position', slide: position, click: clicks?.current ?? 0 })
+    report({ type: 'position', slide: position.value, click: clicks.value?.current ?? 0 })
   }
 
   async function goto(slide: number, click = 0) {
@@ -129,7 +167,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
         warnings.push(`Directive v-${name} is unavailable online`)
     }
     const code = await rewriteModuleImports(compiled.code, (specifier) => {
-      const name = specifier.replace(/\/context\.ts$/, '/context').replace(/\/constants\.ts$/, '/constants')
+      const name = specifier.replace(/\.ts$/, '')
       if (!Object.hasOwn(modules, name))
         throw new Error(`Module ${specifier} is unavailable online; only bundled modules can be imported`)
       return modules[name]
@@ -179,6 +217,11 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
     styles.push((await uno.generate(`${compiled.sfc}\n${JSON.stringify(source.frontmatter)}\n${Object.values(layoutSources).join('\n')}\n${compiler.theme.sources.join('\n')}`)).css)
     if (generation !== version)
       return
+    navigation.navDirection.value = Math.sign(index + 1 - position.value)
+    position.value = index + 1
+    // Let slide-leave watchers observe the new position before their owning
+    // component is unmounted and its effect scope is disposed.
+    await Vue.nextTick()
     app?.unmount()
     container?.remove()
     stylesheet?.remove()
@@ -190,29 +233,19 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
     container.style.width = `${configs.canvasWidth}px`
     container.style.height = `${Math.ceil(configs.canvasWidth / configs.aspectRatio)}px`
     document.body.prepend(container)
-    const route = {
-      no: index + 1,
-      component: Vue.markRaw(component),
-      meta: {
-        slide: { ...source, no: index + 1 },
-      },
-    } as unknown as SlideRoute
-    clicks = createFixedClicks(route, click)
-    position = index + 1
+    const route = slides.value[index]
+    route.component = Vue.markRaw(component)
+    clicks.value = createFixedClicks(route, click)
     app = Vue.createApp({
-      render: () => Vue.h(SlideWrapper, { route, clicksContext: clicks! }),
+      render: () => Vue.h(SlideWrapper, { route, clicksContext: clicks.value! }),
     })
     app.use(createVClickDirectives())
     for (const [name, component] of Object.entries(components))
       app.component(name, component)
     app.provide(constants.injectionSlidevContext, Vue.reactive({
       configs,
-      nav: {
-        next,
-        prev,
-        go: goto,
-        openInEditor() {},
-      },
+      nav: navigation,
+      themeConfigs: Vue.computed(() => configs.themeConfig),
     }) as any)
     app.config.warnHandler = (warning) => {
       if (/Failed to resolve (?:component|directive)/.test(warning))
@@ -220,7 +253,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
     }
     app.config.errorHandler = error => report({
       type: 'error',
-      slide: position,
+      slide: position.value,
       message: String(error).slice(0, 2000),
     })
     app.mount(container)
@@ -241,26 +274,26 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
   }
 
   async function next() {
-    if (!compiler || !clicks)
+    if (!compiler || !clicks.value)
       return
-    if (clicks.current < clicks.total) {
-      clicks.current++
+    if (clicks.value.current < clicks.value.total) {
+      clicks.value.current++
       sendPosition()
     }
-    else if (position < compiler.slides.length) {
-      await goto(position + 1)
+    else if (position.value < compiler.slides.length) {
+      await goto(position.value + 1)
     }
   }
 
   async function prev() {
-    if (!clicks)
+    if (!clicks.value)
       return
-    if (clicks.current > clicks.clicksStart) {
-      clicks.current--
+    if (clicks.value.current > clicks.value.clicksStart) {
+      clicks.value.current--
       sendPosition()
     }
-    else if (position > 1) {
-      await goto(position - 1, 999999)
+    else if (position.value > 1) {
+      await goto(position.value - 1, 999999)
     }
   }
 
@@ -284,8 +317,12 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
       app = undefined
       compiler = await createDeckCompiler(input.src)
       Object.assign(configs, compiler.config)
+      slides.value = compiler.slides.map(source => ({
+        no: source.index + 1,
+        meta: { ...source.frontmatter, slide: source },
+      } as unknown as SlideRoute))
       resetModules()
-      document.documentElement.classList.toggle('dark', input.dark)
+      isDark.value = input.dark
       document.querySelector('#online-document-css')?.remove()
       const style = document.createElement('style')
       style.id = 'online-document-css'

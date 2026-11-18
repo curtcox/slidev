@@ -27,12 +27,12 @@ async function main() {
         onError: message => test.errors.push(message),
       })
     })
-    const render = async (src, css = '') => {
-      await page.evaluate(({ src, css }) => {
+    const render = async (src, css = '', dark = false) => {
+      await page.evaluate(({ src, css, dark }) => {
         window.runtimeTest.events = []
         window.runtimeTest.errors = []
-        window.runtimeTest.bridge.render({ src, css })
-      }, { src, css })
+        window.runtimeTest.bridge.render({ src, css, dark })
+      }, { src, css, dark })
       await page.waitForFunction(() => window.runtimeTest.events.some(event => event.state === 'rendered') || window.runtimeTest.errors.length)
       return page.evaluate(() => window.runtimeTest.errors)
     }
@@ -114,6 +114,76 @@ setInterval(() => postMessage({protocol:1,type:'position',slide:999,click:0}), 2
     assert.deepEqual(await render('# Notice\n<MissingOnlineWidget />'), [])
     assert.match(await page.frameLocator('#runtime-test iframe').locator('#online-notices').textContent(), /Component MissingOnlineWidget is unavailable/)
 
+    const navigation = `# Navigation
+
+Page <SlideCurrentNo /> of <SlidesTotal />
+
+<Link to="destination">Go by alias</Link>
+
+<RenderWhen context="main"><p>Main content</p></RenderWhen>
+<RenderWhen context="presenter"><p>Presenter only</p><template #fallback><p>Presenter fallback</p></template></RenderWhen>
+<LightOrDark><template #light><p>Light content</p></template><template #dark><p>Dark content</p></template></LightOrDark>
+<Transform :scale="0.5"><p>Scaled content</p></Transform>
+
+<p>API: {{ nav.total }} / {{ active }} / {{ entered }}</p>
+<button @click="toggleDark()">Toggle dark</button>
+
+<script setup>
+import { ref } from 'vue'
+import { useNav, useDarkMode, useIsSlideActive, onSlideEnter, onSlideLeave } from '@slidev/client'
+const nav = useNav()
+const active = useIsSlideActive()
+const entered = ref(0)
+onSlideEnter(() => entered.value++)
+onSlideLeave(() => { document.body.dataset.left = 'yes' })
+const { toggleDark } = useDarkMode()
+</script>
+
+---
+routeAlias: destination
+---
+# Destination
+
+Page <SlideCurrentNo /> of <SlidesTotal />
+
+<button @click="$nav.goFirst()">Go first</button>
+`
+    assert.deepEqual(await render(navigation), [])
+    frame = page.frameLocator('#runtime-test iframe')
+    assert.match(await frame.locator('.slidev-layout').textContent(), /Page 1 of 2/)
+    assert.match(await frame.locator('.slidev-layout').textContent(), /API: 2 \/ true \/ 1/)
+    assert.equal(await frame.getByText('Main content', { exact: true }).count(), 1)
+    assert.equal(await frame.getByText('Presenter only', { exact: true }).count(), 0)
+    assert.equal(await frame.getByText('Presenter fallback', { exact: true }).count(), 1)
+    assert.equal(await frame.getByText('Light content', { exact: true }).count(), 1)
+    assert.equal(await frame.getByText('Scaled content', { exact: true }).evaluate(element => getComputedStyle(element.parentElement).transform), 'matrix(0.5, 0, 0, 0.5, 0, 0)')
+    await frame.getByRole('button', { name: 'Toggle dark' }).click()
+    await frame.getByText('Dark content', { exact: true }).waitFor()
+    assert.equal(await frame.locator('html.dark').count(), 1)
+    await frame.getByRole('link', { name: 'Go by alias' }).click()
+    await frame.getByRole('heading', { name: 'Destination', exact: true }).waitFor()
+    assert.match(await frame.locator('.slidev-layout').textContent(), /Page 2 of 2/)
+    assert.equal(await frame.locator('body').getAttribute('data-left'), 'yes')
+    await page.waitForFunction(() => window.runtimeTest.events.some(event => event.slide === 2 && event.click === 0))
+    await frame.getByRole('button', { name: 'Go first' }).click()
+    await frame.getByRole('heading', { name: 'Navigation', exact: true }).waitFor()
+    assert.equal(await frame.getByText('Dark content', { exact: true }).count(), 1)
+    assert.equal(await frame.locator('#online-notices').count(), 0)
+    assert.deepEqual(await render(navigation, '', true), [])
+    frame = page.frameLocator('#runtime-test iframe')
+    assert.equal(await frame.getByText('Dark content', { exact: true }).count(), 1)
+
+    const magicMove = '# Magic move\n\n````md magic-move\n```ts\nconst before = 1\n```\n```ts\nconst after = 2\n```\n````'
+    assert.deepEqual(await render(magicMove), [])
+    frame = page.frameLocator('#runtime-test iframe')
+    await frame.locator('.shiki-magic-move-container').waitFor()
+    assert.match(await frame.locator('.slidev-code-magic-move').textContent(), /const before = 1/)
+    await frame.getByRole('heading', { name: 'Magic move' }).click()
+    await page.keyboard.press('ArrowRight')
+    await page.waitForFunction(() => window.runtimeTest.events.some(event => event.slide === 1 && event.click === 1))
+    await frame.getByText('after', { exact: true }).waitFor()
+    assert.equal(await frame.locator('#online-notices').count(), 0)
+
     for (const theme of ['default', 'seriph', 'unavailable-theme']) {
       const src = `---\ntheme: ${theme}\nbackground: '#e2e8f0'\nfonts:\n  provider: none\n  sans: Arial\n---\n# Theme cover\n\n---\nlayout: section\n---\n# Theme section\n\n---\nlayout: fact\n---\n# 42\n\nA fact\n\n---\n# Theme default\n`
       assert.deepEqual(await render(src), [])
@@ -140,7 +210,7 @@ setInterval(() => postMessage({protocol:1,type:'position',slide:999,click:0}), 2
     await page.evaluate(() => window.runtimeTest.bridge.stop())
     assert.equal(await page.locator('#runtime-test iframe').count(), 0)
     assert.deepEqual(pageErrors, [])
-    process.stdout.write(`${engine}: scripts, CSS, slots, clicks, isolation, replacement, official themes and visible fallbacks passed\n`)
+    process.stdout.write(`${engine}: scripts, CSS, slots, clicks, isolation, replacement, navigation APIs, built-ins, magic-move, dark mode, official themes and visible fallbacks passed\n`)
   }
   finally { await browser.close() }
 }

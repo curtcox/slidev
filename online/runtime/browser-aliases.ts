@@ -36,6 +36,12 @@ export function browserTransforms(): Plugin {
     enforce: 'pre',
     resolveId(source, importer) {
       const file = importer?.replaceAll('\\', '/') ?? ''
+      if (file.includes('/packages/client/')) {
+        if (source.endsWith('/useNav'))
+          return fileURLToPath(new URL('./src/navigation.ts', import.meta.url))
+        if (source.endsWith('/logic/dark'))
+          return shim('dark')
+      }
       if (file.endsWith('/node/vite/markdown.ts') && source === '../setups/transformers')
         return shim('transformers')
       if (file.endsWith('/node/syntax/index.ts') && source === './snippet')

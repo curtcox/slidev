@@ -1,4 +1,5 @@
 @import '@unocss/reset/tailwind.css';
+@import '@shikijs/magic-move/style.css';
 @import '../../../packages/client/styles/vars.css';
 @import '../../../packages/client/styles/index.css';
 @import '../../../packages/client/styles/code.css';
