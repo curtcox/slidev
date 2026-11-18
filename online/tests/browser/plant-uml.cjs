@@ -120,9 +120,14 @@ async function main() {
     await consent().click()
     await expect(frame.getByRole('button', { name: 'Retry diagram' })).toHaveCount(2)
     assert.match(await frame.locator('pre').first().textContent(), /Alice -> Bob: Hello/)
+    await images().first().evaluate((element) => {
+      globalThis.previousPlantUmlImage = element
+    })
     fail = false
     await frame.getByRole('button', { name: 'Retry diagram' }).first().click()
     await expect(frame.getByRole('button', { name: 'Retry diagram' })).toHaveCount(1)
+    await frame.locator('body').evaluate(() => globalThis.previousPlantUmlImage.dispatchEvent(new Event('error')))
+    await expect(frame.getByRole('button', { name: 'Retry diagram' })).toHaveCount(1, { timeout: 1000 })
 
     await page.waitForFunction(() => document.querySelector('#offline-status').textContent === 'Available offline')
     await page.waitForFunction(() => navigator.serviceWorker.controller)

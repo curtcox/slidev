@@ -46,11 +46,15 @@ function retry(event: MouseEvent) {
   attempt.value++
   load()
 }
-function loaded() {
+function loaded(event: Event) {
+  if (!(event.target as HTMLImageElement).isConnected)
+    return
   clearTimeout(timer)
   status.value = 'loaded'
 }
-function failed() {
+function failed(event: Event) {
+  if (!(event.target as HTMLImageElement).isConnected)
+    return
   clearTimeout(timer)
   status.value = 'error'
 }

@@ -1117,3 +1117,14 @@ records the measured results. Publication/tag approvals remain outstanding.
   with request interception active. The follow-up removes the remote mock before
   switching offline and checks actual image request failures. Firefox acceptance
   and deployment remain pending until that follow-up runs.
+
+- Follow-up `d2bf099d` passes all three browser jobs, units, publication checks
+  and visuals. Its repository CI also passes typecheck, Cypress and tests on
+  Linux, Windows and macOS. Downloaded visual evidence has **32** exact matches
+  and six within tolerance, with no errors. Deployment was still running at
+  this checkpoint. The separate release workflow still lacks `pkg-pr-new` access.
+- Final source review adds a guard against late events from a removed diagram
+  overwriting its replacement's retry state. A browser regression dispatches a
+  delayed error on the removed image after a successful retry. Chromium and
+  WebKit pass this regression and all **38** visual cases on the rebuilt runtime.
+  CI and live acceptance for this final guard remain pending.
