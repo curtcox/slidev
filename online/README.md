@@ -23,6 +23,7 @@ npm run check
 npm run serve
 node tests/browser/all.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/runtime.cjs http://127.0.0.1:8000/ chromium
+node tests/browser/icons.cjs http://127.0.0.1:8000/ chromium
 node runtime/tests/run.mjs
 node runtime/tests/fidelity.mjs
 # Repeat the compiler checks with BROWSER=webkit or BROWSER=firefox.
@@ -60,9 +61,9 @@ The offline browser suite also renders a seriph fact slide after a fully
 offline reload, checking that theme-specific styles survive cached delivery.
 
 The runtime fidelity harness compares the actual staged bundle through the
-editor bridge with `slidev build` on a separate origin. Twelve deterministic
+editor bridge with `slidev build` on a separate origin. Thirteen deterministic
 fixtures in both themes cover the six theme layouts, Markdown, columns, scoped
-styles, code, built-in components, TOC and initial click states. Reports and CLI/online/diff PNGs go to
+styles, code, built-in components, TOC, icons and initial click states. Reports and CLI/online/diff PNGs go to
 `runtime/.cache/fidelity/`, with screenshots separated by browser. Use `--skip-reference-build` only when the fixtures
 and CLI are unchanged; `BROWSER=webkit` selects WebKit. CI uploads a nonblocking
 Chromium report while platform/font coverage stabilizes. This is a subset of
@@ -76,3 +77,14 @@ for Vite aliases; both runtime builds and static checks scan all client TS/Vue
 imports and fail if a new `#slidev/*` module lacks an implementation. Empty setup
 lists reflect the online format's lack of filesystem setup directories; Monaco
 remains a static-code fallback until Phase 7.
+
+Icons from carbon, ph, mdi, logos, simple-icons, twemoji and svg-spinners are
+bundled as separate JSON assets from pinned `@iconify/json` 2.2.553. Collections
+load on demand through the SDK's offline fetch proxy, once per frame. Kebab
+tags such as `<carbon-arrow-right />`, colon tags inside HTML blocks, and
+`~icons/carbon/arrow-right` imports work, including aliases and TOC titles.
+Missing icons show a placeholder and a text notice; unknown collections never
+trigger network requests. Original collection attribution/license metadata is
+shipped at `runtime/icons/attribution.json` and in each unchanged collection.
+All seven collections total about 33.4 MB before compression (8.74 MB gzip),
+separate from the initial runtime payload. They are included in offline caching.

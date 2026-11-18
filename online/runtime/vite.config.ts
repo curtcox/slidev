@@ -5,6 +5,7 @@ import { defineConfig } from 'vite'
 import unoConfig from '../../packages/client/uno.config.ts'
 import { browserAliases, browserTransforms } from './browser-aliases.ts'
 import { checkVirtualModules, virtualModules } from './check-virtual-modules.ts'
+import { bundleIcons } from './icon-assets.ts'
 import { auditThemes } from './theme-audit.ts'
 
 const local = (path: string) => fileURLToPath(new URL(path, import.meta.url))
@@ -15,6 +16,7 @@ export default defineConfig({
     UnoCSS({ ...unoConfig, configFile: false }),
     browserTransforms(),
     auditThemes(),
+    bundleIcons(),
     {
       name: 'slidev-online-virtual-coverage',
       async buildStart() { await checkVirtualModules() },

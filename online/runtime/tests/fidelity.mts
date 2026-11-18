@@ -27,6 +27,7 @@ const fixtures = [
   { layout: 'default', content: '# Click reveals\n\n<v-clicks>\n\n- First reveal\n- Second reveal\n\n</v-clicks>' },
   { layout: 'default', content: '# Built-in components\n\nPage <SlideCurrentNo /> of <SlidesTotal />\n\n<RenderWhen context="main"><p>Main content</p></RenderWhen>\n\n<RenderWhen context="presenter"><p>Presenter only</p><template #fallback><p>Presenter fallback</p></template></RenderWhen>\n\n<LightOrDark><template #light><p>Light content</p></template><template #dark><p>Dark content</p></template></LightOrDark>\n\n<Transform :scale="0.8"><p>Scaled content</p></Transform>' },
   { layout: 'default', content: '# Table of contents\n\n<Toc columns="2" maxDepth="1" text-base />' },
+  { layout: 'default', content: '# Bundled icons\n\n<div>\n<carbon:arrow-right class="text-4xl" /> <ph-heart class="text-red-500 text-4xl" /> <mdi:home class="text-4xl" /> <logos:vue class="text-4xl" /> <simple-icons:github class="text-4xl" /> <twemoji:rocket class="text-4xl" />\n\n<carbon:logo-github /> <carbon-arrow-right />\n</div>' },
 ]
 
 async function main() {

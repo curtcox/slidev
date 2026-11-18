@@ -364,6 +364,9 @@ catalogs:
     '@iconify/json':
       specifier: ^2.2.553
       version: 2.2.553
+    '@iconify/utils':
+      specifier: ^3.1.7
+      version: 3.1.7
   monaco:
     '@shikijs/monaco':
       specifier: ^4.6.0
@@ -952,6 +955,9 @@ importers:
 
   online/runtime:
     dependencies:
+      '@iconify/utils':
+        specifier: catalog:icons
+        version: 3.1.7
       '@shikijs/magic-move':
         specifier: catalog:frontend
         version: 4.6.0(shiki@4.6.0)(vue@3.5.44(typescript@6.0.3))
@@ -998,6 +1004,9 @@ importers:
         specifier: catalog:frontend
         version: 3.5.44(typescript@6.0.3)
     devDependencies:
+      '@iconify/json':
+        specifier: catalog:icons
+        version: 2.2.553
       '@vitejs/plugin-vue':
         specifier: catalog:prod
         version: 6.0.10(vite@8.3.6(@types/node@26.6.6)(esbuild@0.28.2)(jiti@2.7.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(vue@3.5.44(typescript@6.0.3))

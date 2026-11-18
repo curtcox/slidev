@@ -35,3 +35,33 @@ it('ships reviewed, pinned themes and their unchanged licenses offline', async (
     assert.equal(createHash('sha256').update(upstream).digest('hex'), theme.licenseSha256)
   }
 })
+
+it('ships all curated icon collections with original attribution and verified offline bytes', async () => {
+  const base = new URL('../dist/runtime/', import.meta.url)
+  const audit = JSON.parse(await fs.readFile(new URL('icons/attribution.json', base), 'utf8'))
+  const scope = {
+    module: { exports: {} },
+    globalThis: {},
+  }
+  vm.runInNewContext(await fs.readFile(new URL('../offline-assets.js', base), 'utf8'), scope)
+  assert.deepEqual(audit.map(collection => collection.prefix), [
+    'carbon',
+    'ph',
+    'mdi',
+    'logos',
+    'simple-icons',
+    'twemoji',
+    'svg-spinners',
+  ])
+  for (const collection of audit) {
+    assert.equal(collection.packageVersion, '2.2.553')
+    const data = await fs.readFile(new URL(collection.fileName, base))
+    assert.deepEqual(data, await fs.readFile(new URL(`../runtime/node_modules/@iconify/json/json/${collection.prefix}.json`, import.meta.url)))
+    assert.equal(createHash('sha256').update(data).digest('hex'), collection.sha256)
+    assert.equal(scope.module.exports.hashes[`runtime/${collection.fileName}`], collection.sha256)
+    assert.equal(data.length, collection.bytes)
+    assert.deepEqual(JSON.parse(data).info, collection.info)
+    assert.ok(collection.info.author.name)
+    assert.ok(collection.info.license.spdx)
+  }
+})

@@ -37,6 +37,7 @@ import { createVMotionDirectives } from '../../../packages/client/modules/v-moti
 import unoConfig from '../../../packages/client/uno.config'
 import { createDeckCompiler } from './compiler'
 import { rewriteModuleImports } from './compiler/modules'
+import { resolveIcon } from './icons'
 import { createNavigation, useNav } from './navigation'
 import RouterLink from './RouterLink.vue'
 import commonCss from './runtime.css?inline'
@@ -95,6 +96,9 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
   let stylesheet: HTMLStyleElement | undefined
   let container: HTMLDivElement | undefined
   let urls: string[] = []
+  const iconComponents = new Map<string, Component>()
+  const iconImportWarnings = new Map<string, string>()
+  let titleWarnings: string[] = []
   const registryKey = `__slidevonline_${crypto.randomUUID().replaceAll('-', '')}`
   const registry: Record<string, Record<string, unknown>> = {}
   Object.defineProperty(globalThis, registryKey, { value: registry, configurable: true })
@@ -112,6 +116,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
   let modules: Record<string, string> = {}
   let activeLayouts = layoutByName
   function resetModules() {
+    iconImportWarnings.clear()
     for (const url of urls)
       URL.revokeObjectURL(url)
     urls = []
@@ -147,9 +152,20 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
     report({ type: 'position', slide: position.value, click: clicks.value?.current ?? 0 })
   }
 
-  async function loadComponent(code: string) {
-    code = await rewriteModuleImports(code, (specifier) => {
+  async function loadComponent(code: string, warnings: string[] = []) {
+    code = await rewriteModuleImports(code, async (specifier) => {
       const name = specifier.replace(/\.ts$/, '')
+      const iconImport = name.match(/^~icons\/([a-z0-9-]+)\/([a-z0-9-]+)$/)
+      if (!Object.hasOwn(modules, name) && iconImport) {
+        const icon = await resolveIcon(`${iconImport[1]}:${iconImport[2]}`)
+        if (!icon)
+          throw new Error(`Icon ${specifier} is unavailable online`)
+        if (icon.warning)
+          iconImportWarnings.set(name, icon.warning)
+        modules[name] = moduleUrl(name, { default: icon.component })
+      }
+      if (iconImportWarnings.has(name))
+        warnings.push(iconImportWarnings.get(name)!)
       if (!Object.hasOwn(modules, name))
         throw new Error(`Module ${specifier} is unavailable online; only bundled modules can be imported`)
       return modules[name]
@@ -163,13 +179,38 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
     }
   }
 
+  async function resolveComponents(code: string) {
+    const warnings: string[] = []
+    const normalize = (name: string) => name.replaceAll('-', '').toLowerCase()
+    const knownComponents = new Set(Object.keys(components).map(normalize))
+    const names = new Set([
+      ...code.matchAll(/_resolveComponent\("([^"]+)"\)/g),
+    ].map(match => match[1]))
+    // Independent collection requests may run together; each collection is
+    // cached and requested at most once per frame, including TOC titles.
+    await Promise.all([...names].map(async (name) => {
+      if (knownComponents.has(normalize(name)))
+        return
+      const icon = await resolveIcon(name)
+      if (icon) {
+        iconComponents.set(name, icon.component)
+        if (icon.warning)
+          warnings.push(icon.warning)
+      }
+      else {
+        warnings.push(`Component ${name} is unavailable online`)
+      }
+    }))
+    return warnings
+  }
+
   async function goto(slide: number, click = 0) {
     if (!compiler)
       return
     const version = ++generation
     const index = Math.max(0, Math.min(compiler.slides.length - 1, slide - 1))
     const source = compiler.slides[index]
-    const warnings: string[] = []
+    const warnings: string[] = [...titleWarnings]
     const requestedLayout = source.frontmatter.layout || (index === 0
       ? 'cover'
       : 'default')
@@ -182,17 +223,12 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
     warnings.push(...compiled.warnings)
     // Vue omits resolution warnings in production. Inspect only the compiler's
     // generated resolver calls so unsupported widgets always get a visible notice.
-    const normalize = (name: string) => name.replaceAll('-', '').toLowerCase()
-    const knownComponents = new Set(Object.keys(components).map(normalize))
-    for (const [, name] of compiled.code.matchAll(/_resolveComponent\("([^"]+)"\)/g)) {
-      if (!knownComponents.has(normalize(name)))
-        warnings.push(`Component ${name} is unavailable online`)
-    }
+    warnings.push(...await resolveComponents(compiled.code))
     for (const [, name] of compiled.code.matchAll(/_resolveDirective\("([^"]+)"\)/g)) {
       if (!['click', 'after', 'mark', 'motion'].includes(name))
         warnings.push(`Directive v-${name} is unavailable online`)
     }
-    const component = await loadComponent(compiled.code)
+    const component = await loadComponent(compiled.code, warnings)
     if (generation !== version)
       return
     component.__scopeId = compiled.scopeId
@@ -256,6 +292,8 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
     app.use(createVMarkDirective())
     app.use(createVMotionDirectives())
     for (const [name, component] of Object.entries(components))
+      app.component(name, component)
+    for (const [name, component] of iconComponents)
       app.component(name, component)
     app.provide(constants.injectionSlidevContext, Vue.reactive({
       configs,
@@ -340,7 +378,9 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
       } as unknown as SlideRoute))
       resetModules()
       const titles = await compiler.compileTitles()
-      titleRenderer.value = Vue.markRaw(await loadComponent(titles.code))
+      iconComponents.clear()
+      titleWarnings = await resolveComponents(titles.code)
+      titleRenderer.value = Vue.markRaw(await loadComponent(titles.code, titleWarnings))
       isDark.value = input.dark
       document.querySelector('#online-document-css')?.remove()
       const style = document.createElement('style')

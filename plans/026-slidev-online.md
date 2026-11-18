@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — navigation/built-ins/TOC/motion and virtual coverage verified; source corpus has 50 exact SFC matches plus 21 explicit fallbacks; 24-case product fidelity passes local Chromium/WebKit; remaining features/full rendering/phone gates open |
+| 2 | Slidev runtime | IN PROGRESS — navigation/built-ins/TOC/motion, virtual coverage and seven lazy icon collections verified; source corpus has 50 exact SFC matches plus 21 explicit fallbacks; 26-case product fidelity passes local Chromium/WebKit; remaining features/full rendering/phone gates open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -810,3 +810,35 @@ records the measured results. Publication/tag approvals remain outstanding.
 - Phase 2 remains open for icons, additional/lazy grammars and diagrams/fonts,
   drag writeback, additional theme audits, remaining client features, full
   source-corpus rendering/fidelity, and complete-runtime phone performance.
+
+### Phase 2 bundled icons and offline theme regression (2026-11-18)
+
+- Integrated newer `main` work before continuing. The additional seriph fact
+  regression after a fully offline reload passes local Chromium and WebKit and
+  was pushed separately as `86c2beeb`.
+- Carbon, ph, mdi, logos, simple-icons, twemoji and svg-spinners are emitted as
+  separate, unchanged JSON assets from `@iconify/json` 2.2.553. Builds require
+  that reviewed version, per-collection size bounds and original attribution/
+  license metadata; the staging manifest hashes every collection. The sandbox
+  requests only recognized bundled collections and caches each once per frame.
+  No icon data enters the initial JavaScript bundle or requires a remote CDN.
+- Template tags and `~icons/...` imports resolve through the bundled registry.
+  Iconify's SVG helpers preserve aliases, transforms and aspect ratios; repeated
+  gradients/masks get unique IDs. TOC heading icons share the same loader.
+  Missing icons render a placeholder plus a visible notice, and an unbundled
+  collection cannot request a new URL.
+- Actual local Chromium and WebKit pass all seven collections, kebab/colon tags,
+  imports, aliases, repeated SVG IDs, TOC titles, cache reuse, missing-icon
+  notices and rendering all seven collections after a fully offline reload.
+  Existing runtime integration suites pass in both engines. All **26** product
+  fidelity cases match the CLI with zero exact differing pixels in each engine,
+  including a new icon fixture in each official theme.
+- Runtime build/typecheck, root typecheck, targeted lint, eight online units and
+  static/vendor/offline integrity pass. Initial JS/CSS is **1,027,805 bytes gzip**
+  with Node's gzip measurement. The separate collections total **33,398,204 bytes**
+  (**8,740,165 gzip**) and are all cached for offline use. Complete-runtime phone
+  timing, the remaining grammars/diagrams/fonts, drag writeback, additional theme
+  audits and full source-corpus rendering/fidelity remain open. This evidence
+  is local; the new CI/deployment result has not yet been checked. Both local
+  reports record runtime SHA-256
+  `1d31e64510992254cb0ec2e81bc0192adefb66fa3d265ec1ac9c652068907f95`.

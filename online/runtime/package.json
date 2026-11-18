@@ -8,6 +8,7 @@
     "test": "node tests/run.mjs"
   },
   "dependencies": {
+    "@iconify/utils": "catalog:icons",
     "@shikijs/magic-move": "catalog:frontend",
     "@slidev/client": "workspace:*",
     "@slidev/parser": "workspace:*",
@@ -25,6 +26,7 @@
     "vue": "catalog:frontend"
   },
   "devDependencies": {
+    "@iconify/json": "catalog:icons",
     "@vitejs/plugin-vue": "catalog:prod",
     "vite": "catalog:prod"
   }
