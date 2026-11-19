@@ -44,6 +44,7 @@ import unoConfig from '../../../packages/client/uno.config'
 import { createDeckCompiler } from './compiler'
 import { locatedError, offsetAt, slideError } from './compiler/diagnostics'
 import { rewriteModuleImports } from './compiler/modules'
+import commonCss from './core-styles'
 import { configureDragUpdates, flushDragUpdates } from './drag'
 import { loadFonts } from './fonts'
 import { resolveIcon } from './icons'
@@ -52,7 +53,6 @@ import { createNavigation, useNav } from './navigation'
 import { plantUmlPermission } from './plant-uml'
 import PlantUml from './PlantUml.vue'
 import RouterLink from './RouterLink.vue'
-import commonCss from './runtime.css?inline'
 import { isDark } from './shims/dark'
 import { activeDragElement } from './shims/drag-state'
 import { createGenerator, mergeConfigs } from './shims/uno'
@@ -324,12 +324,10 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
       },
     ]))
     const apply = unoConfig.transformers!.find(transformer => transformer.name.includes('directives'))!
-    const styles: string[] = []
-    for (const style of [
-      { content: commonCss, scoped: false },
-      ...compiler.theme.css.map(content => ({ content, scoped: false })),
-      ...compiled.styles,
-    ]) {
+    // Trusted CSS is compiled at build time with the deck's font CSS variables.
+    // Author styles still compile in this opaque frame, including scoped rules.
+    const styles = [commonCss, ...compiler.theme.css]
+    for (const style of compiled.styles) {
       const text = new MagicString(style.content)
       try {
         await apply.transform(text, 'slide.css', { uno } as any)

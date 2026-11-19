@@ -118,6 +118,12 @@ from an in-memory cache and executes JavaScript only in each fresh opaque frame.
 Failed downloads can retry. `?run=0` defers these downloads until Render;
 service-worker offline preparation can still cache them in the background.
 
+The runtime creates a module URL only when a slide imports that module.
+Static and dynamic imports share the same module within a preview.
+Vite compiles the trusted core and theme styles during the build.
+Their font rules use CSS variables from the active deck.
+Author styles still compile inside the opaque frame.
+
 The runtime browser suite exercises author scripts, style isolation, slots,
 click navigation, hostile-deck isolation, document replacement, built-ins,
 TOC navigation, motion, markers and visible unsupported features. Full source-

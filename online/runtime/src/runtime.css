@@ -1,12 +1,3 @@
-@import '@unocss/reset/tailwind.css';
-@import '@shikijs/magic-move/style.css';
-@import '../../../packages/client/styles/vars.css';
-@import '../../../packages/client/styles/index.css';
-@import '../../../packages/client/styles/code.css';
-@import '../../../packages/client/styles/katex.css';
-@import '../../../packages/client/styles/vclick.css';
-@import '../../../packages/client/styles/transitions.css';
-
 html,
 body {
   width: 100%;
