@@ -446,7 +446,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images, native/CSS transitions and lazy math deployed; 187 exact SFC matches + 14 fallbacks and the 84-slide DOM gate pass CI; the blocking visual gate covers 162 cases, including both demos and explicit fallbacks; module URLs are created on demand and trusted core/theme CSS compiles during the build; the initial runtime is 875,983 bytes gzip; clean-build phone timing measures 1.86 s median / 2.14 s maximum, above the 2 s maximum target |
+| 2 | Slidev runtime | DONE: five pinned themes, the browser compiler, opaque adapters, lazy assets, navigation and source writeback pass. CI verifies 187 exact SFC comparisons, 84 corpus slides and 162 visual cases. The initial runtime is 817,174 bytes gzip. Clean-release simulated-phone timing passes at 1.80 s median / 1.95 s maximum. Deployment and live Chromium/WebKit acceptance pass |
 | 3 | Editor app (share, QR, HashBin, mobile) | DONE — workspace, links/CIDs, drafts, sharing/QR, registration-gated HashBin controls, ZIP, kit contracts, overview/touch and source diagnostics deployed and verified live in Chromium/WebKit; client registration remains an owner action |
 | 4 | Docs and gallery | DONE — Markdown docs, 15 example decks, kit gallery and opaque-rendered covers deployed; all three CI browsers, 109 visual comparisons and live Chromium/WebKit gallery/offline checks pass |
 | 5 | AI-assisted editing | TODO |
@@ -2069,3 +2069,91 @@ records the measured results. Publication/tag approvals remain outstanding.
   open for the 2 s maximum target. Phases 5–8 and HashBin registration remain
   open. No physical-phone or paid Publish acceptance ran. This final update
   changes only the plan and index.
+
+
+### Phase 2 deferred highlighting and independent downloads (2026-11-19)
+
+- Commits `144d8460`, `79307ed8` and `e114e8a4` are pushed on `main`.
+  The workspace applies its phone tabs before Ace measures the editors.
+  The trusted runtime download starts independently of deferred editor scripts.
+  A browser assertion confirms that `?run=0` also defers speculative runtime downloads.
+- The SDK imports Shiki only when a slide or title needs code highlighting.
+  The standalone module retains both color themes and the ES2018 regex target.
+  Each opaque frame reuses its import and retries failed downloads.
+  The build audits its version, MIT license, size, hash and lack of external imports.
+  The module and original license ship in the verified offline cache.
+- Chromium and WebKit pass lazy engine loading, aliases, embedded grammars,
+  navigation reuse, missing-grammar fallback, failed-engine recovery and offline reload.
+  Local Firefox cannot launch because its profile folder is unavailable.
+  No local Firefox acceptance is claimed.
+- Both complete local visual reports pass all 162 cases at the unchanged tolerance.
+  All 131 supported comparisons pass. The reports retain 29 explicit fallback
+  comparisons and two exact file-import errors. Gallery cover images retain their bytes.
+  The runtime SHA-256 is
+  `5bb50ea52ac00454c8af983a791fdb4c0ef43e8386460062fbd18cb88b807bd1`.
+- Chromium characterization passes all 187 exact SFC comparisons, all forty
+  grammar probes and 14 documented fallbacks. All 45 online units pass.
+  Runtime type checking, lint, static checks, vendor integrity, gallery
+  fingerprints and offline asset checks pass.
+- The clean release identifies `e114e8a4` with `dirty:false`.
+  Five cold Chromium samples measure 1,954, 1,797, 1,795, 1,828 and 1,800 ms.
+  The median is 1,800 ms and the maximum is 1,954 ms.
+  The profile remains 390 × 844, DPR 2, 4× CPU slowdown, 40 ms latency
+  and 1.5 MB/s downloads. A local server supplies precompressed gzip assets.
+  Initial runtime JavaScript and CSS total 817,174 bytes gzip, down from 875,983 bytes.
+  Both Phase 2 budgets pass on this simulated profile. No physical-phone measurement ran.
+- The clean release passes all 84 corpus slides in Chromium, including two
+  explicit file-import errors and recovery after each error. Chromium and WebKit
+  also pass runtime behavior, editor controls, deferred rendering, isolation and
+  fully offline reload. Offline checks include first-use QR, seriph and gallery interaction.
+  Across both engines, 78 applicable kit contracts pass, with four demo-only skips.
+  Publish, camera frames and shortening use mocked providers.
+- CI and live deployment acceptance follow below. Phases 5–8 and HashBin
+  client registration remain open.
+
+
+### CLI reference embedded-grammar correction (2026-11-19)
+
+- The visual job for `79307ed8` failed on starter slide 13. Its saved diagnostics
+  show plain HTML inside the CLI's Markdown fences. The online output retains
+  syntax colors. The later `e114e8a4` report passes that slide with zero differing pixels.
+- Markdown embeds `text.html.derivative`. Warming the separate `html` language
+  does not load that optional grammar. Vue can load it later, so transform order
+  affected the CLI reference. A fresh Shiki experiment reproduces two Markdown
+  colors after warming `html`, compared with seven after warming `html-derivative`.
+- Commit `3f6ae12d` loads `html-derivative` before Markdown in the reference helper.
+  It asserts colors through a Markdown probe before each CLI build.
+  Serialization and the existing 0.1% pixel tolerance remain in place.
+  The application assets and clean-release timing do not change.
+
+- Both rebuilt local visual reports pass all 162 cases. Starter slide 13 differs
+  by 0.043% in Chromium and 0.040% in WebKit, within the unchanged tolerance.
+  The final CI artifact also passes all 162 cases. All 131 supported comparisons
+  pass, with 126 pixel-exact matches. Its starter slide 13 differs by 0.040%.
+  Source hashes and the runtime hash match the final local reports.
+
+### Deployed startup and highlighting acceptance (2026-11-19)
+
+- [Deployment run 44570357953](https://github.com/curtcox/slidev/actions/runs/44570357953)
+  passes every job: Chromium, Firefox, WebKit, units, vendor verification,
+  blocking visual fidelity and Pages. Firefox logs confirm 39 applicable
+  contracts, lazy-engine failure recovery, 187 exact SFC comparisons, all forty
+  grammars and all 84 visible corpus slides.
+- The earlier `e114e8a4` run passed all tests but failed during Pages artifact
+  discovery. Retrying its deployment encountered duplicate artifacts. The fresh
+  `3f6ae12d` workflow published successfully without a deployment workaround.
+- The recovery site serves `3f6ae12d` with `dirty:false`. Its HTML, app module,
+  preview bridge, preload module, runtime JavaScript/CSS, lazy highlighter and
+  gallery fingerprints match the tested staged bytes. The runtime SHA-256 remains
+  `5bb50ea52ac00454c8af983a791fdb4c0ef43e8386460062fbd18cb88b807bd1`.
+- Live Chromium and WebKit pass editor controls, real ZIP downloads, runtime
+  behavior, opaque isolation, deferred rendering, lazy highlighting and failed-engine recovery.
+  Both also pass fully offline reload, first-use QR, seriph and gallery interaction.
+  Across both engines, 78 applicable contracts pass, with four demo-only skips.
+  Publish, camera frames and shortening use mocked providers.
+- Phase 2 is complete on the documented simulated phone profile. Its clean-release
+  result is 1.80 s median and 1.95 s maximum, with an 817,174-byte initial payload gzip.
+  No physical-phone or paid Publish acceptance ran. Phase 5 is next.
+  Phases 5–8 and HashBin registration remain open.
+- README-only commit `dc712b93` records these budgets and the blocking visual gate.
+  It changes no deployed application assets. Its workflow is running at this checkpoint.
