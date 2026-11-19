@@ -45,7 +45,7 @@ high-confidence security + correctness, then larger refactors. You may cherry-pi
 | 023 | Decompose god functions in `export.ts`/`cli.ts` | P3 | L | MED | 022 | TODO |
 | 024 | Incremental HMR parse cache | P3 | L | MED | — | TODO |
 | 025 | Guard `skills/`-vs-`docs/` drift in CI | P3 | S-M | LOW | — | TODO |
-| 026 | Slidev Online (browser editor on Fragment Kit, GitHub Pages) | P1 | XL | MED-HIGH | SDK v0.6.0 / kit v0.4.4 / workflow `@v4` verified | IN PROGRESS — Phases 0–1 done; five themes, HTTPS images, native/CSS transitions and lazy math deployed; 52-slide DOM gate and 77 gallery/fixture visual comparisons pass CI; full demo visual fidelity and 2 s phone timing remain open; Phase 3 Ace editor, guarded links/CIDs, draft recovery, sharing/QR and HashBin controls deployed and verified live in Chromium/WebKit; ZIP export and Phase 3 kit contracts verified locally in Chromium/WebKit; overview/swipe controls verified locally in Chromium/WebKit; precise error locations pending |
+| 026 | Slidev Online (browser editor on Fragment Kit, GitHub Pages) | P1 | XL | MED-HIGH | SDK v0.6.0 / kit v0.4.4 / workflow `@v4` verified | IN PROGRESS — Phases 0–1 done; five themes, HTTPS images, native/CSS transitions and lazy math deployed; 52-slide DOM gate and 77 gallery/fixture visual comparisons pass CI; full demo visual fidelity and 2 s phone timing remain open; Phase 3 editor, guarded links/CIDs, drafts, sharing/QR, HashBin controls, ZIP, kit contracts and overview/touch navigation deployed and verified live in Chromium/WebKit; precise compiler error locations pending |
 
 Status values: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED` (one-line reason) |
 `REJECTED` (one-line rationale).

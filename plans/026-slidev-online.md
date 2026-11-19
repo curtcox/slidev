@@ -447,7 +447,7 @@ contract, plus a fully offline reload that renders the gallery.
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
 | 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images, native/CSS transitions and lazy math deployed; 141 exact SFC matches + 14 fallbacks, 52-slide DOM gate and 77 gallery/fixture visual comparisons pass CI; full demo visual fidelity and the 2 s phone target remain open |
-| 3 | Editor app (share, QR, HashBin, mobile) | IN PROGRESS — Ace Markdown/CSS workspace, guarded link/CID loading, explicit draft recovery, sharing/QR and registration-gated HashBin controls deployed; ZIP export and Phase 3 kit contracts verified locally in Chromium/WebKit; overview/swipe controls verified locally in Chromium/WebKit; precise error locations pending |
+| 3 | Editor app (share, QR, HashBin, mobile) | IN PROGRESS — Ace workspace, guarded links/CIDs, explicit draft recovery, sharing/QR, registration-gated HashBin controls, ZIP export, Phase 3 kit contracts and overview/touch controls deployed; precise compiler error locations pending |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
 | 6 | Offline / PWA | TODO |
@@ -1660,5 +1660,28 @@ records the measured results. Publication/tag approvals remain outstanding.
   pass. Precise compiler error locations remain Phase 3 work.
 - The ZIP deployment for `1af94976` passed all jobs, including all three browser
   engines, the visual report and Pages:
-  https://github.com/curtcox/slidev/actions/runs/44450869083 .
+  [ZIP release workflow](https://github.com/curtcox/slidev/actions/runs/44450869083).
   The later contracts and overview releases still need deployment verification.
+
+### Deployed Phase 3 downloads and navigation (2026-11-18)
+
+- [The final product deployment](https://github.com/curtcox/slidev/actions/runs/44452119804)
+  passed all jobs for `bb962fb6`. CI passed Chromium, Firefox, WebKit, the visual
+  report, units, independent kit verification and Pages deployment. The recovery
+  site served `bb962fb6` with `dirty:false`. The earlier contracts deployment
+  for `a478368a` also passed.
+- Local Chromium and WebKit against the production release passed all 44
+  applicable contract checks, with four demo-only skips across both engines.
+  Coverage includes both Ace files, URL identity, sharing, QR upload/camera,
+  HashBin callbacks, draft recovery, compact layout, overview and touch navigation.
+  Both engines also passed the deployed editor suite with a real ZIP download
+  and fully offline reload, including the cached seriph theme.
+- Publish, camera frames and the shortener used mocks. No live paid Publish
+  round trip ran. Browser input supplied real taps in both local engines and a
+  native Chromium swipe. No physical phone acceptance is claimed.
+- All 38 online units, root lint/typechecks, runtime build/typecheck and
+  static/vendor/offline checks passed locally. Release staging recorded a clean
+  checkout. Root lint now excludes generated Playwright reports.
+- Phase 3 remains open for precise compiler error locations. HashBin client
+  registration remains an owner action. Phase 2 still needs full demo screenshot
+  fidelity and the complete runtime's 2 s phone target.
