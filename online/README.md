@@ -129,8 +129,9 @@ click navigation, hostile-deck isolation, document replacement, built-ins,
 TOC navigation, motion, markers and visible unsupported features. Full source-
 corpus screenshots record known feature fallbacks separately. The visual job is
 a blocking deployment gate: supported slides must meet the existing 0.1% pixel
-tolerance, and file imports must fail visibly. The phone performance target
-remains open.
+tolerance, and file imports must fail visibly. Clean release `e114e8a4` passes
+the five-sample simulated phone budget at 1.80 s median and 1.95 s maximum.
+The initial runtime is 817,174 bytes gzip. See [Plan 026](../plans/026-slidev-online.md) for the profile and limits.
 
 The official `default`, `seriph`, `bricks` and `shibainu` themes are pinned at
 0.25.0; `apple-basic` is pinned at 0.25.1. All five use the MIT license.
@@ -155,7 +156,7 @@ No script, connection or frame permissions change. Custom remote fonts are not
 cached by the app for offline use. Unavailable fonts, invalid configurations and
 the unsupported coollabs provider produce visible notices with local/system
 fallbacks. Each font-loading stage has a five-second deadline.
-See [fonts and privacy](docs/fonts.html). The phone performance target remains open.
+See [fonts and privacy](docs/fonts.html).
 See [bundled themes](docs/themes.html).
 The offline browser suite also renders a seriph fact slide after a fully
 offline reload, checking that theme-specific styles survive cached delivery.
@@ -172,7 +173,8 @@ load; Apple Basic retains its local/system font stack. Color-only image props
 disable CLI image preloading. Reports and CLI/online/diff PNGs go to
 `runtime/.cache/fidelity/`, separated by browser. Use `--skip-reference-build`
 only when the fixtures and CLI are unchanged; `BROWSER=webkit` selects WebKit.
-CI uploads a nonblocking Chromium report while the expanded coverage stabilizes.
+CI requires the Chromium visual gate to pass and uploads its report.
+Documented feature fallbacks remain separate from supported pixel comparisons.
 
 The starter and composable-vue references build from their original entries.
 Each reference runs in a separate process because the CLI caches its project
