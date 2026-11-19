@@ -5,7 +5,6 @@ import { LocalDrafts } from '../vendor/fragment-kit-v0.4.4/src/drafts/local-draf
 import { HashBinPanel } from '../vendor/fragment-kit-v0.4.4/src/hashbin/panel.js'
 import { HashBinStore } from '../vendor/fragment-kit-v0.4.4/src/hashbin/store.js'
 import { OfflineClient } from '../vendor/fragment-kit-v0.4.4/src/offline/client.js'
-import { createQrDialog } from '../vendor/fragment-kit-v0.4.4/src/qr/qr-dialog.js'
 import { createShareDialog } from '../vendor/fragment-kit-v0.4.4/src/share/share-dialog.js'
 import { element } from '../vendor/fragment-kit-v0.4.4/src/ui/dialog.js'
 import { createShell } from '../vendor/fragment-kit-v0.4.4/src/ui/shell.js'
@@ -248,9 +247,7 @@ async function main() {
         label: 'QR',
         id: 'qr',
         extra: true,
-        onClick: () => safely(() => qr.open(saved?.fingerprint === fingerprint()
-          ? saved.href
-          : urlState.build(getDocument(), { run, view }).qrCandidate)),
+        onClick: () => { void openQr().catch(error => reportError(error.message)) },
       },
       {
         label: 'Save to HashBin',
@@ -396,20 +393,27 @@ async function main() {
     getSnapshot: getDocument,
     onSave: () => hashbin.openSave(),
   })
-  qr = createQrDialog({
-    config,
-    urlState,
-    async onLoad(outcome) {
-      const href = outcome.href ?? urlState.link(location.href, outcome.cid)
-      if (await loader.open(href))
-        rememberLink(href)
-    },
-    onSave() {
-      qrSave = fingerprint()
-      qr.dialog.close()
-      void hashbin.openSave()
-    },
-  })
+  async function openQr() {
+    // The scanner is optional. Loading a deck must not fetch or parse it.
+    const { createQrDialog } = await import('../vendor/fragment-kit-v0.4.4/src/qr/qr-dialog.js')
+    qr ??= createQrDialog({
+      config,
+      urlState,
+      async onLoad(outcome) {
+        const href = outcome.href ?? urlState.link(location.href, outcome.cid)
+        if (await loader.open(href))
+          rememberLink(href)
+      },
+      onSave() {
+        qrSave = fingerprint()
+        qr.dialog.close()
+        void hashbin.openSave()
+      },
+    })
+    qr.open(saved?.fingerprint === fingerprint()
+      ? saved.href
+      : urlState.build(getDocument(), { run, view }).qrCandidate)
+  }
   const files = createFileDialogs({
     config,
     urlState,
