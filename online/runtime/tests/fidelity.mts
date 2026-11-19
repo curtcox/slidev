@@ -379,17 +379,12 @@ async function main() {
             if (!motions.length)
               return
             const deadline = performance.now() + 5000
-            await new Promise<void>((resolve, reject) => {
-              const settle = () => {
-                if (motions.every(motion => !motion.isAnimating.value))
-                  resolve()
-                else if (performance.now() > deadline)
-                  reject(new Error('Slide motion did not finish before capture'))
-                else
-                  requestAnimationFrame(settle)
-              }
-              requestAnimationFrame(() => requestAnimationFrame(settle))
-            })
+            await new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+            while (motions.some(motion => motion.isAnimating.value)) {
+              if (performance.now() > deadline)
+                throw new Error('Slide motion did not finish before capture')
+              await new Promise(resolve => requestAnimationFrame(resolve))
+            }
           })
         }
         await referencePage.evaluate(() => document.fonts.ready)

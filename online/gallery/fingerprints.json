@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "src/examples.js": "f063448fd8596eec5cbf12302b43fd4f97be13721cdd21984d7321ab960f4bef",
+    "src/examples.js": "57b3053999d55e6b8521071c0819956f8a8a4656f949900e28f49bd820f60aa8",
     "src/preview-bridge.js": "f623dbd069f2d65fc1be6a1dfaba8cbfad63e00c62d45d096dca10eca3ba1fa1",
     "src/document-type.js": "f91d196a8eb83046ec2c38a99597e96874edcdb7f372b0de453af25a986f34fa",
     "gallery.html": "8249dcb880bc37bde5abf655313640a625a0a0298a3d375d88c4426d9a3ef77e",
@@ -107,8 +107,8 @@
       "cover": "9855c809f131bb896fb252d4c0feb5071605ddc128d35076f56a2a7d52532af7"
     },
     "drag": {
-      "document": "16c02eb2f051a487aa14827db6e68bb417a11c25c8d0733e4b8886014714a079",
-      "cover": "0c02e43fa5422234a815ef2178a9862314329f086c81a47729134a1761c7ebaa"
+      "document": "b9ae292252d8acce2dcdaeb9ae4377c55836e5b751bc7bc4cc391d95bd5c4d0a",
+      "cover": "06a4b0aeb8db5d133a64227ffc4b5246804f990acf8470a9b24df5d35844c0f1"
     },
     "interactivity": {
       "document": "a6a2caf3e4bc9381bfaeb32b6246fdbedb4ab245e50a03d961deca07ab7874d8",

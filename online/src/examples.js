@@ -75,7 +75,7 @@ export const examples = [
     ],
     "cover": "gallery/drag.png",
     "document": {
-      "src": "---\ntheme: default\ntitle: \"Position elements\"\ninfo: \"Move a box or arrow and keep its position in Markdown.\"\nonlineTags: [\"drag\", \"layouts\"]\nlayout: cover\ntransition: none\n---\n\n# Place the emphasis\n\nDrag the blue box or the arrow. Markdown keeps the new coordinates.\n\n<VDrag pos=\"120,220,240,100\" class=\"bg-blue-100 text-blue-900 p-4 rounded\">Move this idea</VDrag>\n\n<VDragArrow pos=\"440,240,160,30\" color=\"red\" />\n",
+      "src": "---\ntheme: default\ntitle: \"Position elements\"\ninfo: \"Move a box or arrow and keep its position in Markdown.\"\nonlineTags: [\"drag\", \"layouts\"]\nlayout: default\ntransition: none\n---\n\n# Place the emphasis\n\nDrag the blue box or the arrow. Markdown keeps the new coordinates.\n\n<VDrag pos=\"120,220,240,100\" class=\"bg-blue-100 text-blue-900 p-4 rounded\">Move this idea</VDrag>\n\n<VDragArrow pos=\"440,240,160,30\" color=\"red\" />\n",
       "slidev": {
         "css": ""
       }

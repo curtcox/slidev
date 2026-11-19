@@ -3,7 +3,7 @@ theme: default
 title: "Position elements"
 info: "Move a box or arrow and keep its position in Markdown."
 onlineTags: ["drag", "layouts"]
-layout: cover
+layout: default
 transition: none
 ---
 
