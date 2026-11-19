@@ -85,7 +85,7 @@
     "runtime/dist/math/katex.js": "5f0c3749f8b28ce1a63b68de34d3950bb4aa1a9e0130865e4b09ecc9a250c8b7",
     "runtime/dist/math/LICENSE": "766ccc1f306c885aa45542a9846bbd0a505b27a0374f146778171c2254ce18e3",
     "runtime/dist/sandbox.css": "29e467ab701fb17d1087aa0f48b8816b3c0835f43c69d92532bf11e6b1ed9969",
-    "runtime/dist/sandbox.js": "b930d19a87b71376037874cb2a81e29b60ffef310dffac326e4cd2ae3774511c",
+    "runtime/dist/sandbox.js": "9626b43048d0fcdb67b8b2c5288d91e42b7a6b4687df6f0ff750bc53d459ebc0",
     "runtime/dist/theme-audit.json": "da95cef7d63b893a029717f7a95cc3bb18b7d8e8d992464974ae82ef35a14db5"
   },
   "renderer": "f3bd48e23d4d089ab357d782bdd1fb9e299edfb5bc1e45afd85ee4a628d1e333",

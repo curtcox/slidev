@@ -446,7 +446,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images, native/CSS transitions and lazy math deployed; 187 exact SFC matches + 14 fallbacks, 84-slide DOM gate and 109 gallery/fixture visual comparisons pass CI; 162 visual cases cover both demos in CI and local Chromium/WebKit, including explicit fallbacks; the visual job now blocks deployment; deferred QR loading and earlier shell loading reduce the clean-build phone median to 2.75 s, still above the 2 s target |
+| 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images, native/CSS transitions and lazy math deployed; 187 exact SFC matches + 14 fallbacks, 84-slide DOM gate and 109 gallery/fixture visual comparisons pass CI; 162 visual cases cover both demos in CI and local Chromium/WebKit, including explicit fallbacks; the visual job now blocks deployment; build-time UnoCSS token extraction shrinks the initial runtime to 875,439 bytes gzip; the 2 s phone timing target remains open |
 | 3 | Editor app (share, QR, HashBin, mobile) | DONE — workspace, links/CIDs, drafts, sharing/QR, registration-gated HashBin controls, ZIP, kit contracts, overview/touch and source diagnostics deployed and verified live in Chromium/WebKit; client registration remains an owner action |
 | 4 | Docs and gallery | DONE — Markdown docs, 15 example decks, kit gallery and opaque-rendered covers deployed; all three CI browsers, 109 visual comparisons and live Chromium/WebKit gallery/offline checks pass |
 | 5 | AI-assisted editing | TODO |
@@ -1917,3 +1917,25 @@ records the measured results. Publication/tag approvals remain outstanding.
   physical phone acceptance ran. HashBin registration remains an owner action.
   Phase 2 remains open for the 2 s phone target, and Phases 5–8 remain open.
   This final update changes documentation only.
+
+
+### Phase 2 build-time utility extraction (2026-11-19)
+
+- Builds now extract matched UnoCSS tokens from the pinned layouts, built-in
+  components, directives and theme sources. The browser combines those tokens
+  with the current slide and generates CSS using the deck's font settings.
+  Author compilation remains inside the opaque frame.
+- The initial runtime falls from 922,087 to 875,439 bytes gzip. Two new tests
+  compare complete CSS for upstream components, attributify, variants, shortcuts
+  and custom fonts. All 42 online units and static/vendor/gallery/offline checks
+  pass. Gallery images retain their bytes; fingerprints identify the new runtime.
+- Chromium and WebKit each pass all 162 visual cases at the unchanged tolerance.
+  Both pass runtime behavior, sandbox isolation, all five themes and fully
+  offline reload, including QR and gallery interaction. Root lint/typechecks pass.
+  Repository tests pass all 396 cases: 394 under the filesystem sandbox and the
+  two port-dependent HMR cases rerun with local-port access.
+- Five cold loads of the staged build measure a 2,675 ms median versus a
+  same-session 3,095 ms baseline, using the existing simulated phone profile
+  and local gzip delivery. These diagnostic builds precede the implementation
+  commit. Clean-release measurement and deployment acceptance follow the push.
+  The 2 s target remains open.

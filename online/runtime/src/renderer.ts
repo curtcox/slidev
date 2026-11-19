@@ -61,10 +61,10 @@ import { slides } from './virtual/slides'
 import TitleRenderer, { titleRenderer } from './virtual/title-renderer'
 
 const layouts = import.meta.glob('../../../packages/client/layouts/*.vue', { eager: true, import: 'default' }) as Record<string, Component>
-const layoutSources = import.meta.glob('../../../packages/client/layouts/*.vue', { eager: true, query: '?raw', import: 'default' })
-const builtinSources = import.meta.glob('../../../packages/client/builtin/*.vue', { eager: true, query: '?raw', import: 'default' })
-const dragControlSource = import.meta.glob('../../../packages/client/internals/DragControl.vue', { eager: true, query: '?raw', import: 'default' })
-const directiveSources = import.meta.glob('../../../packages/client/modules/v-{drag,mark,motion}.ts', { eager: true, query: '?raw', import: 'default' })
+const layoutTokens = import.meta.glob<string[]>('../../../packages/client/layouts/*.vue', { eager: true, query: '?raw&online-uno-tokens', import: 'default' })
+const builtinTokens = import.meta.glob<string[]>('../../../packages/client/builtin/*.vue', { eager: true, query: '?raw&online-uno-tokens', import: 'default' })
+const dragControlTokens = import.meta.glob<string[]>('../../../packages/client/internals/DragControl.vue', { eager: true, query: '?raw&online-uno-tokens', import: 'default' })
+const directiveTokens = import.meta.glob<string[]>('../../../packages/client/modules/v-{drag,mark,motion}.ts', { eager: true, query: '?raw&online-uno-tokens', import: 'default' })
 const components = {
   Arrow,
   AutoFitText,
@@ -97,6 +97,12 @@ const layoutByName = Object.fromEntries(Object.entries(layouts).map(([file, comp
   file.split('/').at(-1)!.slice(0, -4),
   component,
 ]))
+const bundledTokens = new Set([
+  ...Object.values(layoutTokens).flat(),
+  ...Object.values(directiveTokens).flat(),
+  ...Object.values(dragControlTokens).flat(),
+  ...Object.entries(builtinTokens).filter(([path]) => path.split('/').at(-1)!.slice(0, -4) in components).flatMap(([, tokens]) => tokens),
+])
 
 export interface RenderInput {
   src: string
@@ -352,7 +358,12 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
           : offset + offsetAt(style.content, line, column))
       }
     }
-    styles.push((await uno.generate(`${compiled.sfc}\n${JSON.stringify(source.frontmatter)}\n${Object.values(layoutSources).join('\n')}\n${Object.values(directiveSources).join('\n')}\n${Object.values(dragControlSource).join('\n')}\n${Object.entries(builtinSources).filter(([path]) => path.split('/').at(-1)!.slice(0, -4) in components).map(([, source]) => source).join('\n')}\n${compiler.theme.sources.join('\n')}`)).css)
+    const tokens = await uno.applyExtractors(`${compiled.sfc}\n${JSON.stringify(source.frontmatter)}`)
+    for (const token of bundledTokens)
+      tokens.add(token)
+    for (const token of compiler.theme.tokens)
+      tokens.add(token)
+    styles.push((await uno.generate(tokens)).css)
     const preparedFonts = await fonts
     if (generation !== version)
       return

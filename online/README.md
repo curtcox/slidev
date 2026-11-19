@@ -193,6 +193,13 @@ imports and fail if a new `#slidev/*` module lacks an implementation. Empty setu
 lists reflect the online format's lack of filesystem setup directories; Monaco
 remains a static-code fallback until Phase 7.
 
+Builds extract matched UnoCSS tokens from bundled layouts, built-in components,
+directives and theme sources. The sandbox combines those tokens with utilities
+extracted from the current slide and frontmatter. It generates the final CSS
+with the deck's font settings, without rescanning the fixed component source.
+CSS parity tests cover attributify, variants, shortcuts and custom font families;
+the visual gate checks the resulting slides against the CLI.
+
 Slide changes use the upstream CSS transitions and direction resolver. Deck and
 per-slide configuration support fade, fade-out, directional slides, paired names,
 object options and custom transitions from `style.css`. An explicit `none`

@@ -20,7 +20,7 @@ import baseCss from '../../../packages/client/styles/layouts-base.css?raw'
 // These packages are pinned and audited at build time. No deck can request an
 // npm download or add a new import to the trusted runtime graph.
 const layouts = import.meta.glob('../../../node_modules/@slidev/theme-{default,seriph,apple-basic,bricks,shibainu}/layouts/*.vue', { eager: true, import: 'default' }) as Record<string, Component>
-const sources = import.meta.glob('../../../node_modules/@slidev/theme-{default,seriph,apple-basic,bricks,shibainu}/{layouts,components,assets}/*.vue', { eager: true, query: '?raw', import: 'default' }) as Record<string, string>
+const tokens = import.meta.glob<string[]>('../../../node_modules/@slidev/theme-{default,seriph,apple-basic,bricks,shibainu}/{layouts,components,assets}/*.vue', { eager: true, query: '?raw&online-uno-tokens', import: 'default' })
 const components = import.meta.glob('../../../node_modules/@slidev/theme-bricks/components/*.vue', { eager: true, import: 'default' }) as Record<string, Component>
 
 function themeLayouts(name: string) {
@@ -80,7 +80,7 @@ export function resolveTheme(requested: unknown) {
           component,
         ]))
       : {},
-    sources: Object.entries(sources).filter(([file]) => file.includes(`/theme-${name}/`)).map(([, source]) => source),
+    tokens: Object.entries(tokens).filter(([file]) => file.includes(`/theme-${name}/`)).flatMap(([, tokens]) => tokens),
     warnings,
   }
 }

@@ -11,6 +11,7 @@ import { bundleIcons } from './icon-assets.ts'
 import { bundleMathStyles } from './math-assets.ts'
 import { auditThemes } from './theme-audit.ts'
 import { isolateThemeStyles } from './theme-styles.ts'
+import { bundleUtilityTokens } from './utility-tokens.ts'
 
 const local = (path: string) => fileURLToPath(new URL(path, import.meta.url))
 
@@ -29,6 +30,7 @@ export default defineConfig({
       },
     }),
     isolateThemeStyles(),
+    bundleUtilityTokens(),
     browserTransforms(),
     auditThemes(),
     bundleIcons(),
