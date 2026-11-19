@@ -41,6 +41,7 @@ async function main() {
   let downloads
   let renderedSource
   let cursorSlide
+  let initialPosition = false
   let hasDocument = false
   const reportError = (message) => {
     status.textContent = message
@@ -104,6 +105,7 @@ async function main() {
       renderedSource = doc.src
       inspect()
       editors.annotate('')
+      initialPosition = true
       preview.render({
         src: doc.src,
         css: doc.slidev.css,
@@ -179,10 +181,12 @@ async function main() {
     },
     onPosition(position) {
       const fromEditor = cursorSlide === position.slide
+      const fromRender = initialPosition
       cursorSlide = undefined
+      initialPosition = false
       slide = position.slide
       updateNavigation()
-      if (!fromEditor && editors.getSource() === renderedSource)
+      if (!fromEditor && !fromRender && editors.getSource() === renderedSource)
         editors.reveal(metadata[slide - 1]?.contentStart ?? 0)
       const url = new URL(location.href)
       if (slide > 1)
@@ -282,6 +286,7 @@ async function main() {
     urlState.cancel()
     preview.stop()
     total = 0
+    cursorSlide = undefined
     document.body.dataset.ready = 'false'
     drafts.opened()
     editors.setDocument(doc)
@@ -309,6 +314,7 @@ async function main() {
       inspect()
     }
     catch (error) { reportError(error.message) }
+    editors.reveal(metadata[slide - 1]?.contentStart ?? 0)
     updateNavigation()
     if (run) {
       render()

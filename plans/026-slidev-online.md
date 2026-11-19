@@ -1582,3 +1582,16 @@ records the measured results. Publication/tag approvals remain outstanding.
 - Phase 3 remains open for the full kit contract adapter/suite, ZIP download,
   overview/swipe controls and precise compiler error locations. Phase 2's demo
   screenshots and complete-runtime 2 s phone target also remain open.
+
+### Editor caret and local verification (2026-11-18)
+
+- Automatic preview replacement now preserves the typing caret. A new regression
+  inserts text through Ace, waits for the new heading and compares the caret.
+  Preview navigation still reveals the destination source. Explicit document
+  opening positions the editor at the requested slide.
+- Chromium and WebKit pass the final editor suite, including example-link
+  normalization, forged CID rejection and file imports that wait for Render.
+  Both engines also pass offline reload with the new Ace assets.
+- All 36 online units and 396 repository tests pass. The HMR tests require local
+  socket access. Root lint/typechecks, runtime typechecks, release staging and
+  static/vendor/offline checks pass. The release build records a clean checkout.
