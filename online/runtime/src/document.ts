@@ -3,6 +3,22 @@ import { parseSync } from '../../../packages/parser/src/core'
 
 const MAX_BYTES = 5 * 1024 * 1024
 
+/** AI validation is parse-only, including YAML on hidden slides. */
+export function validateDeckSource(src: string) {
+  if (typeof src !== 'string' || src.length > MAX_BYTES || new TextEncoder().encode(src).byteLength > MAX_BYTES)
+    throw new Error('The Markdown exceeds the 5 MiB limit')
+  const { slides } = parseSync(src, 'slides.md')
+  for (const slide of slides) {
+    if (slide.frontmatterDoc?.errors.length)
+      throw new Error(`Slide ${slide.index + 1}: ${slide.frontmatterDoc.errors[0].message}`)
+  }
+  if (!slides.some(slide => !slide.frontmatter.disabled && !slide.frontmatter.hide && slide.content.trim()))
+    throw new Error('The deck must contain at least one visible slide')
+  if (slides.length > 10000)
+    throw new Error('The deck exceeds the 10,000 slide limit')
+  return true
+}
+
 /** Parse-only metadata for editor navigation. Author code is never evaluated. */
 export function inspectDocument(src: string) {
   if (typeof src !== 'string' || src.length > MAX_BYTES || new TextEncoder().encode(src).byteLength > MAX_BYTES)

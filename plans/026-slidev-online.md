@@ -449,7 +449,7 @@ contract, plus a fully offline reload that renders the gallery.
 | 2 | Slidev runtime | DONE: five pinned themes, the browser compiler, opaque adapters, lazy assets, navigation and source writeback pass. CI verifies 187 exact SFC comparisons, 84 corpus slides and 162 visual cases. The initial runtime is 817,174 bytes gzip. Clean-release simulated-phone timing passes at 1.80 s median / 1.95 s maximum. Deployment and live Chromium/WebKit acceptance pass |
 | 3 | Editor app (share, QR, HashBin, mobile) | DONE — workspace, links/CIDs, drafts, sharing/QR, registration-gated HashBin controls, ZIP, kit contracts, overview/touch and source diagnostics deployed and verified live in Chromium/WebKit; client registration remains an owner action |
 | 4 | Docs and gallery | DONE — Markdown docs, 15 example decks, kit gallery and opaque-rendered covers deployed; all three CI browsers, 109 visual comparisons and live Chromium/WebKit gallery/offline checks pass |
-| 5 | AI-assisted editing | TODO |
+| 5 | AI-assisted editing | IN PROGRESS — parse-only proposal validation and fresh opaque compilation checks implemented; kit UI integration and deployment acceptance follow |
 | 6 | Offline / PWA | TODO |
 | 7 | Presenting and export | TODO |
 | 8 | Canonical origin | TODO |
@@ -2157,3 +2157,18 @@ records the measured results. Publication/tag approvals remain outstanding.
   Phases 5–8 and HashBin registration remain open.
 - README-only commit `dc712b93` records these budgets and the blocking visual gate.
   It changes no deployed application assets. Its workflow is running at this checkpoint.
+
+### Phase 5 proposal validation and isolation (2026-11-19)
+
+- Added parse-only validation for AI proposals. Empty or entirely hidden decks
+  and invalid YAML on any slide are rejected without running author code.
+- Each compilation check uses a fresh SDK opaque frame, compiles titles, every
+  visible slide and CSS, and destroys that frame on completion, cancellation
+  or timeout. Generated author modules are never imported or mounted by a check.
+- The document adapter restricts AI edits to Markdown and global CSS. Unknown
+  extension fields remain protected by the existing document normalizer.
+- UI integration, provider mocks, deployment and live acceptance remain open.
+- Runtime type checking, build, lint and all 46 online units pass. Local
+  Chromium and WebKit pass fresh-frame isolation, every-slide diagnostics,
+  CSS errors, cancellation and preservation of the live preview. Their good
+  fixture contains a throwing script that the compilation check never runs.

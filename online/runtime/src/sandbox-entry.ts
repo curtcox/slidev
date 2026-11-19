@@ -5,6 +5,7 @@ import { activeDragElement } from './shims/drag-state'
 import { installTouchNavigation } from './touch-navigation'
 
 export { createDeckCompiler } from './compiler'
+export { checkDeck } from './compiler/check'
 export { rewriteModuleImports } from './compiler/modules'
 export { parseCommand } from './protocol'
 
