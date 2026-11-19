@@ -447,7 +447,7 @@ contract, plus a fully offline reload that renders the gallery.
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
 | 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images, native/CSS transitions and lazy math deployed; 141 exact SFC matches + 14 fallbacks, 52-slide DOM gate and 77 gallery/fixture visual comparisons pass CI; full demo visual fidelity and the 2 s phone target remain open |
-| 3 | Editor app (share, QR, HashBin, mobile) | IN PROGRESS — Ace Markdown/CSS workspace, guarded link/CID loading, explicit draft recovery, sharing/QR and registration-gated HashBin controls implemented; complete kit contracts, ZIP download and preview polish pending |
+| 3 | Editor app (share, QR, HashBin, mobile) | IN PROGRESS — Ace Markdown/CSS workspace, guarded link/CID loading, explicit draft recovery, sharing/QR and registration-gated HashBin controls deployed; complete kit contracts, ZIP download and preview polish pending |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
 | 6 | Offline / PWA | TODO |
@@ -1595,3 +1595,19 @@ records the measured results. Publication/tag approvals remain outstanding.
 - All 36 online units and 396 repository tests pass. The HMR tests require local
   socket access. Root lint/typechecks, runtime typechecks, release staging and
   static/vendor/offline checks pass. The release build records a clean checkout.
+
+
+### Deployed editor acceptance (2026-11-18)
+
+- [The final editor deployment](https://github.com/curtcox/slidev/actions/runs/44449299336)
+  passed all jobs for `e32d9c36`. CI passed Chromium, Firefox and WebKit,
+  the visual fidelity report, units, independent kit verification and Pages.
+- The recovery site reported `e32d9c36` with `dirty:false`. Local Chromium
+  and WebKit against that production release passed the editor suite and
+  offline reload, including the cached seriph theme. Editor coverage includes
+  the typing caret, CSS/extensions, deferred rendering, preview navigation,
+  draft protection/recovery, CID/QR, forged CID rejection, file imports,
+  opaque isolation and compact layouts. The shortener response was mocked.
+- No live paid Publish round trip ran. The registered client ID remains an
+  owner action. Full kit contracts, ZIP download and preview polish remain
+  Phase 3 work. The demo screenshot gate and 2 s phone target remain open.
