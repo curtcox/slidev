@@ -27,6 +27,7 @@ for (const name of [
   'docs',
   'examples',
   vendor,
+  'vendor/ace-1.43.3',
 ])
   await fs.cp(path.join(root, name), path.join(output, name), { recursive: true })
 await fs.cp(path.join(root, 'runtime/dist'), path.join(output, 'runtime'), { recursive: true })

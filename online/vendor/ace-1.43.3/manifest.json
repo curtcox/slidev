@@ -1,0 +1,44 @@
+{
+  "package": "ace-builds",
+  "version": "1.43.3",
+  "license": "BSD-3-Clause",
+  "source": "https://registry.npmjs.org/ace-builds/-/ace-builds-1.43.3.tgz",
+  "integrity": "sha512-MCl9rALmXwIty/4Qboijo/yNysx1r6hBTzG+6n/TiOm5LFhZpEvEIcIITPFiEOEFDfgBOEmxu+a4f54LEFM6Sg==",
+  "files": [
+    {
+      "file": "LICENSE",
+      "bytes": 1490,
+      "sha256": "850f545c5254e8c08204edb2a6d50bbb72727c38a82982c17a84bebf6064cdf8"
+    },
+    {
+      "file": "ace.js",
+      "bytes": 473183,
+      "sha256": "d501268416cea35288e8dd07052907ff56340a00b2e26de86fc5595251e7e37c"
+    },
+    {
+      "file": "mode-markdown.js",
+      "bytes": 75342,
+      "sha256": "6b2e494332166dcce106d6399afb3db65f242b014956c1918bb9701feb8e8080"
+    },
+    {
+      "file": "mode-css.js",
+      "bytes": 20987,
+      "sha256": "cb6877f5c394feb9dc7647edb862b89634b0c3eaa1e26c97499c446035ae6d34"
+    },
+    {
+      "file": "mode-yaml.js",
+      "bytes": 6813,
+      "sha256": "24faa242ac5085656ff0b9fe283edc8d8565c2ad84f5a824b5868eb5a7ca5cb3"
+    },
+    {
+      "file": "theme-tomorrow.js",
+      "bytes": 3646,
+      "sha256": "b94fb0fabd0dfe330d616867654a14da98cef261e1d68dc4b018937b66a20d09"
+    },
+    {
+      "file": "theme-tomorrow_night.js",
+      "bytes": 3841,
+      "sha256": "757fb017f0ff7a6f2b47f30a3ff7bd6211529deceebf07909d4647ae1175a38a"
+    }
+  ]
+}
