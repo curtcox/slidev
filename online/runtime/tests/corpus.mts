@@ -36,8 +36,8 @@ const missingComponents: Record<string, Record<number, string[]>> = {
 
 const expectedErrors: Record<string, Record<number, string>> = {
   'demo/starter/slides.md': {
-    5: 'Error: File snippets (<<<) are not available online',
-    14: 'Error: Slide imports (src:) are not available online',
+    5: 'File snippets (<<<) are not available online',
+    14: 'Slide imports (src:) are not available online',
   },
 }
 
