@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — all five themes and HTTPS images deployed; 141 exact SFC matches + 14 corpus fallbacks, 52-slide corpus DOM gate and 76 visual cases pass CI; CSS transitions pass local Chromium/WebKit, CI/deployment pending; remaining features/full source-corpus visual fidelity/phone gates open |
+| 2 | Slidev runtime | IN PROGRESS — all five themes, HTTPS images and CSS transitions deployed; 141 exact SFC matches + 14 corpus fallbacks, 52-slide corpus DOM gate and 76 visual cases pass CI; live transitions/corpus/offline pass Chromium/WebKit; native view transitions, remaining features/full source-corpus visual fidelity/phone gates open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -1432,3 +1432,35 @@ records the measured results. Publication/tag approvals remain outstanding.
 - CI and deployment are being verified. Phase 2 remains open for native view
   transitions, other remaining client features, full source-corpus visual
   fidelity and phone performance. Phase 3 remains unimplemented.
+
+### Deployed CSS-transition acceptance (2026-11-18)
+
+- Implementation `07e1d9c1` and local acceptance `9d31511b` are pushed on
+  `main`. The [deployment run 44424966947](https://github.com/curtcox/slidev/actions/runs/44424966947)
+  passes every job, including online units, independent publication checks,
+  Chromium/Firefox/WebKit, visual comparisons and Pages deployment. Actual
+  Firefox logs confirm the transition suite, **141 exact SFC comparisons**,
+  **14 corpus fallbacks** and all **52 visible corpus cases** ran.
+- Downloaded CI visual evidence passes all **76 cases**, with **72 exact
+  matches**, four within tolerance and no errors. Its runtime SHA-256 matches
+  both local visual reports and both live corpus reports:
+  `fe0961350615c8e70c4f103981b05c0d5b3f0f0ce7ac79c3a18aeeb2690c612e`.
+  CI measures initial JS/CSS at **1,070,804 bytes gzip**. Local compression
+  measures **1,071,342 bytes** for the same source bytes.
+- The live [recovery site](https://curtcox.github.io/slidev/) reports
+  `07e1d9c1` with `dirty:false`. Actual live Chromium 156.0.8078.4 and WebKit
+  27.2 pass the complete transition suite. Both also pass all **52 visible
+  corpus cases**, decode all **18** mocked image elements and pass the
+  welcome/isolation/offline-reload suite. Transition checks include actual CSS
+  effects, backward navigation, overrides, click-state preservation, style
+  cleanup, rapid reversals, frame replacement and the native-transition notice.
+- [Repository CI](https://github.com/curtcox/slidev/actions/runs/44424965146)
+  passes typecheck, Cypress and Linux/Windows/macOS tests. Existing local
+  runtime, icon, grammar, font, theme, math, Mermaid, PlantUML, drag and offline
+  suites pass Chromium and WebKit. The separate Continuous Releases workflow
+  still fails because `pkg-pr-new` lacks access to this fork. It remains outside
+  this online deployment gate.
+- Phase 2 remains open for native view transitions, remaining client features,
+  full source-corpus visual fidelity and complete-runtime phone timing.
+  Phase 3 remains unimplemented. This acceptance commit changes only the plan
+  and its index.
