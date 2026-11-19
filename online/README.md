@@ -1,9 +1,26 @@
-# Slidev Online scaffold
+# Slidev Online
 
-The welcome deck is compiled in the browser and mounted using the real Slidev
-client inside the published SDK's opaque DOM frame. Phase 2 adds the rendering
-bridge, bundled module registry, click navigation, scoped styles and UnoCSS.
-The shell does not expose editing or sharing yet.
+Write `slides.md` and `style.css` in the browser with the pinned Ace editors.
+The preview uses the real Slidev client in an isolated frame with no access
+to the editor page. Changes update the preview after a 500 ms pause.
+
+Share links preserve Markdown, CSS, extension fields and the current slide.
+The Share dialog can shorten links through is.gd using the kit's AllOrigins proxy.
+QR codes use a saved CID when it still matches the editor. A CID is a
+content identifier that the kit verifies against the saved bytes.
+HashBin saving displays the registration message until the owner supplies a client ID.
+
+Links take priority over browser drafts. Failed links keep the current work.
+Use **More → Resume saved work** to recover a draft. Recovered drafts and file
+imports wait for Render. A `?run=0` link also waits for Render, even after edits.
+The Open dialog accepts Markdown, CSS, saved JSON documents and Slidev Online links.
+Download offers the two files separately or one JSON document that preserves both.
+ZIP download and the complete kit contract suite remain open.
+
+Phones and short windows use Slides, Markdown and CSS tabs. Desktop also has a
+Split view with a divider that supports dragging and keyboard arrows.
+Preview navigation follows the editor cursor. Slide navigation reveals its source.
+Speaker notes appear as text. Present requests fullscreen from a click.
 
 The shell uses native modules. Only `runtime/` is built with Vite. Vendored kit
 bytes are immutable; use its vendor-sync tool to upgrade an exact release.
@@ -22,6 +39,7 @@ npm test
 npm run check
 npm run serve
 node tests/browser/all.cjs http://127.0.0.1:8000/ chromium
+node tests/browser/editor.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/runtime.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/transitions.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/icons.cjs http://127.0.0.1:8000/ chromium
@@ -211,8 +229,8 @@ rebuilds edits against the original render snapshot. This preserves repeated
 inline element offsets, notes, scripts, frontmatter comments and CRLF/BOM.
 Named positions update YAML, including empty, missing and fenced blocks.
 Manual Markdown changes require Render before further writeback. A render can
-retain up to 1,024 changed elements. The current welcome shell still does not
-expose the Phase 3 editor; browser tests use a textarea host to verify this API.
+retain up to 1,024 changed elements. The editor uses these callbacks to update Markdown after a drag without rerunning
+author code. Separate browser tests also exercise the bridge with a textarea host.
 
 The local Vite drag adapter checks its upstream transformation anchors at build
 time. Builds also reject client storage-state modules without an opaque-origin

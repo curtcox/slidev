@@ -4,19 +4,42 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <meta name="referrer" content="no-referrer">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' blob: 'sha256-MHba4tiwcOxYIRSdlDypRezjguFpToZsa3QmTEaBzAI='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; connect-src 'self'; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; frame-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' blob: 'sha256-MHba4tiwcOxYIRSdlDypRezjguFpToZsa3QmTEaBzAI='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; connect-src 'self' https://256t.us https://hashbin.org https://api.allorigins.win; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; frame-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
   <meta name="slidev-release" content="slidev-fragment-kit-v0.4.4">
   <title>Slidev Online</title>
   <link rel="stylesheet" href="vendor/fragment-kit-v0.4.4/src/ui/kit.css">
   <link rel="stylesheet" href="style.css">
+  <script src="vendor/ace-1.43.3/ace.js"></script>
   <script type="module" src="src/app.js"></script>
 </head>
 <body>
-  <main>
-    <h1 class="page-title">Your ideas, on slides.</h1>
-    <p>This early preview shows a welcome deck. Slide editing and sharing are coming next.</p>
-    <p id="preview-status" role="status" aria-live="polite">Loading the welcome deck…</p>
-    <div id="preview" aria-label="Welcome deck"></div>
+  <main class="editor-app">
+    <div class="workspace-heading">
+      <h1>Your ideas, on slides.</h1>
+      <p id="preview-status" role="status" aria-live="polite" data-fk-primary-status>Opening document…</p>
+    </div>
+    <div id="workspace-tabs"></div>
+    <div id="workspace" class="workspace">
+      <section id="slides-panel" class="slides-panel" aria-label="Slides">
+        <div class="preview-toolbar" role="toolbar" aria-label="Preview navigation">
+          <button id="previous-slide" type="button" aria-label="Previous slide" disabled>←</button>
+          <span id="slide-position" aria-live="polite">No preview</span>
+          <button id="next-slide" type="button" aria-label="Next slide" disabled>→</button>
+          <button id="dark-mode" type="button" aria-pressed="false">Dark slides</button>
+        </div>
+        <div id="preview" aria-label="Slide preview"></div>
+        <details id="notes" hidden><summary>Speaker notes</summary><pre id="slide-notes"></pre></details>
+      </section>
+      <div id="divider" role="separator" tabindex="0" aria-label="Resize slide preview" aria-orientation="vertical" aria-valuemin="25" aria-valuemax="75" aria-valuenow="55"></div>
+      <section id="markdown-panel" class="source-panel" aria-label="Markdown editor">
+        <h2>slides.md</h2>
+        <div id="markdown-editor" class="editor"></div>
+      </section>
+      <section id="css-panel" class="source-panel" aria-label="CSS editor">
+        <h2>style.css</h2>
+        <div id="css-editor" class="editor"></div>
+      </section>
+    </div>
   </main>
 </body>
 </html>

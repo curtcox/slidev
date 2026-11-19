@@ -447,7 +447,7 @@ contract, plus a fully offline reload that renders the gallery.
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
 | 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images, native/CSS transitions and lazy math deployed; 141 exact SFC matches + 14 fallbacks, 52-slide DOM gate and 77 gallery/fixture visual comparisons pass CI; full demo visual fidelity and the 2 s phone target remain open |
-| 3 | Editor app (share, QR, HashBin, mobile) | IN PROGRESS — document adapter and URL round-trip tests implemented; editor and app link handling pending |
+| 3 | Editor app (share, QR, HashBin, mobile) | IN PROGRESS — Ace Markdown/CSS workspace, guarded link/CID loading, explicit draft recovery, sharing/QR and registration-gated HashBin controls implemented; complete kit contracts, ZIP download and preview polish pending |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
 | 6 | Offline / PWA | TODO |
@@ -1555,3 +1555,30 @@ records the measured results. Publication/tag approvals remain outstanding.
   lint, typechecks and the static/vendor/offline checks. The drag regression
   now waits for the final coordinates after a multi-step pointer move.
   Chromium and WebKit both pass the updated test.
+
+
+### Phase 3 editor workspace (2026-11-18)
+
+- Pinned Ace 1.43.3 ships with unchanged BSD-3-Clause license and audited module
+  hashes. Separate Markdown and CSS sessions keep independent undo histories.
+  Slidev's parse-only bundle supplies visible slide boundaries and text notes.
+  Hidden and disabled slides follow the runtime's numbering.
+- The workspace adds mobile tabs, desktop Split view, a pointer/keyboard divider,
+  slide navigation, dark slides and a fullscreen action. Cursor navigation keeps
+  the selected editor position. Preview navigation reveals the slide source.
+- Guarded link loading supports compact/envelope links, welcome examples, verified
+  CIDs and the kit's Publish callback. Invalid and late loads cannot replace work.
+  Reads enforce byte and time limits. Explicit links never restore browser drafts.
+  Recovered drafts, file imports and `?run=0` links wait for Render.
+- Share uses the kit dialog and is.gd proxy. QR uses a matching saved CID or the
+  full document. HashBin controls use the kit store and registration message.
+  No client ID or live paid Publish round trip is claimed. Downloads currently
+  offer Markdown, CSS and a combined JSON document.
+- Local Chromium and WebKit passed editor, CSS/extension preservation, Run-on-open,
+  cursor/preview navigation, sharing with a mocked shortener, draft recovery,
+  inline CID/QR, isolation and compact layouts. Local Firefox could not create
+  its profile and exited before app code. The new browser check is wired into
+  the existing CI engine matrix. A product deployment is not yet claimed.
+- Phase 3 remains open for the full kit contract adapter/suite, ZIP download,
+  overview/swipe controls and precise compiler error locations. Phase 2's demo
+  screenshots and complete-runtime 2 s phone target also remain open.

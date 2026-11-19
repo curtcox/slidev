@@ -27,3 +27,9 @@ it('bounds metadata input before parsing it', () => {
   assert.throws(() => inspectDocument('x'.repeat(5 * 1024 * 1024 + 1)), /5 MiB/)
   assert.throws(() => inspectDocument('🌍'.repeat(1400000)), /5 MiB/)
 })
+
+it('editor numbering excludes hidden and disabled slides like the runtime', () => {
+  const slides = inspectDocument('# Visible\n\n---\nhide: true\n---\n# Hidden\n\n---\ndisabled: true\n---\n# Disabled\n\n---\n\n# Last\n')
+  assert.deepEqual(slides.map(slide => slide.title), ['Visible', 'Last'])
+  assert.equal(slides[1].start, 13)
+})

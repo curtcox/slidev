@@ -7,7 +7,7 @@ const MAX_BYTES = 5 * 1024 * 1024
 export function inspectDocument(src: string) {
   if (typeof src !== 'string' || src.length > MAX_BYTES || new TextEncoder().encode(src).byteLength > MAX_BYTES)
     throw new Error('The Markdown exceeds the 5 MiB limit')
-  return parseSync(src, 'slides.md').slides.map(slide => ({
+  return parseSync(src, 'slides.md').slides.filter(slide => !slide.frontmatter.disabled && !slide.frontmatter.hide).map(slide => ({
     start: slide.start,
     end: slide.end,
     contentStart: slide.contentStart,
