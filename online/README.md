@@ -71,7 +71,7 @@ until a later phase registers and deploys the canonical origin.
 
 The Phase 2 compiler reuses Slidev's Markdown plugin chain and pure layout
 wrapper inside the opaque frame. Characterization includes the real starter,
-composable-vue and all online example decks: 141 slide/title SFCs match CLI transforms exactly in both Chromium and WebKit,
+composable-vue and all online example decks: 187 slide/title SFCs match CLI transforms exactly in both Chromium and WebKit,
 including forty grammar probes, and 14 corpus cases assert documented errors or fallbacks
 for file imports, Monaco, PlantUML and unavailable grammars. These fallback
 cases are not exact-match claims. Reports go to
@@ -84,7 +84,7 @@ The corpus gate mounts every visible slide from the unchanged starter,
 composable-vue and online example sources through the staged preview bridge.
 It checks initial, final and restored click states, decoded HTTPS images,
 highlighting, lazy diagrams, equations and visible fallbacks. The current corpus
-has 52 visible slides. Fifty mount, and two report the expected file-import
+has 84 visible slides. Eighty-two mount, and two report the expected file-import
 errors. The gate checks recovery after each error. Three hidden slides stay
 excluded. Demo-only components, unbundled icons and the unavailable Tweet widget
 have explicit notice expectations. External images receive mock SVG bytes.

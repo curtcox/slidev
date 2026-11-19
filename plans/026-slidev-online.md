@@ -446,9 +446,9 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images, native/CSS transitions and lazy math deployed; 141 exact SFC matches + 14 fallbacks, 52-slide DOM gate and 77 gallery/fixture visual comparisons pass CI; full demo visual fidelity and the 2 s phone target remain open |
+| 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images, native/CSS transitions and lazy math deployed; 187 exact SFC matches + 14 fallbacks, 84-slide DOM gate and 109 gallery/fixture visual comparisons pass CI; full demo visual fidelity and the 2 s phone target remain open |
 | 3 | Editor app (share, QR, HashBin, mobile) | DONE — workspace, links/CIDs, drafts, sharing/QR, registration-gated HashBin controls, ZIP, kit contracts, overview/touch and source diagnostics deployed and verified live in Chromium/WebKit; client registration remains an owner action |
-| 4 | Docs and gallery | IN PROGRESS — generated docs, 15 example decks, kit gallery and opaque-rendered covers implemented; local browser/offline checks pass; final visual and deployment acceptance pending |
+| 4 | Docs and gallery | DONE — Markdown docs, 15 example decks, kit gallery and opaque-rendered covers deployed; all three CI browsers, 109 visual comparisons and live Chromium/WebKit gallery/offline checks pass |
 | 5 | AI-assisted editing | TODO |
 | 6 | Offline / PWA | TODO |
 | 7 | Presenting and export | TODO |
@@ -1757,3 +1757,40 @@ records the measured results. Publication/tag approvals remain outstanding.
   offline checks pass. The visual harness now waits for gallery Mermaid output
   and JavaScript motion before capture. Final visual and deployment acceptance
   follow the push. Phase 2's demo screenshot and 2 s phone targets remain open.
+
+
+### Deployed Phase 4 docs and gallery acceptance (2026-11-18)
+
+- Implementation commits `de82c18a`, `05787ac9`, `775c92c8` and `e0e50c5f`
+  are pushed on `main`. [The final deployment workflow](https://github.com/curtcox/slidev/actions/runs/44459364836)
+  passed every job: units, independent kit verification, Chromium, Firefox,
+  WebKit, the visual report and Pages. Repository CI and the production smoke
+  workflow also passed. The separately documented Continuous Releases failure
+  remains outside this deployment gate.
+- The recovery site reported `e0e50c5f` with `dirty:false`. Its runtime,
+  generated catalog and cover fingerprints match the staged bytes. Runtime
+  SHA-256 is `3fe0733fbe2fab34366665422a11e9a7b2467c3a727740c893449cae585ad09d`,
+  matching CI and both local visual reports.
+- Local visual comparisons passed all 109 cases in each engine: 106 exact in
+  Chromium and 109 exact in WebKit. The downloaded final CI artifact also
+  passed all 109 cases, with 106 exact matches and no errors. Every report's
+  example source hashes match the committed Markdown. The harness waits for
+  Mermaid output and completed JavaScript motion in both renderers.
+- Final local Chromium/WebKit compiler reports retain 187 exact SFC matches,
+  all forty grammars and 14 corpus fallbacks. Their corpus reports pass all
+  84 visible slides and match the final source hashes. Actual CI Firefox logs
+  confirm these same compiler/corpus counts, its 35 applicable contracts, the
+  gallery suite and fully offline gallery interaction. Local contracts pass
+  all 70 applicable checks across Chromium/WebKit, with four demo-only skips.
+- Live Chromium and WebKit pass gallery covers, search/tag filters, links on
+  the recovery subpath, isolated script interaction, deferred rendering,
+  documentation links and the 360 px layout. Both also pass fully offline
+  reload, seriph rendering, cached gallery covers and gallery interaction.
+  Covers load lazily, so acceptance scrolls each into view and waits for its
+  dimensions before decoding. This fixes the Firefox acceptance failure without
+  weakening its image checks.
+- All 40 online units, root lint/typecheck, static/vendor/offline checks and
+  clean release staging pass. Phase 4 is complete. HashBin client registration
+  remains an owner action. Phase 2's full demo screenshot and 2 s phone targets
+  remain open, as do Phases 5–8. No live paid Publish or physical phone test is
+  claimed. This final update changes documentation only.
