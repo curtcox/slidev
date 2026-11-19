@@ -446,7 +446,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images, native/CSS transitions and lazy math deployed; 187 exact SFC matches + 14 fallbacks, 84-slide DOM gate and 109 gallery/fixture visual comparisons pass CI; 162 visual cases cover both demos in CI and local Chromium/WebKit, including explicit fallbacks; the visual job now blocks deployment; build-time UnoCSS token extraction shrinks the initial runtime to 875,439 bytes gzip; the 2 s phone timing target remains open |
+| 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images, native/CSS transitions and lazy math deployed; 187 exact SFC matches + 14 fallbacks, 84-slide DOM gate and 109 gallery/fixture visual comparisons pass CI; 162 visual cases cover both demos in CI and local Chromium/WebKit, including explicit fallbacks; the visual job now blocks deployment; build-time utility tokens and earlier runtime delivery are deployed; the initial runtime is 875,439 bytes gzip; clean-build phone timing measures 2.13 s median / 2.42 s maximum, above the 2 s target |
 | 3 | Editor app (share, QR, HashBin, mobile) | DONE — workspace, links/CIDs, drafts, sharing/QR, registration-gated HashBin controls, ZIP, kit contracts, overview/touch and source diagnostics deployed and verified live in Chromium/WebKit; client registration remains an owner action |
 | 4 | Docs and gallery | DONE — Markdown docs, 15 example decks, kit gallery and opaque-rendered covers deployed; all three CI browsers, 109 visual comparisons and live Chromium/WebKit gallery/offline checks pass |
 | 5 | AI-assisted editing | TODO |
@@ -1965,3 +1965,36 @@ records the measured results. Publication/tag approvals remain outstanding.
   the clean-build run above. This second measurement precedes its implementation
   commit. Clean-release measurement and deployed acceptance follow the push.
   The maximum remains above 2 s, so Phase 2 stays open.
+
+
+### Deployed utility extraction and early delivery acceptance (2026-11-19)
+
+- Implementation commits `9e986660` and `f5cadcd1` are pushed on `main`.
+  [The final deployment workflow](https://github.com/curtcox/slidev/actions/runs/44548096926)
+  passes every job: Chromium, Firefox, WebKit, units, independent vendor
+  verification, blocking visual fidelity and Pages. Repository tests and autofix
+  also pass. The separate
+  [Continuous Releases workflow](https://github.com/curtcox/slidev/actions/runs/44548096498)
+  still reports that `pkg-pr-new` is not installed on or lacks access to this fork.
+- The downloaded final visual artifact passes all 162 cases: 131 supported
+  comparisons meet the unchanged tolerance, including 127 pixel-exact matches;
+  29 documented fallback comparisons remain diagnostic, and two file imports
+  fail with their expected messages. Every source hash and the runtime hash
+  match the local reports. The actual Firefox log confirms 39 applicable
+  contracts, 187 exact SFC comparisons, all forty grammars and 84 corpus slides.
+- The recovery site serves `f5cadcd1` with `dirty:false`. Its HTML, preview
+  bridge, early-download module, runtime JavaScript/CSS and gallery fingerprints
+  match the clean staged bytes. The runtime SHA-256 remains
+  `9626b43048d0fcdb67b8b2c5288d91e42b7a6b4687df6f0ff750bc53d459ebc0`.
+- Live Chromium and WebKit pass all 78 applicable contracts, with four demo-only
+  skips across both engines. Both pass the editor suite with real ZIP downloads
+  and fully offline reload, including first-use QR, seriph and gallery
+  interaction. Publish, camera frames and shortening retain mocked providers.
+- Five cold Chromium loads of the clean final committed build measure
+  2,057–2,419 ms, with a 2,125 ms median. The profile remains 390 × 844, DPR 2,
+  4× CPU slowdown, 40 ms latency and 1.5 MB/s downloads, using local gzip delivery.
+  The initial runtime is 875,439 bytes gzip. These simulated development-host
+  measurements meet the payload budget but exceed the 2 s timing target.
+- Phase 2 remains open for startup timing. Phases 5–8 and HashBin client
+  registration remain open. No physical-phone or paid Publish acceptance ran.
+  This final update changes plan documentation only.
