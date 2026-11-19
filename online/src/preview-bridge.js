@@ -1,6 +1,7 @@
 import { applyDragPatches, dragPatchKey, parseDragPatch } from '../runtime/editor/document.js'
 import { createSandbox } from '../vendor/fragment-kit-v0.4.4/vendor/hashbin-sdk-v0.6.0.mjs'
 import { slidevDocument } from './document-type.js'
+import { readErrorLocation } from './error-location.js'
 
 /** A document replacement always destroys the previous author's execution world. */
 export function createPreviewBridge({ container, onStatus, onPosition = () => {}, onError = () => {}, onSourceChange = () => {}, getSource, onDragError = onError }) {
@@ -43,12 +44,15 @@ export function createPreviewBridge({ container, onStatus, onPosition = () => {}
       `,
     })
     sandbox.frame.title = 'Slide preview'
-    const fail = (message) => {
+    const fail = (message, detail) => {
       if (current !== revision)
         return
       stop()
       onStatus('error')
-      onError(String(message).slice(0, 2000))
+      const location = readErrorLocation(detail, baseline, css)
+      onError(String(message).slice(0, 2000), location?.file === 'slides.md' && updatedSource !== baseline
+        ? undefined
+        : location)
     }
     timer = setTimeout(fail, 30000, 'The deck took too long to render. Press Render to try again.')
     sandbox.onerror = event => fail(event.message)
@@ -97,7 +101,7 @@ export function createPreviewBridge({ container, onStatus, onPosition = () => {}
         catch (error) { onDragError(String(error).slice(0, 500)) }
       }
       else if (data.type === 'error' && typeof data.message === 'string') {
-        fail(data.message)
+        fail(data.message, data)
       }
     }
   }

@@ -9,6 +9,7 @@ import { wrapSlideLayout } from '../../../../packages/slidev/node/vite/layoutWra
 import { createMarkdownPlugin } from '../../../../packages/slidev/node/vite/markdown'
 import { prepareKatex } from '../shims/katex'
 import { resolveTheme } from '../themes'
+import { compilerOffset, createSourceLocations, locatedError, positionAt, slideError } from './diagnostics'
 import { loadLanguage } from './languages'
 
 const MAX_BYTES = 5 * 1024 * 1024
@@ -19,7 +20,7 @@ export interface CompiledSlide {
   sfc: string
   code: string
   scopeId: string
-  styles: { content: string, scoped: boolean }[]
+  styles: { content: string, scoped: boolean, offset?: number }[]
   warnings: string[]
 }
 
@@ -28,19 +29,31 @@ async function digest(text: string) {
   return Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)), b => b.toString(16).padStart(2, '0')).join('')
 }
 
-function compileSfc(sfc: string, id: string, warnings: string[]): CompiledSlide {
+function compileSfc(sfc: string, id: string, warnings: string[], locations?: ReturnType<typeof createSourceLocations>): CompiledSlide {
   const { descriptor, errors } = parseSfc(sfc, { filename: `${id}.vue` })
-  if (errors.length)
-    throw errors[0]
-  const compiled = compileScript(descriptor, {
-    id,
-    inlineTemplate: true,
-    // Vue's large-static-tree stringifier evaluates constant expressions with
-    // Function(). Keep template generation compatible with the SDK frame CSP.
-    templateOptions: {
-      compilerOptions: { hoistStatic: false },
-    },
-  })
+  let compiled
+  try {
+    if (errors.length)
+      throw errors[0]
+    compiled = compileScript(descriptor, {
+      id,
+      inlineTemplate: true,
+      // Vue's large-static-tree stringifier evaluates constant expressions with
+      // Function(). Keep template generation compatible with the SDK frame CSP.
+      templateOptions: {
+        compilerOptions: { hoistStatic: false },
+      },
+    })
+  }
+  catch (error) {
+    const generated = compilerOffset(error, sfc, descriptor.scriptSetup?.loc.start.offset)
+    const offset = generated == null
+      ? undefined
+      : locations?.offset(sfc, generated)
+    throw Object.assign(error instanceof Error
+      ? error
+      : new Error(String(error)), { sourceOffset: offset })
+  }
   const code = transform(compiled.content, {
     transforms: ['typescript'],
     disableESTransforms: true,
@@ -51,7 +64,11 @@ function compileSfc(sfc: string, id: string, warnings: string[]): CompiledSlide 
     sfc,
     code,
     scopeId: `data-v-${id}`,
-    styles: descriptor.styles.map(style => ({ content: style.content, scoped: style.scoped ?? false })),
+    styles: descriptor.styles.map(style => ({
+      content: style.content,
+      scoped: style.scoped ?? false,
+      offset: locations?.offset(sfc, style.loc.start.offset),
+    })),
     warnings: [
       ...new Set(warnings),
     ],
@@ -62,13 +79,22 @@ export async function createDeckCompiler(src: string, { plantUmlAllowed = false,
   if (typeof src !== 'string' || new TextEncoder().encode(src).byteLength > MAX_BYTES)
     throw new Error('The deck exceeds the 5 MiB limit')
   const parsed = parseSync(src, 'slides.md')
+  // Parsing ignores a leading BOM; diagnostics still address the editor's bytes.
+  if (src.startsWith('\uFEFF') && parsed.slides[0])
+    parsed.slides[0].raw = `\uFEFF${parsed.slides[0].raw}`
   if (!parsed.slides.length || parsed.slides.every(slide => !slide.content.trim()))
     throw new Error('The deck must contain at least one slide')
   if (parsed.slides.length > 10000)
     throw new Error('The deck exceeds the 10,000 slide limit')
   for (const slide of parsed.slides) {
-    if (slide.frontmatterDoc?.errors.length)
-      throw new Error(`Slide ${slide.index + 1}: ${slide.frontmatterDoc.errors[0].message}`)
+    if (slide.frontmatterDoc?.errors.length) {
+      const error = slide.frontmatterDoc.errors[0]
+      const start = slide.raw.indexOf(slide.frontmatterRaw!, slide.frontmatterStyle === 'yaml'
+        ? slide.raw.indexOf('```') + 3
+        : 3)
+      const position = positionAt(slide.raw, Math.max(0, start) + error.pos[0])
+      throw locatedError(new Error(`Slide ${slide.index + 1}: ${error.message}`), { file: 'slides.md', line: slide.start + position.line, column: position.column })
+    }
   }
   const slides = parsed.slides.filter(source => !source.frontmatter.disabled && !source.frontmatter.hide)
     .map((source, index) => ({
@@ -129,8 +155,9 @@ export async function createDeckCompiler(src: string, { plantUmlAllowed = false,
       katexOptions: { throwOnError: false, strict: false },
     },
   } as unknown as ResolvedSlidevOptions
+  const locations = createSourceLocations()
   const markdown = await createMarkdownPlugin(options, {
-    markdown: { vueVersion },
+    markdown: { vueVersion, markdownSetup: locations.setup },
   } as any)
   const hook = typeof markdown.transform === 'function'
     ? markdown.transform
@@ -153,10 +180,37 @@ export async function createDeckCompiler(src: string, { plantUmlAllowed = false,
         const source = await templateTitleRendererMd.getContent.call({} as any, options)
         if (hasMath && slides.some(slide => slide.title?.includes('$')))
           await prepareKatex()
-        const result = await (hook as any).call({
-          error(error: unknown) { throw error },
-        }, source, '/@slidev/title-renderer.md')
-        return compileSfc(result.code, `online-titles-${(await digest(source)).slice(0, 16)}`, currentWarnings)
+        locations.reset()
+        try {
+          const result = await (hook as any).call({
+            error(error: unknown) { throw error },
+          }, source, '/@slidev/title-renderer.md')
+          return compileSfc(result.code, `online-titles-${(await digest(source)).slice(0, 16)}`, currentWarnings, locations)
+        }
+        catch (error) {
+          const offset = (error as any)?.sourceOffset
+          if (offset != null) {
+            const before = source.slice(0, offset)
+            const no = Number([
+              ...before.matchAll(/<template v-(?:else-)?if="no === (\d+)">/g),
+            ].at(-1)?.[1])
+            const slide = slides[no - 1]
+            if (slide && slide.title) {
+              const titleStart = source.indexOf('\n\n', before.lastIndexOf('<template')) + 2
+              const original = slide.source.raw.indexOf(String(slide.title))
+              if (original >= 0) {
+                const position = positionAt(slide.source.raw, original + offset - titleStart)
+                throw locatedError(error, {
+                  file: 'slides.md',
+                  slide: no,
+                  line: slide.source.start + position.line,
+                  column: position.column,
+                })
+              }
+            }
+          }
+          throw error
+        }
       })
       queue = pending.then(() => {}, () => {})
       return pending
@@ -167,7 +221,7 @@ export async function createDeckCompiler(src: string, { plantUmlAllowed = false,
         if (!slide)
           throw new Error(`Missing slide ${index + 1}`)
         if (slide.frontmatter.src)
-          throw new Error('Slide imports (src:) are not available online')
+          throw slideError(new Error('Slide imports (src:) are not available online'), slide.source, index + 1)
         const key = await digest(JSON.stringify([
           configKey,
           index,
@@ -187,11 +241,18 @@ export async function createDeckCompiler(src: string, { plantUmlAllowed = false,
         if (hasMath && slide.content.includes('$'))
           await prepareKatex()
         const id = `online-${key.slice(0, 16)}`
-        const result = await (hook as any).call({
-          error(error: unknown) { throw error },
-        }, slide.content, `slides.md__slidev_${index + 1}.md`)
-        const sfc = wrapSlideLayout(result.code, index, layoutImport)
-        const output = compileSfc(sfc, id, currentWarnings)
+        locations.reset()
+        let output: CompiledSlide
+        try {
+          const result = await (hook as any).call({
+            error(error: unknown) { throw error },
+          }, slide.content, `slides.md__slidev_${index + 1}.md`)
+          const sfc = wrapSlideLayout(result.code, index, layoutImport)
+          output = compileSfc(sfc, id, currentWarnings, locations)
+        }
+        catch (error) {
+          throw slideError(error, slide.source, index + 1, (error as any)?.sourceOffset ?? 0)
+        }
         // A newer render may have compiled the same key while this one awaited
         // Markdown/Shiki. Reuse its entry without counting the bytes twice.
         const completed = compiledCache.get(key)

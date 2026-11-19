@@ -42,6 +42,7 @@ import { createVMarkDirective } from '../../../packages/client/modules/v-mark'
 import { createVMotionDirectives } from '../../../packages/client/modules/v-motion'
 import unoConfig from '../../../packages/client/uno.config'
 import { createDeckCompiler } from './compiler'
+import { locatedError, offsetAt, slideError } from './compiler/diagnostics'
 import { rewriteModuleImports } from './compiler/modules'
 import { configureDragUpdates, flushDragUpdates } from './drag'
 import { loadFonts } from './fonts'
@@ -241,6 +242,20 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
   }
 
   async function goto(slide: number, click = 0) {
+    try {
+      return await renderSlide(slide, click)
+    }
+    catch (error) {
+      if ((error as any)?.file)
+        throw error
+      const index = Math.max(0, Math.min((compiler?.slides.length ?? 1) - 1, slide - 1))
+      if (compiler)
+        throw slideError(error, compiler.slides[index].source, index + 1)
+      throw error
+    }
+  }
+
+  async function renderSlide(slide: number, click = 0) {
     if (!compiler)
       return
     flushDragUpdates()
@@ -312,16 +327,36 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
       ...compiled.styles,
     ]) {
       const text = new MagicString(style.content)
-      await apply.transform(text, 'slide.css', { uno } as any)
-      const result = compileStyle({
-        source: text.toString(),
-        id: compiled.scopeId,
-        scoped: style.scoped,
-        filename: `slide-${index + 1}.css`,
-      })
-      if (result.errors.length)
-        throw result.errors[0]
-      styles.push(result.code)
+      try {
+        await apply.transform(text, 'slide.css', { uno } as any)
+        const result = compileStyle({
+          source: text.toString(),
+          id: compiled.scopeId,
+          scoped: style.scoped,
+          filename: `slide-${index + 1}.css`,
+        })
+        if (result.errors.length)
+          throw result.errors[0]
+        styles.push(result.code)
+      }
+      catch (error: any) {
+        const offset = 'offset' in style
+          ? style.offset as number | undefined
+          : undefined
+        let line = error.line ?? 1
+        let column = error.column ?? 1
+        if (offset != null && text.hasChanged()) {
+          const segments = text.generateDecodedMap({ hires: true }).mappings[line - 1] ?? []
+          const segment = segments.findLast(part => part.length === 4 && part[0] <= column - 1)
+          if (segment) {
+            line = segment[2]! + 1
+            column = segment[3]! + 1
+          }
+        }
+        throw slideError(error, source.source, index + 1, offset == null
+          ? 0
+          : offset + offsetAt(style.content, line, column))
+      }
     }
     styles.push((await uno.generate(`${compiled.sfc}\n${JSON.stringify(source.frontmatter)}\n${Object.values(layoutSources).join('\n')}\n${Object.values(directiveSources).join('\n')}\n${Object.values(dragControlSource).join('\n')}\n${Object.values(dragComponentSources).join('\n')}\n${compiler.theme.sources.join('\n')}`)).css)
     const preparedFonts = await fonts
@@ -463,11 +498,17 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
       if (/Failed to resolve (?:component|directive)/.test(warning))
         currentWarnings.push(warning.split('\n')[0])
     }
-    app.config.errorHandler = error => report({
-      type: 'error',
-      slide: position.value,
-      message: String(error).slice(0, 2000),
-    })
+    app.config.errorHandler = (error) => {
+      const detail = slideError(error, compiler!.slides[position.value - 1].source, position.value)
+      report({
+        type: 'error',
+        message: detail.message.slice(0, 2000),
+        file: detail.file,
+        line: detail.line,
+        column: detail.column,
+        slide: detail.slide,
+      })
+    }
     app.mount(container)
   }
 
@@ -525,6 +566,11 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
       stylesheets.clear()
       leavingSlides.clear()
       compiler = await createDeckCompiler(input.src)
+      const css = compileStyle({ source: input.css, filename: 'style.css', id: 'online-document' })
+      if (css.errors.length) {
+        const error = css.errors[0] as any
+        throw locatedError(error, { file: 'style.css', line: error.line ?? 1, column: error.column ?? 1 })
+      }
       Object.assign(configs, compiler.config)
       document.documentElement.dataset.onlineTheme = compiler.theme.name
       for (const kind of ['sans', 'serif', 'mono'] as const)

@@ -42,6 +42,7 @@ async function main() {
   let openDialog
   let downloads
   let renderedSource
+  let renderedCSS
   let cursorSlide
   let initialPosition = false
   let hasDocument = false
@@ -106,6 +107,7 @@ async function main() {
     try {
       const doc = getDocument()
       renderedSource = doc.src
+      renderedCSS = doc.slidev.css
       inspect()
       editors.annotate('')
       initialPosition = true
@@ -175,6 +177,7 @@ async function main() {
       else if (state === 'rendered') {
         total = detail.slides
         status.textContent = 'Slides ready'
+        editors.annotate('')
       }
       else {
         total = 0
@@ -199,9 +202,17 @@ async function main() {
         url.searchParams.delete('slide')
       history.replaceState(history.state, '', url)
     },
-    onError(message) {
-      reportError(message)
-      editors.annotate(message, metadata[slide - 1]?.contentStart ?? 0)
+    onError(message, location) {
+      const current = editors.getSource() === renderedSource && editors.getCSS() === renderedCSS
+      if (location && current) {
+        reportError(`${location.file}:${location.line}:${location.column}: ${message}`)
+        editors.annotate(message, location.line - 1, location.column - 1, location.file)
+      }
+      else {
+        reportError(message)
+        if (current)
+          editors.annotate(message, metadata[slide - 1]?.contentStart ?? 0)
+      }
     },
     onDragError: reportError,
   })

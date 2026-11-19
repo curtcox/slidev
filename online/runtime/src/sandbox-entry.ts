@@ -20,9 +20,13 @@ export async function start(styles: Response) {
   const report = (message: Record<string, unknown>) => postMessage({ protocol: 1, ...message })
   const renderer = createRenderer(report)
   let queue = Promise.resolve()
-  const fail = (error: unknown) => report({
+  const fail = (error: any) => report({
     type: 'error',
-    message: String(error).slice(0, 2000),
+    message: String(error?.message ?? error).slice(0, 2000),
+    file: error?.file,
+    line: error?.line,
+    column: error?.column,
+    slide: error?.slide,
   })
   addEventListener('message', ({ data }) => {
     // The SDK forwards its private MessagePort into synthetic frame events;

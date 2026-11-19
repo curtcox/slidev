@@ -55,6 +55,7 @@ export function createEditors({ markdown, css, onChange, onCursor = () => {} }) 
         source.setValue(doc.src, -1)
         styles.setValue(doc.slidev.css, -1)
         source.session.clearAnnotations()
+        styles.session.clearAnnotations()
       })
     },
     replaceSource(src) {
@@ -77,12 +78,17 @@ export function createEditors({ markdown, css, onChange, onCursor = () => {} }) 
         source.scrollToLine(row, true, false)
       })
     },
-    annotate(message, row = 0) {
-      source.session.setAnnotations(message
+    annotate(message, row = 0, column = 0, file = 'slides.md') {
+      source.session.clearAnnotations()
+      styles.session.clearAnnotations()
+      const editor = file === 'style.css'
+        ? styles
+        : source
+      editor.session.setAnnotations(message
         ? [
             {
               row,
-              column: 0,
+              column,
               text: message,
               type: 'error',
             },

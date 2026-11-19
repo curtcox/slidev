@@ -447,7 +447,7 @@ contract, plus a fully offline reload that renders the gallery.
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
 | 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images, native/CSS transitions and lazy math deployed; 141 exact SFC matches + 14 fallbacks, 52-slide DOM gate and 77 gallery/fixture visual comparisons pass CI; full demo visual fidelity and the 2 s phone target remain open |
-| 3 | Editor app (share, QR, HashBin, mobile) | IN PROGRESS — Ace workspace, guarded links/CIDs, explicit draft recovery, sharing/QR, registration-gated HashBin controls, ZIP export, Phase 3 kit contracts and overview/touch controls deployed; precise compiler error locations pending |
+| 3 | Editor app (share, QR, HashBin, mobile) | IN PROGRESS — workspace, links/CIDs, drafts, sharing/QR, registration-gated HashBin controls, ZIP, kit contracts and overview/touch controls deployed; precise compiler diagnostics implemented and locally verified, deployment acceptance pending |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
 | 6 | Offline / PWA | TODO |
@@ -1685,3 +1685,25 @@ records the measured results. Publication/tag approvals remain outstanding.
 - Phase 3 remains open for precise compiler error locations. HashBin client
   registration remains an owner action. Phase 2 still needs full demo screenshot
   fidelity and the complete runtime's 2 s phone target.
+
+### Phase 3 compiler diagnostics (2026-11-18)
+
+- Compiler errors now carry document file, line and column through the bounded
+  sandbox bridge into the appropriate Ace session and visible status. Markdown
+  source spans are retained without changing the CLI's generated SFC. Hoisted
+  scripts/styles and Vue macro code frames map back to the original document.
+- Local Chromium and WebKit pass all **26** new diagnostic checks: script syntax
+  and macros, template/inline/title expressions, HTML, scoped CSS and UnoCSS
+  directives, global CSS, ordinary/fenced YAML, CRLF/BOM, hidden/disabled slides,
+  failed destination navigation and correction. Errors destroy the failed frame;
+  correcting a document clears annotations and creates a fresh opaque frame.
+- Coordinates are checked against the rendered document. Edited snapshots and
+  Markdown changed by drag patches cannot receive stale precise annotations.
+  Generated-only errors and runtime exceptions fall back to the slide's source
+  start when no reliable source span exists.
+- All **39** online units and **396** repository tests pass. Root lint/typecheck,
+  runtime build/typecheck and static/vendor/offline checks pass. Chromium compiler
+  characterization retains **141 exact SFC matches**, all 40 grammars and
+  **14 corpus fallbacks**. The earlier full Chromium/WebKit contracts passed
+  **68** applicable checks (four demo-only skips); the final directive case adds
+  one check per engine. Deployment acceptance follows the push.
