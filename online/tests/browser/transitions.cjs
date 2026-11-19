@@ -209,7 +209,7 @@ fonts:
     await render(native, nativeCss)
     frame = await getFrame()
     await expect(frame.locator('h1')).toHaveText('Native first')
-    const supported = await frame.evaluate(() => {
+    const watchNativeTransitions = frame => frame.evaluate(() => {
       if (typeof document.startViewTransition !== 'function')
         return false
       if (document.documentElement.matches(':active-view-transition'))
@@ -235,6 +235,7 @@ fonts:
       }
       return true
     })
+    const supported = await watchNativeTransitions(frame)
     await go(1, 1)
     await expect(frame.locator('.slidev-vclick-hidden')).toHaveCount(0)
     if (supported) {
@@ -274,6 +275,22 @@ fonts:
     await expect(frame.locator('.slidev-page')).toHaveCount(1)
     await expect(frame.locator('h1')).toHaveText('Native second')
     assert.equal(await frame.locator('style[data-online-slide]').count(), 1)
+
+    if (supported) {
+      const mixed = native.replace('transition: view-transition', 'transition: slide-left')
+        .replace('---\n\n<h1 style="view-transition-name: online-title">Native second', '---\ntransition: view-transition\n---\n\n<h1 style="view-transition-name: online-title">Native second')
+        .replace('Native third</h1>\n<div style="view-transition-name: online-title">Duplicate name</div>', 'Native third</h1>')
+      await render(mixed, `${nativeCss}\n:root { --slidev-transition-duration: 2s; }`)
+      frame = await getFrame()
+      await watchNativeTransitions(frame)
+      await go(2)
+      await expect(frame.locator('.slide-left-leave-active')).toHaveCount(1)
+      await go(3)
+      await frame.waitForFunction(() => window.nativeTransitions[0]?.ready || window.nativeTransitions[0]?.skipped)
+      assert.equal(await frame.evaluate(() => window.nativeTransitions[0].skipped), undefined, 'A CSS leave must not duplicate a named element in the native snapshot')
+      await expect(frame.locator('.slidev-page')).toHaveCount(1)
+      assert.equal(await frame.locator('style[data-online-slide]').count(), 1)
+    }
 
     await page.waitForFunction(() => document.querySelector('#offline-status').textContent === 'Available offline')
     await page.context().setOffline(true)

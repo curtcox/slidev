@@ -125,6 +125,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
   let container: HTMLDivElement | undefined
   const view = Vue.shallowRef<{ key: number, route: SlideRoute, clicksContext: ClicksContext }>()
   const stylesheets = new Map<number, HTMLStyleElement>()
+  const leavingSlides = new Set<HTMLElement>()
   let urls: string[] = []
   const iconComponents = new Map<string, Component>()
   const iconImportWarnings = new Map<string, string>()
@@ -365,6 +366,10 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
     }
     activeViewTransition?.skipTransition()
     if (app && nativeRequested && nativeSupported) {
+      // A previous CSS transition may still have a slide in the DOM. Exclude
+      // it from the snapshot so shared names identify only the active slide.
+      for (const element of leavingSlides)
+        element.style.setProperty('display', 'none', 'important')
       // The old state is captured before updateSlide changes its DOM or CSS.
       // Capture the new state only after Vue commits the updated slide.
       const running = document.startViewTransition(updateSlide)
@@ -415,7 +420,11 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
         Vue.h(Vue.Transition, {
           css: Boolean(transition.value && transition.value.name !== 'none'),
           ...transition.value,
+          onBeforeLeave(element: Element) {
+            leavingSlides.add(element as HTMLElement)
+          },
           onAfterLeave(element: Element) {
+            leavingSlides.delete(element as HTMLElement)
             // Vue unmounts components before their leaving DOM is removed.
             // Keep scoped styles alive until the animation actually finishes.
             const key = Number((element as HTMLElement).dataset.onlineView)
@@ -514,6 +523,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
       for (const stylesheet of stylesheets.values())
         stylesheet.remove()
       stylesheets.clear()
+      leavingSlides.clear()
       compiler = await createDeckCompiler(input.src)
       Object.assign(configs, compiler.config)
       document.documentElement.dataset.onlineTheme = compiler.theme.name
