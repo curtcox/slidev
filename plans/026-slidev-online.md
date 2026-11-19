@@ -1794,3 +1794,20 @@ records the measured results. Publication/tag approvals remain outstanding.
   remains an owner action. Phase 2's full demo screenshot and 2 s phone targets
   remain open, as do Phases 5–8. No live paid Publish or physical phone test is
   claimed. This final update changes documentation only.
+
+
+### Phase 2 built-in styles and TOC math (2026-11-19)
+
+- Demo screenshots exposed missing UnoCSS utilities in bundled components.
+  Runtime CSS now includes every registered built-in component source.
+  `PoweredBySlidev` keeps its inline layout and its logo at 1.5 em.
+- Math styles now load when the mounted slide contains equations. This also
+  covers equations in TOC titles, which are absent from the slide's own SFC.
+  Plain slides still defer math assets. Styles load before native transition
+  snapshots and render acknowledgement.
+- Chromium and WebKit pass the runtime and math suites, including the new
+  branding and TOC cases, visible delivery failures and offline math.
+  Runtime build/typecheck and all 40 online units pass. Gallery covers retain
+  their image bytes. Their fingerprints now identify the updated runtime.
+- The expanded demo comparison runs locally. Its harness and final visual
+  acceptance follow separately. Deployment acceptance follows the push.

@@ -62,7 +62,7 @@ import TitleRenderer, { titleRenderer } from './virtual/title-renderer'
 
 const layouts = import.meta.glob('../../../packages/client/layouts/*.vue', { eager: true, import: 'default' }) as Record<string, Component>
 const layoutSources = import.meta.glob('../../../packages/client/layouts/*.vue', { eager: true, query: '?raw', import: 'default' })
-const dragComponentSources = import.meta.glob('../../../packages/client/builtin/{Arrow,VDrag,VDragArrow}.vue', { eager: true, query: '?raw', import: 'default' })
+const builtinSources = import.meta.glob('../../../packages/client/builtin/*.vue', { eager: true, query: '?raw', import: 'default' })
 const dragControlSource = import.meta.glob('../../../packages/client/internals/DragControl.vue', { eager: true, query: '?raw', import: 'default' })
 const directiveSources = import.meta.glob('../../../packages/client/modules/v-{drag,mark,motion}.ts', { eager: true, query: '?raw', import: 'default' })
 const components = {
@@ -283,12 +283,6 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
       warnings.push(`Layout ${requestedLayout} is unavailable; using default`)
     const compiled = await compiler.compile(index, `online:layout/${layout}`)
     warnings.push(...compiled.warnings)
-    if (/class="katex(?: |")/.test(compiled.sfc)) {
-      try {
-        await loadMathStyles()
-      }
-      catch (error) { warnings.push(String(error)) }
-    }
     // Vue omits resolution warnings in production. Inspect only the compiler's
     // generated resolver calls so unsupported widgets always get a visible notice.
     warnings.push(...await resolveComponents(compiled.code))
@@ -358,7 +352,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
           : offset + offsetAt(style.content, line, column))
       }
     }
-    styles.push((await uno.generate(`${compiled.sfc}\n${JSON.stringify(source.frontmatter)}\n${Object.values(layoutSources).join('\n')}\n${Object.values(directiveSources).join('\n')}\n${Object.values(dragControlSource).join('\n')}\n${Object.values(dragComponentSources).join('\n')}\n${compiler.theme.sources.join('\n')}`)).css)
+    styles.push((await uno.generate(`${compiled.sfc}\n${JSON.stringify(source.frontmatter)}\n${Object.values(layoutSources).join('\n')}\n${Object.values(directiveSources).join('\n')}\n${Object.values(dragControlSource).join('\n')}\n${Object.entries(builtinSources).filter(([path]) => path.split('/').at(-1)!.slice(0, -4) in components).map(([, source]) => source).join('\n')}\n${compiler.theme.sources.join('\n')}`)).css)
     const preparedFonts = await fonts
     if (generation !== version)
       return
@@ -398,6 +392,13 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
       if (!app)
         mount()
       await Vue.nextTick()
+      // TOC titles can contain math even when this slide's SFC does not.
+      if (container?.querySelector('.katex')) {
+        try {
+          await loadMathStyles()
+        }
+        catch (error) { warnings.push(String(error)) }
+      }
     }
     activeViewTransition?.skipTransition()
     if (app && nativeRequested && nativeSupported) {

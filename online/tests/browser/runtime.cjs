@@ -109,6 +109,18 @@ setInterval(() => postMessage({protocol:1,type:'position',slide:999,click:0}), 2
     assert.equal(await page.evaluate(() => window.runtimeTest.events.some(event => event.slide === 999)), false)
     assert.equal(await page.locator('#runtime-test iframe').count(), 1)
 
+    assert.deepEqual(await render('# Branding\n\n<PoweredBySlidev mt-10 />'), [])
+    frame = page.frameLocator('#runtime-test iframe')
+    const branding = frame.getByAltText('Slidev logo')
+    await branding.evaluate(image => image.decode())
+    const brandingStyle = await branding.evaluate(image => ({
+      display: getComputedStyle(image.closest('span[inline-flex]')).display,
+      height: Number.parseFloat(getComputedStyle(image).height),
+      expectedHeight: Number.parseFloat(getComputedStyle(image).fontSize) * 1.5,
+    }))
+    assert.equal(brandingStyle.display, 'inline-flex')
+    assert.ok(Math.abs(brandingStyle.height - brandingStyle.expectedHeight) < 0.02, 'Bundled component utilities must constrain the logo to 1.5em')
+
     const errors = await render('# Missing module\n<script setup>import value from "node:fs"; console.log(value)</script>')
     assert.match(errors.join('\n'), /Module node:fs is unavailable/)
     assert.equal(await page.locator('#runtime-test iframe').count(), 0)

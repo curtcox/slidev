@@ -97,6 +97,17 @@ $\int_0^1 x^2\,dx = \frac{1}{3}$
     await render()
     await verify()
     assert.deepEqual(errors, [])
+    await page.evaluate(() => {
+      window.mathTest.done = false
+      window.mathTest.errors = []
+      window.mathTest.bridge.render({ src: '# Contents\n\n<Toc />\n\n---\n\n# $E = mc^2$' })
+    })
+    await page.waitForFunction(() => window.mathTest.done || window.mathTest.errors.length)
+    assert.deepEqual(await page.evaluate(() => window.mathTest.errors), [])
+    const titles = page.frameLocator('#math-test iframe')
+    assert.equal(await titles.locator('.katex').count(), 1, 'The plain contents slide must render its math title')
+    assert.equal(await titles.locator('#online-math-css').count(), 1, 'Math in TOC titles must load its stylesheet in a fresh frame')
+    assert.equal(await titles.locator('.katex-mathml').evaluate(el => getComputedStyle(el).position), 'absolute')
     await context.close()
     const failureContext = await browser.newContext({ serviceWorkers: 'block' })
     const failurePage = await failureContext.newPage()
@@ -126,7 +137,7 @@ $\int_0^1 x^2\,dx = \frac{1}{3}$
     await failurePage.evaluate(() => window.renderMissingMath())
     assert.match(await failurePage.frameLocator('#missing-math iframe').locator('#online-notices').textContent(), /Math styles and fonts are unavailable/)
     await failureContext.close()
-    process.stdout.write(`${engine}: lazy math renderer and styles, bundled fonts, equation click ranges, reuse, visible failure and offline reload passed\n`)
+    process.stdout.write(`${engine}: lazy math renderer and styles, bundled fonts, equation click ranges, reuse, TOC title styles, visible failure and offline reload passed\n`)
   }
   finally { await browser.close() }
 }
