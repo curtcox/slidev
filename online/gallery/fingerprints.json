@@ -68,6 +68,9 @@
     "runtime/dist/grammars/vue.json": "f144b194be722c879c0e90082c5466aa623028bcbfe15120900256714926d6c9",
     "runtime/dist/grammars/xml.json": "ec463c744e233d47b96afdc28a9c387ef1deea29b44271344e8a87fbb0b17e38",
     "runtime/dist/grammars/yaml.json": "bbd442922536599cbcd9ef61a237e230bdeb78eb805100f1e3e979852ac17fe1",
+    "runtime/dist/highlighting/audit.json": "2ee4e1cea92eba077c77aac5222f109bc976ffc1c8aca5394cf49f036304e3ad",
+    "runtime/dist/highlighting/LICENSE": "7a9d8d01038aeacf9e5bcdabbddf2a7815200dce9fc1118468cc553e00ae3eee",
+    "runtime/dist/highlighting/shiki.js": "01cf68db5beaff20a7a2254057edc369ad84e3921ddcb53461a258da48f2267a",
     "runtime/dist/icons/attribution.json": "9be042797a43e357e10b81bd5cbe3ba4553ca95a16fa494ae5327f39887fc1b6",
     "runtime/dist/icons/carbon.json": "00fee34dfc33e56e971730b72423d3477a1647272ce5229566783867873cc1b3",
     "runtime/dist/icons/logos.json": "9d17469b4679df0f9e7745145648548de73abc8a8ffc5784f42bcbf8c06cb8ae",
@@ -86,7 +89,7 @@
     "runtime/dist/math/katex.js": "5f0c3749f8b28ce1a63b68de34d3950bb4aa1a9e0130865e4b09ecc9a250c8b7",
     "runtime/dist/math/LICENSE": "766ccc1f306c885aa45542a9846bbd0a505b27a0374f146778171c2254ce18e3",
     "runtime/dist/sandbox.css": "29e467ab701fb17d1087aa0f48b8816b3c0835f43c69d92532bf11e6b1ed9969",
-    "runtime/dist/sandbox.js": "bd5b85e09127250b5fed59a6bf0ecbb660ca1bac7f6cf74fedbd113d00ae448e",
+    "runtime/dist/sandbox.js": "5bb50ea52ac00454c8af983a791fdb4c0ef43e8386460062fbd18cb88b807bd1",
     "runtime/dist/theme-audit.json": "da95cef7d63b893a029717f7a95cc3bb18b7d8e8d992464974ae82ef35a14db5"
   },
   "renderer": "bbdc2f79e203f905cd1b2d6a009a7772dc7d47a02b0857510d26aa388968b78a",

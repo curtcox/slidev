@@ -18,6 +18,7 @@ it('offline artifact covers the actual shipped runtime and SDK bytes', async () 
     'runtime/sandbox.js',
     'runtime/sandbox.css',
     'runtime/editor/document.js',
+    'runtime/highlighting/shiki.js',
     'vendor/fragment-kit-v0.4.4/vendor/hashbin-sdk-v0.6.0.mjs',
   ]) {
     const actual = createHash('sha256').update(await fs.readFile(new URL(file, base))).digest('hex')
@@ -200,4 +201,15 @@ it('ships the pinned standalone Mermaid module and its license in the verified o
   }
   vm.runInNewContext(await fs.readFile(new URL('../offline-assets.js', base), 'utf8'), scope)
   assert.equal(scope.module.exports.hashes[`runtime/${audit.fileName}`], audit.sha256)
+})
+
+it('ships the standalone Shiki engine and its original license with verified offline bytes', async () => {
+  const base = new URL('../dist/runtime/', import.meta.url)
+  const audit = JSON.parse(await fs.readFile(new URL('highlighting/audit.json', base), 'utf8'))
+  assert.equal(audit.version, '4.6.0')
+  assert.equal(audit.license, 'MIT')
+  const bytes = await fs.readFile(new URL(audit.fileName, base))
+  assert.equal(bytes.length, audit.bytes)
+  assert.equal(createHash('sha256').update(bytes).digest('hex'), audit.sha256)
+  assert.deepEqual(await fs.readFile(new URL(audit.licenseFile, base)), await fs.readFile(new URL('../../node_modules/shiki/LICENSE', import.meta.url)))
 })

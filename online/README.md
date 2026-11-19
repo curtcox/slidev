@@ -234,6 +234,12 @@ shipped at `runtime/icons/attribution.json` and in each unchanged collection.
 All seven collections total about 33.4 MB before compression (8.74 MB gzip),
 separate from the initial runtime payload. They are included in offline caching.
 
+The Shiki engine and its two color themes ship as one standalone module under
+`runtime/highlighting/`. The SDK imports it only when a slide or title contains
+code. Slides without code do not download or initialize it. The original MIT
+license, version, size and hash ship beside the module and are cached offline.
+Each frame reuses its engine; failed downloads can retry.
+
 Forty syntax languages and their upstream aliases are listed in
 `runtime/src/compiler/languages.json`. Grammar data from Shiki 4.6.0 loads only
 when code is highlighted, through the SDK's verified offline proxy. Bundles

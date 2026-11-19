@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "build": "vue-tsc --noEmit -p tsconfig.json && vite build && vite build --config document.config.ts && vite build --config mermaid.config.ts",
+    "build": "vue-tsc --noEmit -p tsconfig.json && vite build && vite build --config document.config.ts && vite build --config mermaid.config.ts && vite build --config highlighting.config.ts",
     "test": "node tests/run.mjs"
   },
   "dependencies": {

@@ -10,8 +10,11 @@ async function main() {
     const page = await context.newPage()
     const errors = []
     const requests = []
+    let highlighterRequests = 0
     page.on('pageerror', error => errors.push(String(error)))
     page.on('request', (request) => {
+      if (request.url().endsWith('/runtime/highlighting/shiki.js'))
+        highlighterRequests++
       if (/\/runtime\/grammars\/.*\.json$/.test(request.url()))
         requests.push(new URL(request.url()).pathname.split('/').at(-1))
     })
@@ -42,6 +45,7 @@ async function main() {
     }
     await initialize()
     assert.deepEqual(requests, [], 'The welcome deck must not load grammars into its sandbox')
+    assert.equal(highlighterRequests, 0, 'Slides without code must not import the highlighting engine')
     const source = '# Lazy code\n\n```py\ndef greet(name):\n    return f"Hello {name}"\n```\n\n```python\nprint(42)\n```\n\n```vue\n<script setup lang="ts">const n: number = 1</script>\n<template><div>{{ n }}</div></template>\n```\n\n---\n# Reuse\n\n```py\nprint("reused")\n```'
     await render(source)
     const frame = page.frameLocator('#languages-test iframe')
@@ -50,9 +54,11 @@ async function main() {
     assert.ok(await frame.locator('.slidev-code span[style]').count() > 10, 'Code must contain highlighted tokens')
     assert.equal(await frame.locator('#online-notices').count(), 0)
     assert.deepEqual([...requests].sort(), ['python.json', 'vue.json'])
+    assert.equal(highlighterRequests, 1, 'Multiple code fences share one engine import')
     await page.evaluate(() => window.languagesTest.bridge.goto(2))
     await frame.getByRole('heading', { name: 'Reuse', exact: true }).waitFor()
     assert.equal(requests.filter(name => name === 'python.json').length, 1)
+    assert.equal(highlighterRequests, 1, 'Navigation reuses the loaded engine')
 
     const beforeUnknown = requests.length
     await render('# Unknown\n\n```not-bundled\nplain code\n```')
@@ -91,8 +97,29 @@ async function main() {
     const failedFrame = failurePage.frameLocator('#failed-language iframe')
     assert.match(await failedFrame.locator('#online-notices').textContent(), /Language py is unavailable; showing plain text/)
     assert.match(await failedFrame.locator('.slidev-code').textContent(), /still readable/)
+
+    await failurePage.route('**/runtime/highlighting/shiki.js', route => route.fulfill({ status: 503, body: 'Unavailable' }))
+    const tryHighlighter = () => failurePage.evaluate(async () => {
+      const { createPreviewBridge } = await import('./src/preview-bridge.js')
+      document.querySelector('#failed-highlighter')?.remove()
+      const host = document.createElement('div')
+      host.id = 'failed-highlighter'
+      document.body.append(host)
+      return new Promise((resolve) => {
+        const bridge = createPreviewBridge({
+          container: host,
+          onStatus: status => status === 'rendered' && resolve('rendered'),
+          onError: message => resolve(message),
+        })
+        bridge.render({ src: '# Engine recovery\n\n```js\nconst answer = 42\n```' })
+      })
+    })
+    assert.match(await tryHighlighter(), /bundled code highlighter is unavailable/)
+    await failurePage.unroute('**/runtime/highlighting/shiki.js')
+    assert.equal(await tryHighlighter(), 'rendered')
+    assert.ok(await failurePage.frameLocator('#failed-highlighter iframe').locator('.slidev-code span[style]').count() > 0)
     await failureContext.close()
-    process.stdout.write(`${engine}: lazy grammars, aliases, embedded Vue languages, cache reuse, visible fallbacks and offline reload passed\n`)
+    process.stdout.write(`${engine}: lazy engine/grammars, aliases, embedded Vue languages, cache reuse, failure recovery and offline reload passed\n`)
     await context.close()
   }
   finally { await browser.close() }
