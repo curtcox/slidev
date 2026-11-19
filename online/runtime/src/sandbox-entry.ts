@@ -7,15 +7,14 @@ export { createDeckCompiler } from './compiler'
 export { rewriteModuleImports } from './compiler/modules'
 export { parseCommand } from './protocol'
 
-export async function start() {
+export async function start(styles: Response) {
   if (globalThis.origin !== 'null')
     throw new Error('Slidev must run in an opaque sandbox')
-  // The SDK proxies this request through the parent's verified offline cache.
-  const response = await fetch('runtime/sandbox.css')
-  if (!response.ok)
+  // The SDK proxies the stylesheet through the parent's verified offline cache.
+  if (!styles.ok)
     throw new Error('Slide styles are unavailable')
   const style = document.createElement('style')
-  style.textContent = await response.text()
+  style.textContent = await styles.text()
   document.head.append(style)
   const report = (message: Record<string, unknown>) => postMessage({ protocol: 1, ...message })
   const renderer = createRenderer(report)

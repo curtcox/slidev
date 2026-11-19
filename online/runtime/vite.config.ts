@@ -75,8 +75,10 @@ export default defineConfig({
       fileName: () => 'sandbox.js',
       cssFileName: 'sandbox',
     },
-    rollupOptions: {
-      output: { inlineDynamicImports: true },
+    rolldownOptions: {
+      // The SDK evaluates a single ESM asset directly. Enable full minification
+      // because there is no downstream library consumer to tree shake it.
+      output: { codeSplitting: false, minify: true },
     },
   },
 })

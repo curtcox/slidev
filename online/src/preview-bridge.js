@@ -36,7 +36,11 @@ export function createPreviewBridge({ container, onStatus, onPosition = () => {}
       container,
       base,
       proxy: [new URL('runtime/', base).href],
-      source: 'hashbinSandbox.import(\'runtime/sandbox.js\').then(m => m.start()).catch(error => postMessage({protocol:1,type:\'error\',message:String(error)}))',
+      source: `
+        Promise.all([hashbinSandbox.import('runtime/sandbox.js'), fetch('runtime/sandbox.css')])
+          .then(([runtime, styles]) => runtime.start(styles))
+          .catch(error => postMessage({protocol:1,type:'error',message:String(error)}))
+      `,
     })
     sandbox.frame.title = 'Slide preview'
     const fail = (message) => {

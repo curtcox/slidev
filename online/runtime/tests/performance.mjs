@@ -100,12 +100,21 @@ async function main() {
         assert.match(await heading.textContent(), /Hello, Slidev/)
         assert.equal(await heading.evaluate(() => globalThis.origin), 'null')
         assert.deepEqual(errors, [])
+        assert.equal(createHash('sha256').update(await runtimeResponse.body()).digest('hex'), report.runtimeSha256)
         const sample = {
           firstPaintMs: Math.round(await page.evaluate(() => window.slidevFirstPaintMs)),
           runtimeEncoding: await runtimeResponse.headerValue('content-encoding') ?? 'identity',
           runtimeResponseBytes: (await runtimeResponse.request().sizes()).responseBodySize,
         }
-        report.samples.push(sample)
+        const resources = await page.evaluate(() => performance.getEntriesByType('resource')
+          .filter(entry => entry.responseEnd <= window.slidevFirstPaintMs
+            && new URL(entry.name).origin === location.origin)
+          .map(entry => ({
+            path: new URL(entry.name).pathname,
+            startMs: Math.round(entry.startTime),
+            endMs: Math.round(entry.responseEnd),
+          })))
+        report.samples.push({ ...sample, resources })
         process.stdout.write(`${attempt}: ${JSON.stringify(sample)}\n`)
       }
       finally {

@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images and CSS transitions deployed; 141 exact SFC matches + 14 fallbacks, 52-slide corpus DOM gate and 76 visual cases pass CI; native transitions pass local Chromium/WebKit; full corpus visual fidelity and the 2 s phone target remain open |
+| 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images and native/CSS transitions deployed; 141 exact SFC matches + 14 fallbacks, 52-slide corpus DOM gate and 76 visual cases pass CI; full corpus visual fidelity and the 2 s phone target remain open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -1482,3 +1482,18 @@ records the measured results. Publication/tag approvals remain outstanding.
   JS and CSS total **1,071,342 bytes gzip**, under the 3 MB payload budget.
   The 2 s timing target remains open. This measurement uses simulated Chromium
   on the development host.
+
+### Deployed native transitions and startup tuning (2026-11-18)
+
+- The [native transition deployment](https://github.com/curtcox/slidev/actions/runs/44442623689)
+  passed all jobs, including Chromium, Firefox, WebKit and the visual report.
+  GitHub Pages reported `d01fdefd` with `dirty:false`. The live transition suite
+  passed in local Chromium and WebKit.
+- The startup path now requests preview JavaScript and CSS together and overlaps
+  font loading with first-slide compilation. The starter page fetches its
+  configuration and Markdown concurrently and starts offline pre-caching after
+  initial render. Full minification preserves the runtime's single ESM asset
+  and reduces staged JS and CSS from **1,071,505** to **984,414 bytes gzip**.
+- On the same compressed local server and phone profile, five measurements
+  before tuning had a **3,248 ms** median. Five after tuning had a **2,694 ms**
+  median, ranging from **2,424 to 3,071 ms**. The phone target remains open.

@@ -130,7 +130,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
   const iconImportWarnings = new Map<string, string>()
   let titleWarnings: string[] = []
   let currentWarnings: string[] = []
-  let fonts: Awaited<ReturnType<typeof loadFonts>> | undefined
+  let fonts: ReturnType<typeof loadFonts> | undefined
   const registryKey = `__slidevonline_${crypto.randomUUID().replaceAll('-', '')}`
   const registry: Record<string, Record<string, unknown>> = {}
   Object.defineProperty(globalThis, registryKey, { value: registry, configurable: true })
@@ -323,6 +323,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
       styles.push(result.code)
     }
     styles.push((await uno.generate(`${compiled.sfc}\n${JSON.stringify(source.frontmatter)}\n${Object.values(layoutSources).join('\n')}\n${Object.values(directiveSources).join('\n')}\n${Object.values(dragControlSource).join('\n')}\n${Object.values(dragComponentSources).join('\n')}\n${compiler.theme.sources.join('\n')}`)).css)
+    const preparedFonts = await fonts
     if (generation !== version)
       return
     const route = slides.value[index]
@@ -380,8 +381,8 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
     else {
       await updateSlide()
     }
-    if (fonts)
-      warnings.push(...await fonts.ready())
+    if (preparedFonts)
+      warnings.push(...await preparedFonts.ready())
     if (generation !== version)
       return
     document.querySelector('#online-notices')?.remove()
@@ -518,7 +519,8 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
       document.documentElement.dataset.onlineTheme = compiler.theme.name
       for (const kind of ['sans', 'serif', 'mono'] as const)
         document.documentElement.style.setProperty(`--slidevonline-font-${kind}`, configs.fonts[kind].join(','))
-      fonts = await loadFonts(configs.fonts)
+      // Load font data while compiling the titles and the first slide.
+      fonts = loadFonts(configs.fonts)
       slides.value = compiler.slides.map(source => ({
         no: source.index + 1,
         meta: { ...source.frontmatter, slide: source },
