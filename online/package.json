@@ -9,7 +9,7 @@
     "test:contracts": "playwright test --config playwright.contract.config.mjs",
     "check": "node scripts/check.mjs",
     "gallery:check": "node scripts/check.mjs --gallery",
-    "docs": "node scripts/check.mjs --docs",
+    "docs": "node scripts/render-docs.mjs",
     "offline": "node vendor/fragment-kit-v0.4.4/tools/offline-assets.mjs --config dist/offline.config.json",
     "serve": "node vendor/fragment-kit-v0.4.4/tools/serve.mjs --root dist"
   },

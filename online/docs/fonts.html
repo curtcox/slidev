@@ -2,27 +2,35 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
   <title>Fonts · Slidev Online</title>
   <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../docs.css">
 </head>
-<body><main>
-  <h1>Fonts</h1>
-  <p>The default theme includes Nunito Sans and Fira Code. The seriph theme includes PT Serif and PT Mono. Bricks includes Signika Negative, Sigmar One and Fira Code. Shibainu includes Titillium Web and Fira Code. Apple Basic uses Helvetica Neue when installed, with system fallbacks. These fonts work offline after the preview reports “Available offline.” The default theme uses Avenir Next first when your device has it.</p>
-  <p>Slidev Online loads font styles inside the isolated slide preview. Each font includes its available character sets. Some characters can still need a system font.</p>
-  <p>You can select other Google fonts in the YAML configuration at the start of your deck:</p>
-  <pre><code>---
+<body>
+  <nav aria-label="Site"><a href="../">Editor</a><a href="../gallery.html">Gallery</a><a href="index.html">Online docs</a></nav>
+  <main class="online-docs">
+<!-- Generated from fonts.md by npm run docs. -->
+<h1>Fonts</h1>
+<p>The default theme includes Nunito Sans and Fira Code. The seriph theme includes PT Serif and PT Mono. Bricks includes Signika Negative, Sigmar One and Fira Code. Shibainu includes Titillium Web and Fira Code. Apple Basic uses Helvetica Neue when installed, with system fallbacks. These fonts work offline after the preview reports “Available offline.” The default theme uses Avenir Next first when your device has it.</p>
+<p>Slidev Online loads font styles inside the isolated slide preview. Each font includes its available character sets. Some characters can still need a system font.</p>
+<p>You can select other Google fonts in the YAML configuration at the start of your deck:</p>
+<pre><code class="language-yaml">---
 fonts:
   sans: Roboto
   mono: Fira Code
   weights: [400, 700]
   italic: true
 ---
-# My presentation</code></pre>
-  <p>Additional Google fonts require an internet connection. Google receives the requested font names and your network address. Requests for the stylesheet omit the page referrer. These fonts are not included in the offline download.</p>
-  <p>To prevent font downloads, set <code>fonts.provider: none</code>. To use fonts installed on your device, list them in <code>fonts.local</code>. An empty <code>fonts.webfonts: []</code> also prevents downloads. The <code>coollabs</code> provider is unavailable online.</p>
-  <p>If a font fails to load, the preview shows a notice and uses the next available font. Rendering again retries the request. Loading waits up to five seconds for each stage before the preview continues.</p>
-  <p>Bundled fonts come from pinned Fontsource 5.3.0 packages under the SIL Open Font License 1.1. The offline download includes the original font bytes, attribution and licenses. <a href="../runtime/fonts/audit.json">Read the font audit</a>.</p>
-  <p><a href="index.html">Online documentation</a> · <a href="../">Open the preview</a></p>
-</main></body>
+# My presentation
+</code></pre>
+<p>Additional Google fonts require an internet connection. Google receives the requested font names and your network address. Requests for the stylesheet omit the page referrer. These fonts are not included in the offline download.</p>
+<p>To prevent font downloads, set <code>fonts.provider: none</code>. To use fonts installed on your device, list them in <code>fonts.local</code>. An empty <code>fonts.webfonts: []</code> also prevents downloads. The <code>coollabs</code> provider is unavailable online.</p>
+<p>If a font fails to load, the preview shows a notice and uses the next available font. Rendering again retries the request. Loading waits up to five seconds for each stage before the preview continues.</p>
+<p>Bundled fonts come from pinned Fontsource 5.3.0 packages under the SIL Open Font License 1.1. The offline download includes the original font bytes, attribution and licenses. <a href="../runtime/fonts/audit.json">Read the font audit</a>.</p>
+<p><a href="index.html">Online documentation</a> · <a href="../">Open the preview</a></p>
+  </main>
+</body>
 </html>

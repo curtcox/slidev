@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
+  <title>Supported features · Slidev Online</title>
+  <link rel="stylesheet" href="../style.css">
+  <link rel="stylesheet" href="../docs.css">
+</head>
+<body>
+  <nav aria-label="Site"><a href="../">Editor</a><a href="../gallery.html">Gallery</a><a href="index.html">Online docs</a></nav>
+  <main class="online-docs">
+<!-- Generated from supported.md by npm run docs. -->
+<h1>Supported features</h1>
+<p>Slidev Online uses Slidev's Markdown transforms and Vue client inside an isolated preview. It accepts <code>slides.md</code> and optional <code>style.css</code>. Together, these files must fit within 5 MiB of UTF-8 text.</p>
+<p>Headmatter is the YAML configuration at the start of a deck. Per-slide frontmatter sets a slide's layout and other properties. Separate slides with a line that contains <code>---</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Feature</th>
+<th>Online support</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Headmatter, per-slide frontmatter, notes, hidden and disabled slides</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td>Bundled themes and their layouts</td>
+<td>default, seriph, apple-basic, bricks and shibainu</td>
+</tr>
+<tr>
+<td>Markdown, HTML, inline Vue and per-slide <code>&lt;script setup&gt;</code></td>
+<td>Supported inside the isolated preview</td>
+</tr>
+<tr>
+<td>Named slots, including <code>::right::</code></td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>v-click</code>, <code>v-clicks</code>, <code>v-after</code> and code highlight steps</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td>Magic Move, <code>v-motion</code>, CSS transitions and dark mode</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td>Named view transitions</td>
+<td>Supported when the browser provides the API, with a fade fallback</td>
+</tr>
+<tr>
+<td>Scoped styles, global CSS and UnoCSS utilities</td>
+<td>Supported</td>
+</tr>
+<tr>
+<td><code>VDrag</code>, <code>VDragArrow</code> and <code>v-drag</code></td>
+<td>Supported, with position updates written to Markdown</td>
+</tr>
+<tr>
+<td>Code highlighting</td>
+<td>Forty bundled languages and their aliases, with plain text fallback</td>
+</tr>
+<tr>
+<td>KaTeX equations and Mermaid diagrams</td>
+<td>Supported, with assets loaded on demand</td>
+</tr>
+<tr>
+<td>Icons</td>
+<td>carbon, ph, mdi, logos, simple-icons, twemoji and svg-spinners</td>
+</tr>
+<tr>
+<td>Built-in components</td>
+<td>Includes Toc, Arrow, Link, Youtube, RenderWhen and slide counters</td>
+</tr>
+<tr>
+<td>PlantUML</td>
+<td>Requires a click for each new preview and an internet connection</td>
+</tr>
+<tr>
+<td>Monaco and <code>monaco-run</code></td>
+<td>Static highlighted code with a notice. Editing and execution are pending</td>
+</tr>
+<tr>
+<td>Twoslash</td>
+<td>Plain code, without TypeScript analysis</td>
+</tr>
+<tr>
+<td><code>src:</code> slide imports and <code>&lt;&lt;&lt;</code> file snippets</td>
+<td>Unavailable. The slide shows an error</td>
+</tr>
+<tr>
+<td>Custom components, layouts, setup directories and npm imports</td>
+<td>Unavailable. Use bundled components and supported imports</td>
+</tr>
+<tr>
+<td>Themes and addons downloaded from npm</td>
+<td>Unavailable</td>
+</tr>
+<tr>
+<td>Presenter window, print/PDF and standalone HTML export</td>
+<td>Pending</td>
+</tr>
+<tr>
+<td>Camera, recording and remote-control synchronization</td>
+<td>Unavailable</td>
+</tr>
+</tbody>
+</table>
+<p>Missing components, icons, imports and languages produce visible errors or notices. The Tweet widget is unavailable. Remote media and additional Google fonts need an internet connection.</p>
+<h2>Offline use</h2>
+<p>Wait for the editor to report “Available offline” before disconnecting. The app caches the editor, docs, examples, themes, bundled fonts, icon collections, grammars, math and Mermaid assets.</p>
+<p>Remote images, videos, additional fonts and PlantUML are outside this download. Browser storage can be cleared or evicted. Keep a downloaded copy of important work.</p>
+<h2>Isolation</h2>
+<p>Author scripts and Vue expressions execute only inside the isolated preview. They cannot read the editor's document, cookies or browser storage. This isolation does not prevent permitted requests for remote media. Read <a href="sharing.html">sharing and privacy</a> before opening a deck with private content.</p>
+  </main>
+</body>
+</html>

@@ -21,6 +21,7 @@ for (const name of [
   'index.html',
   'gallery.html',
   'style.css',
+  'docs.css',
   'fragment-kit.config.json',
   'service-worker.js',
   'src',

@@ -1,0 +1,46 @@
+body {
+  background: var(--fk-panel);
+  color: var(--fk-text);
+}
+body > nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--fk-border);
+}
+body > nav a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+.online-docs {
+  max-width: 80ch;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.online-docs h1,
+.online-docs h2 {
+  line-height: 1.2;
+}
+.online-docs h2 {
+  margin-top: 2em;
+}
+.online-docs pre {
+  overflow: auto;
+  padding: 16px;
+  background: var(--fk-surface);
+  border: 1px solid var(--fk-border);
+}
+.online-docs table {
+  display: block;
+  overflow: auto;
+  border-collapse: collapse;
+}
+.online-docs th,
+.online-docs td {
+  border: 1px solid var(--fk-border);
+  padding: 10px 14px;
+  text-align: left;
+  min-width: 12ch;
+}
