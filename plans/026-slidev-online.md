@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — all five themes, HTTPS images and CSS transitions deployed; 141 exact SFC matches + 14 corpus fallbacks, 52-slide corpus DOM gate and 76 visual cases pass CI; live transitions/corpus/offline pass Chromium/WebKit; native view transitions, remaining features/full source-corpus visual fidelity/phone gates open |
+| 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images and CSS transitions deployed; 141 exact SFC matches + 14 fallbacks, 52-slide corpus DOM gate and 76 visual cases pass CI; native transitions pass local Chromium/WebKit; full corpus visual fidelity and the 2 s phone target remain open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -1464,3 +1464,21 @@ records the measured results. Publication/tag approvals remain outstanding.
   full source-corpus visual fidelity and complete-runtime phone timing.
   Phase 3 remains unimplemented. This acceptance commit changes only the plan
   and its index.
+
+### Phase 2 native transitions and phone baseline (2026-11-18)
+
+- Native named-element transitions landed in `d01fdefd`. Local Chromium and
+  WebKit pass the actual browser animation, click-only navigation, backward
+  navigation, duplicate-name recovery, frame replacement and forced API-missing
+  fade fallback. Runtime build/typecheck, all 23 online units, lint on the
+  changed files and static/vendor/offline checks pass. Local Firefox cannot open
+  its temporary profile. The [deployment run](https://github.com/curtcox/slidev/actions/runs/44442623689)
+  is in progress.
+- Added a repeatable cold-start report for the real welcome page. Five fresh
+  Chromium 156.0.8078.4 mobile contexts used 390 × 844 at DPR 2, 4× CPU
+  slowdown, 40 ms added latency and 1.5 MB/s download. The live gzip-served
+  baseline at `07e1d9c1` took **3,131–3,629 ms** (median **3,264 ms**) from
+  navigation to two animation frames after render acknowledgement. The runtime
+  JS and CSS total **1,071,342 bytes gzip**, under the 3 MB payload budget.
+  The 2 s timing target remains open. This measurement uses simulated Chromium
+  on the development host.

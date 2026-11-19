@@ -71,8 +71,19 @@ not compare screenshots. To test a deployment, pass its URL:
 node runtime/tests/corpus.mjs https://curtcox.github.io/slidev/
 ```
 
-The report hashes the runtime bytes served by that URL. It also records the
-number of decoded image elements and mock image requests.
+The report hashes the runtime bytes served by that URL and records the browser
+version, source hashes, per-slide outcomes and image counts.
+
+To measure the welcome deck's cold startup against the Phase 2 phone profile:
+
+```sh
+node runtime/tests/performance.mjs https://curtcox.github.io/slidev/
+```
+
+The performance report records five throttled Chromium samples, the served
+release and runtime hash, response encoding and size, and both budget results
+in `runtime/.cache/performance-chromium.json`. Use a production URL for a
+measurement with compressed delivery.
 
 The runtime browser suite exercises author scripts, style isolation, slots,
 click navigation, hostile-deck isolation, document replacement, built-ins,
