@@ -12,6 +12,7 @@ import { createShell } from '../vendor/fragment-kit-v0.4.4/src/ui/shell.js'
 import { createEditors } from './editor.js'
 import { createFileDialogs } from './files.js'
 import { createDocumentLoader, createWorkspaceUrls } from './links.js'
+import { createSlideOverview } from './overview.js'
 import { createPreviewBridge } from './preview-bridge.js'
 import { mountWorkspace } from './workspace.js'
 
@@ -85,6 +86,7 @@ async function main() {
     document.querySelector('#next-slide').disabled = !total || slide >= total
     document.querySelector('#present').disabled = !total
     document.querySelector('#dark-mode').disabled = !total
+    document.querySelector('#overview').disabled = !total || editors.getSource() !== renderedSource
     const note = metadata[slide - 1]?.note ?? ''
     document.querySelector('#slide-notes').textContent = note
     document.querySelector('#notes').hidden = !note
@@ -269,7 +271,13 @@ async function main() {
     ])
       container.append(element('a', label, { href, target: '_blank', rel: 'noopener noreferrer' }))
   }
+  const overview = createSlideOverview({
+    getSlides: () => metadata,
+    getPosition: () => slide,
+    onSelect: no => preview.goto(no),
+  })
   const tabs = mountWorkspace({
+    onOverview: () => overview.open(),
     onPrevious: () => preview.goto(Math.max(1, slide - 1)),
     onNext: () => preview.goto(Math.min(total, slide + 1)),
     onDark(value) {
@@ -284,6 +292,7 @@ async function main() {
     catch (error) { reportError(error.message) }
   }
   function opened(doc, options = {}) {
+    overview.close()
     clearTimeout(timer)
     urlState.cancel()
     preview.stop()

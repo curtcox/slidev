@@ -24,6 +24,10 @@ Phones and short windows use Slides, Markdown and CSS tabs. Desktop also has a
 Split view with a divider that supports dragging and keyboard arrows.
 Preview navigation follows the editor cursor. Slide navigation reveals its source.
 Speaker notes appear as text. Present requests fullscreen from a click.
+Overview lists the visible slides by title and supports keyboard selection.
+On touchscreens, swipe left to advance or right to go back through click reveals.
+Tap the left third of a slide to go back, or the rest to advance.
+Buttons, links, inputs, code blocks and drag controls keep their own touch actions.
 
 The shell uses native modules. Only `runtime/` is built with Vite. Vendored kit
 bytes are immutable; use its vendor-sync tool to upgrade an exact release.

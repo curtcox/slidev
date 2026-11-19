@@ -2,6 +2,7 @@ import { flushDragUpdates } from './drag'
 import { parseCommand } from './protocol'
 import { createRenderer } from './renderer'
 import { activeDragElement } from './shims/drag-state'
+import { installTouchNavigation } from './touch-navigation'
 
 export { createDeckCompiler } from './compiler'
 export { rewriteModuleImports } from './compiler/modules'
@@ -40,6 +41,11 @@ export async function start(styles: Response) {
   addEventListener('resize', renderer.resize)
   addEventListener('pointerup', flushDragUpdates)
   addEventListener('keyup', flushDragUpdates)
+  installTouchNavigation({
+    next: () => { queue = queue.then(renderer.next).then(() => {}, fail) },
+    previous: () => { queue = queue.then(renderer.prev).then(() => {}, fail) },
+    isDragging: () => Boolean(activeDragElement.value),
+  })
   addEventListener('keydown', (event) => {
     if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey
       || (event.target as HTMLElement)?.closest('button, a, input, textarea, select, [contenteditable]')) {

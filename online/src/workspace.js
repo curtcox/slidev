@@ -1,6 +1,6 @@
 import { mountMobileTabs } from '../vendor/fragment-kit-v0.4.4/src/ui/mobile-tabs.js'
 
-export function mountWorkspace({ onPrevious, onNext, onDark }) {
+export function mountWorkspace({ onPrevious, onNext, onDark, onOverview }) {
   const tabs = mountMobileTabs({
     container: document.querySelector('#workspace-tabs'),
     desktop: true,
@@ -62,6 +62,10 @@ export function mountWorkspace({ onPrevious, onNext, onDark }) {
   })
   document.querySelector('#previous-slide').onclick = onPrevious
   document.querySelector('#next-slide').onclick = onNext
+  document.querySelector('#overview').onclick = (event) => {
+    event.currentTarget.focus()
+    onOverview()
+  }
   document.querySelector('#dark-mode').onclick = (event) => {
     const dark = event.currentTarget.getAttribute('aria-pressed') !== 'true'
     event.currentTarget.setAttribute('aria-pressed', String(dark))

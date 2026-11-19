@@ -447,7 +447,7 @@ contract, plus a fully offline reload that renders the gallery.
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
 | 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images, native/CSS transitions and lazy math deployed; 141 exact SFC matches + 14 fallbacks, 52-slide DOM gate and 77 gallery/fixture visual comparisons pass CI; full demo visual fidelity and the 2 s phone target remain open |
-| 3 | Editor app (share, QR, HashBin, mobile) | IN PROGRESS — Ace Markdown/CSS workspace, guarded link/CID loading, explicit draft recovery, sharing/QR and registration-gated HashBin controls deployed; ZIP export and Phase 3 kit contracts verified locally in Chromium/WebKit; overview/swipe controls and precise error locations pending |
+| 3 | Editor app (share, QR, HashBin, mobile) | IN PROGRESS — Ace Markdown/CSS workspace, guarded link/CID loading, explicit draft recovery, sharing/QR and registration-gated HashBin controls deployed; ZIP export and Phase 3 kit contracts verified locally in Chromium/WebKit; overview/swipe controls verified locally in Chromium/WebKit; precise error locations pending |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
 | 6 | Offline / PWA | TODO |
@@ -1639,3 +1639,26 @@ records the measured results. Publication/tag approvals remain outstanding.
   across both engines). Lint and static/vendor/offline checks pass. Publish,
   camera frames and the shortener use the kit's mocks; no live paid Publish
   round trip is claimed. CI and deployment verification follow the push.
+
+### Phase 3 overview and touch navigation (2026-11-18)
+
+- The preview toolbar now opens a grid of visible slide titles. Titles render
+  as text on the editor origin. Opening the grid does not execute author code.
+  Selection follows runtime numbering, updates the source and URL, and restores
+  focus to the toolbar when the dialog closes.
+- Touch navigation uses the existing click steps. Swipe left or tap the right
+  two-thirds to advance. Swipe right or tap the left third to go back. Controls,
+  code selection, drag elements, vertical scrolling and cancelled gestures keep
+  their own behavior. The touch listeners stay inside the opaque frame.
+- Chromium and WebKit pass all 44 applicable contract tests, with four demo-only
+  skips across both engines. The new tests cover inert titles, hidden slides,
+  keyboard focus, real touch taps and pointer swipe/cancellation paths. Chromium
+  also passes a native swipe through its browser input protocol. The mobile
+  overview screenshot passed a visual layout check.
+- Both engines pass the editor, runtime, drag and offline reload suites. All 38
+  online units, runtime build/typecheck, lint and static/vendor/offline checks
+  pass. Precise compiler error locations remain Phase 3 work.
+- The ZIP deployment for `1af94976` passed all jobs, including all three browser
+  engines, the visual report and Pages:
+  https://github.com/curtcox/slidev/actions/runs/44450869083 .
+  The later contracts and overview releases still need deployment verification.

@@ -77,6 +77,24 @@ main {
 #dark-mode {
   margin-left: auto;
 }
+.slide-overview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 12px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.slide-overview button {
+  width: 100%;
+  min-height: 88px;
+  padding: 16px;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.slide-overview [aria-current='page'] {
+  border: 2px solid var(--fk-accent);
+}
 #preview {
   width: 100%;
   aspect-ratio: 16 / 9;
