@@ -121,6 +121,25 @@ setInterval(() => postMessage({protocol:1,type:'position',slide:999,click:0}), 2
     assert.equal(brandingStyle.display, 'inline-flex')
     assert.ok(Math.abs(brandingStyle.height - brandingStyle.expectedHeight) < 0.02, 'Bundled component utilities must constrain the logo to 1.5em')
 
+    assert.deepEqual(await render(`# Shared imports
+<button @click="checkImports">Check module identity</button>
+<p>{{ result }}</p>
+<ImportedCurrentNo />
+<script setup>
+import * as Vue from 'vue'
+import ImportedCurrentNo from '@slidev/client/builtin/SlideCurrentNo.vue'
+const result = Vue.ref('Unchecked')
+async function checkImports() {
+  const again = await import('vue')
+  const builtin = await import('@slidev/client/builtin/SlideCurrentNo.vue')
+  result.value = again === Vue && builtin.default === ImportedCurrentNo ? 'Same modules' : 'Different modules'
+}
+</script>`), [])
+    frame = page.frameLocator('#runtime-test iframe')
+    await frame.getByRole('button', { name: 'Check module identity' }).click()
+    await frame.getByText('Same modules', { exact: true }).waitFor()
+    assert.equal(await frame.locator('.slidev-page').getAttribute('data-slidev-no'), '1')
+
     const errors = await render('# Missing module\n<script setup>import value from "node:fs"; console.log(value)</script>')
     assert.match(errors.join('\n'), /Module node:fs is unavailable/)
     assert.equal(await page.locator('#runtime-test iframe').count(), 0)

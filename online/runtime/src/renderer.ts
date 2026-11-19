@@ -153,39 +153,41 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
     return url
   }
 
-  let modules: Record<string, string> = {}
+  let modules: Record<string, Record<string, unknown>> = {}
+  let moduleUrls: Record<string, string> = {}
   let activeLayouts = layoutByName
   function resetModules() {
     iconImportWarnings.clear()
     for (const url of urls)
       URL.revokeObjectURL(url)
     urls = []
+    moduleUrls = {}
     modules = {
-      'vue': moduleUrl('vue', Vue),
-      '@slidev/client': moduleUrl('client', {
+      'vue': Vue,
+      '@slidev/client': {
         ...context,
         ...env,
         ...layoutHelper,
         ...slideLogic,
         useNav,
         useDarkMode,
-      }),
-      '@slidev/client/composables/useNav': moduleUrl('useNav', { useNav }),
-      '@slidev/client/composables/useDarkMode': moduleUrl('useDarkMode', { useDarkMode }),
-      '@slidev/client/logic/slides': moduleUrl('slides', slideLogic),
-      '@slidev/client/context': moduleUrl('context', context),
-      '@slidev/client/constants': moduleUrl('constants', constants),
-      '#slidev/slides': moduleUrl('virtual-slides', { slides }),
-      '#slidev/title-renderer': moduleUrl('titles', { default: TitleRenderer }),
+      },
+      '@slidev/client/composables/useNav': { useNav },
+      '@slidev/client/composables/useDarkMode': { useDarkMode },
+      '@slidev/client/logic/slides': slideLogic,
+      '@slidev/client/context': context,
+      '@slidev/client/constants': constants,
+      '#slidev/slides': { slides },
+      '#slidev/title-renderer': { default: TitleRenderer },
     }
     activeLayouts = {
       ...layoutByName,
       ...compiler!.theme.layouts,
     }
     for (const [name, component] of Object.entries(activeLayouts))
-      modules[`online:layout/${name}`] = moduleUrl(`layout/${name}`, { default: component })
+      modules[`online:layout/${name}`] = { default: component }
     for (const [name, component] of Object.entries(components))
-      modules[`@slidev/client/builtin/${name}.vue`] = moduleUrl(`builtin/${name}`, { default: component })
+      modules[`@slidev/client/builtin/${name}.vue`] = { default: component }
   }
 
   function sendPosition() {
@@ -202,13 +204,15 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
           throw new Error(`Icon ${specifier} is unavailable online`)
         if (icon.warning)
           iconImportWarnings.set(name, icon.warning)
-        modules[name] = moduleUrl(name, { default: icon.component })
+        modules[name] = { default: icon.component }
       }
       if (iconImportWarnings.has(name))
         warnings.push(iconImportWarnings.get(name)!)
       if (!Object.hasOwn(modules, name))
         throw new Error(`Module ${specifier} is unavailable online; only bundled modules can be imported`)
-      return modules[name]
+      // Most registered layouts and built-ins are never imported by a deck.
+      // Keep one Blob per requested module so static and dynamic imports share it.
+      return moduleUrls[name] ??= moduleUrl(name, modules[name])
     })
     const url = URL.createObjectURL(new Blob([code], { type: 'text/javascript' }))
     try {
