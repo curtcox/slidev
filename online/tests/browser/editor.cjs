@@ -14,7 +14,12 @@ async function main() {
   })
   const page = await context.newPage()
   const errors = []
+  const runtimeRequests = []
   page.on('pageerror', error => errors.push(String(error)))
+  page.on('request', (request) => {
+    if (/\/runtime\/sandbox\.(?:js|css)$/.test(request.url()))
+      runtimeRequests.push(request.url())
+  })
   const base = process.argv[2] || 'http://127.0.0.1:8000/'
   const source = () => page.evaluate(() => globalThis.ace.edit('markdown-editor').getValue())
   const edit = src => page.evaluate(src => globalThis.ace.edit('markdown-editor').setValue(src, -1), src)
@@ -33,11 +38,13 @@ async function main() {
     await page.goto(base)
     await page.waitForSelector('body[data-editor-ready="true"]')
     await expect(frame().locator('h1')).toHaveText('Hello, Slidev.')
+    runtimeRequests.length = 0
     await page.goto(`${base}?example=welcome&run=0`)
     await page.waitForSelector('body[data-editor-ready="true"]')
     await expect.poll(() => new URL(page.url()).hash.startsWith('#v1.')).toBe(true)
     assert.equal(new URL(page.url()).searchParams.has('example'), false)
     await expect(page.locator('#preview iframe')).toHaveCount(0)
+    assert.deepEqual(runtimeRequests, [], 'A run=0 link must defer even speculative runtime downloads')
     const deck = '# First\n\n<!-- <img src=x onerror=alert(1)> notes -->\n\n---\n\n# Second\n\n<script setup>globalThis.started = (globalThis.started || 0) + 1</script>\n'
     const css = 'h1 { color: rgb(12, 34, 56); }'
     const href = await build({
