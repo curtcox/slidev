@@ -353,7 +353,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
             column = segment[3]! + 1
           }
         }
-        throw slideError(error, source.source, index + 1, offset == null
+        throw slideError(new Error(error.reason ?? error.message ?? String(error)), source.source, index + 1, offset == null
           ? 0
           : offset + offsetAt(style.content, line, column))
       }
@@ -569,7 +569,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
       const css = compileStyle({ source: input.css, filename: 'style.css', id: 'online-document' })
       if (css.errors.length) {
         const error = css.errors[0] as any
-        throw locatedError(error, { file: 'style.css', line: error.line ?? 1, column: error.column ?? 1 })
+        throw locatedError(new Error(error.reason ?? error.message ?? String(error)), { file: 'style.css', line: error.line ?? 1, column: error.column ?? 1 })
       }
       Object.assign(configs, compiler.config)
       document.documentElement.dataset.onlineTheme = compiler.theme.name

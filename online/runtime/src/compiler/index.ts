@@ -50,9 +50,13 @@ function compileSfc(sfc: string, id: string, warnings: string[], locations?: Ret
     const offset = generated == null
       ? undefined
       : locations?.offset(sfc, generated)
-    throw Object.assign(error instanceof Error
-      ? error
-      : new Error(String(error)), { sourceOffset: offset })
+    const message = (error instanceof Error
+      ? error.message
+      : String(error))
+      .split('\n\n')[0]
+      .replace(/^\[@?vue\/compiler-sfc\]\s*/, '')
+      .replace(/\s+\(\d+:\d+\)$/, '')
+    throw Object.assign(new Error(message), { sourceOffset: offset })
   }
   const code = transform(compiled.content, {
     transforms: ['typescript'],
@@ -93,7 +97,8 @@ export async function createDeckCompiler(src: string, { plantUmlAllowed = false,
         ? slide.raw.indexOf('```') + 3
         : 3)
       const position = positionAt(slide.raw, Math.max(0, start) + error.pos[0])
-      throw locatedError(new Error(`Slide ${slide.index + 1}: ${error.message}`), { file: 'slides.md', line: slide.start + position.line, column: position.column })
+      const message = error.message.split(/ at line \d+, column \d+:/)[0]
+      throw locatedError(new Error(`Slide ${slide.index + 1}: ${message}`), { file: 'slides.md', line: slide.start + position.line, column: position.column })
     }
   }
   const slides = parsed.slides.filter(source => !source.frontmatter.disabled && !source.frontmatter.hide)

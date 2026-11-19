@@ -99,6 +99,8 @@ for (const fixture of cases) {
       { row, column },
     ])
     await expect(page.locator('#preview-status')).toContainText(`slides.md:${row + 1}:${column + 1}:`)
+    await expect(page.locator('#preview-status')).not.toContainText('online-')
+    await expect(page.locator('#preview-status')).not.toContainText('@slidev-injection')
     await expect(page.locator('#preview iframe')).toHaveCount(0)
     await expect.poll(() => annotations(page, 'css-editor')).toEqual([])
     // Correcting the source clears the stale diagnostic and creates a fresh frame.
@@ -120,6 +122,7 @@ test('frontmatter diagnostics identify the YAML line, including fenced YAML', as
       { row, column: 0 },
     ])
     await expect(page.locator('#preview-status')).toContainText(`slides.md:${row + 1}:1:`)
+    await expect(page.locator('#preview-status')).not.toContainText('at line')
   }
 })
 
