@@ -1,7 +1,8 @@
 {
   "dependencies": {
     "src/examples.js": "57b3053999d55e6b8521071c0819956f8a8a4656f949900e28f49bd820f60aa8",
-    "src/preview-bridge.js": "f623dbd069f2d65fc1be6a1dfaba8cbfad63e00c62d45d096dca10eca3ba1fa1",
+    "src/preview-bridge.js": "2c5e5a84d3e0788c5de3afb00829f7011823719972f6af8db5323b8b04799033",
+    "src/runtime-assets.js": "c03b3ee39f39d98ade4aff537152c193b3d6769ec84fc7a80cd77afa909ebbe1",
     "src/document-type.js": "f91d196a8eb83046ec2c38a99597e96874edcdb7f372b0de453af25a986f34fa",
     "gallery.html": "8249dcb880bc37bde5abf655313640a625a0a0298a3d375d88c4426d9a3ef77e",
     "style.css": "3ba5d47ae90b7e9de638222d435a9a94ae769d148bb32a42dff812c54d8cd539",
@@ -88,7 +89,7 @@
     "runtime/dist/sandbox.js": "9626b43048d0fcdb67b8b2c5288d91e42b7a6b4687df6f0ff750bc53d459ebc0",
     "runtime/dist/theme-audit.json": "da95cef7d63b893a029717f7a95cc3bb18b7d8e8d992464974ae82ef35a14db5"
   },
-  "renderer": "f3bd48e23d4d089ab357d782bdd1fb9e299edfb5bc1e45afd85ee4a628d1e333",
+  "renderer": "bbdc2f79e203f905cd1b2d6a009a7772dc7d47a02b0857510d26aa388968b78a",
   "examples": {
     "clicks": {
       "document": "ac6a94ea14ebce4a6b9c482e8b433bf86234c20879ddee9d8c644b8b95688a9d",

@@ -8,6 +8,7 @@ export default {
   dependencies: [
     'src/examples.js',
     'src/preview-bridge.js',
+    'src/runtime-assets.js',
     'src/document-type.js',
     'gallery.html',
     'style.css',

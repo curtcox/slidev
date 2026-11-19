@@ -1939,3 +1939,29 @@ records the measured results. Publication/tag approvals remain outstanding.
   and local gzip delivery. These diagnostic builds precede the implementation
   commit. Clean-release measurement and deployment acceptance follow the push.
   The 2 s target remains open.
+
+
+### Phase 2 early runtime delivery (2026-11-19)
+
+- Commit `9e986660` is pushed on `main`. Its clean committed build measures
+  2,496–2,880 ms over five cold simulated-phone loads, with a 2,546 ms median.
+  The initial runtime is 875,439 bytes gzip, SHA-256
+  `9626b43048d0fcdb67b8b2c5288d91e42b7a6b4687df6f0ff750bc53d459ebc0`.
+- A small native module now starts credential-free downloads of trusted runtime
+  JavaScript and CSS while the editor loads. An in-memory response cache gives
+  the SDK readable copies for each new opaque frame. It never imports runtime
+  code on the editor origin. Failures remain retryable. Other requests retain
+  the SDK's normal proxy path. `?run=0` defers these speculative downloads.
+- Both local engines pass all 78 applicable contracts, with four demo-only skips.
+  New cases verify one download per asset, fresh frame execution after edits,
+  absence of author state on the editor origin and explicit Render deferral.
+  Both engines also pass runtime behavior, the editor with real ZIP downloads,
+  fully offline reload, first-use offline QR, seriph and gallery interaction.
+- All 44 online units and static/vendor/gallery/offline checks pass. Gallery
+  image bytes remain unchanged. Runtime bytes and the 162-case visual results
+  from utility extraction remain unchanged. Root lint passes.
+- Five cold loads of the early-delivery staging experiment measure
+  2,011–2,435 ms, with a 2,062 ms median. The profile and local gzip server match
+  the clean-build run above. This second measurement precedes its implementation
+  commit. Clean-release measurement and deployed acceptance follow the push.
+  The maximum remains above 2 s, so Phase 2 stays open.

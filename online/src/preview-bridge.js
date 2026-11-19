@@ -2,6 +2,7 @@ import { applyDragPatches, dragPatchKey, parseDragPatch } from '../runtime/edito
 import { createSandbox } from '../vendor/fragment-kit-v0.4.4/vendor/hashbin-sdk-v0.6.0.mjs'
 import { slidevDocument } from './document-type.js'
 import { readErrorLocation } from './error-location.js'
+import { fetchRuntimeAsset } from './runtime-assets.js'
 
 /** A document replacement always destroys the previous author's execution world. */
 export function createPreviewBridge({ container, onStatus, onPosition = () => {}, onError = () => {}, onSourceChange = () => {}, getSource, onDragError = onError }) {
@@ -37,6 +38,7 @@ export function createPreviewBridge({ container, onStatus, onPosition = () => {}
       container,
       base,
       proxy: [new URL('runtime/', base).href],
+      fetch: fetchRuntimeAsset,
       source: `
         Promise.all([hashbinSandbox.import('runtime/sandbox.js'), fetch('runtime/sandbox.css')])
           .then(([runtime, styles]) => runtime.start(styles))

@@ -112,6 +112,12 @@ release and runtime hash, response encoding and size, and both budget results
 in `runtime/.cache/performance-chromium.json`. Use a production URL for a
 measurement with compressed delivery.
 
+The shell starts credential-free downloads of the trusted runtime JavaScript and
+CSS while loading the editor. The SDK receives separately readable responses
+from an in-memory cache and executes JavaScript only in each fresh opaque frame.
+Failed downloads can retry. `?run=0` defers these downloads until Render;
+service-worker offline preparation can still cache them in the background.
+
 The runtime browser suite exercises author scripts, style isolation, slots,
 click navigation, hostile-deck isolation, document replacement, built-ins,
 TOC navigation, motion, markers and visible unsupported features. Full source-
