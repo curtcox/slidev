@@ -1,5 +1,6 @@
 const assert = require('node:assert/strict')
 const process = require('node:process')
+const { expect } = require('@playwright/test')
 const { chromium, firefox, webkit } = require('playwright')
 
 async function main() {
@@ -47,8 +48,11 @@ async function main() {
     await page.goto(new URL('gallery.html', process.argv[2] || 'http://127.0.0.1:8000/').href)
     await page.waitForSelector('.fk-gallery-card')
     assert.equal(await page.locator('.fk-gallery-card').count(), 15)
-    for (const image of await page.locator('.fk-gallery-card img').all())
+    for (const image of await page.locator('.fk-gallery-card img').all()) {
+      await image.scrollIntoViewIfNeeded()
+      await expect.poll(() => image.evaluate(image => image.naturalWidth)).toBeGreaterThan(0)
       await image.evaluate(image => image.decode())
+    }
     await page.getByRole('searchbox', { name: 'Search examples' }).fill('responds')
     await page.getByRole('link', { name: 'Open A slide that responds', exact: true }).click()
     await page.waitForSelector('body[data-ready="true"]')

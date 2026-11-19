@@ -16,6 +16,8 @@ async function main() {
     await expect(page.locator('.fk-gallery-card')).toHaveCount(15)
     assert.equal(await page.locator('iframe').count(), 0, 'Browsing examples must not execute deck code')
     for (const image of await page.locator('.fk-gallery-card img').all()) {
+      await image.scrollIntoViewIfNeeded()
+      await expect.poll(() => image.evaluate(image => image.naturalWidth)).toBeGreaterThan(0)
       await image.evaluate(image => image.decode())
       assert.ok(await image.evaluate(image => image.naturalWidth > 0))
     }
