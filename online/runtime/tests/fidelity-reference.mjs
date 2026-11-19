@@ -9,9 +9,30 @@ async function main() {
   const [entry, outDir] = process.argv.slice(2)
   assert.ok(entry && outDir, 'A CLI reference needs an entry and output directory')
   const options = await resolveOptions({ entry, routerMode: 'hash' }, 'build')
-  // Match Online's deterministic optional HTML embedding in Markdown fences.
+  // Vite transforms slides concurrently. Shiki's shared grammar/theme registry
+  // must finish one request before another request can mutate that registry.
+  let highlighting = Promise.resolve()
+  for (const method of [
+    'codeToHtml',
+    'codeToHast',
+    'codeToTokens',
+    'codeToTokensBase',
+    'codeToTokensWithThemes',
+    'getLastGrammarState',
+  ]) {
+    const render = options.utils.shiki[method].bind(options.utils.shiki)
+    options.utils.shiki[method] = (...args) => {
+      const result = highlighting.then(() => render(...args))
+      highlighting = result.then(() => {}, () => {})
+      return result
+    }
+  }
+  // Empty input loads HTML but never tokenizes a line. Warm its real rules too.
   options.utils.shikiOptions.tokenizeTimeLimit = 0
-  await options.utils.shiki.codeToHtml('', { ...options.utils.shikiOptions, lang: 'html' })
+  const probe = await options.utils.shiki.codeToHtml('<div class="probe">HTML</div>', { ...options.utils.shikiOptions, lang: 'html' })
+  assert.ok(new Set([
+    ...probe.matchAll(/--shiki-light:(#[\da-f]+)/gi),
+  ].map(match => match[1])).size > 2, 'CLI HTML reference must contain syntax colors')
   if (process.argv.includes('--demo')) {
     Object.assign(options.data.config, {
       drawings: { enabled: false },

@@ -482,11 +482,23 @@ async function main() {
         await writeFile(resolve(folder, `${index + 1}-online.png`), actual)
         await writeFile(resolve(folder, `${index + 1}-diff.png`), Buffer.from(diff.image.split(',')[1], 'base64'))
         const { image: _image, ...pixels } = diff
+        const codeDiagnostics = diff.ratio > 0.001 && !fixture.expectedDifferences?.length
+          ? await Promise.all([referenceSlide, actualSlide].map(slide => slide.locator('pre code').evaluateAll(blocks => blocks.slice(0, 8).map(block => ({
+              text: block.textContent?.slice(0, 2000),
+              html: block.innerHTML.slice(0, 12000),
+              colors: [
+                ...new Set([
+                  ...block.querySelectorAll('span'),
+                ].map(span => getComputedStyle(span).color)),
+              ],
+            })))))
+          : undefined
         results.push({
           theme,
           slide: index + 1,
           layout: cases[index].layout,
           expectedDifferences: cases[index].expectedDifferences ?? [],
+          codeDiagnostics,
           ...pixels,
         })
         process.stdout.write(`${theme} ${index + 1} (${cases[index].layout}): ${diff.changed} differing pixels (${diff.exactChanged} exact)\n`)
@@ -506,7 +518,7 @@ async function main() {
         fallbackComparisons: results.filter(result => result.expectedDifferences?.length).length,
         mismatches: mismatches.length,
       },
-      adaptations: 'Local Arial/Georgia/monospace fonts in the original fixtures; pinned font bytes supplied identically to both clients in theme-font fixtures; fixed fixture cover background, identical mock SVGs for remote images, mocked PlantUML SVG after explicit consent, no external network, preloaded CLI optional HTML grammar and disabled its wall-clock tokenization cutoff, disabled CLI nonvisual services and transitions, deck diagnostics outside the slide excluded after verification, initial click position.',
+      adaptations: 'Local Arial/Georgia/monospace fonts in the original fixtures; pinned font bytes supplied identically to both clients in theme-font fixtures; fixed fixture cover background, identical mock SVGs for remote images, mocked PlantUML SVG after explicit consent, no external network, serialized CLI highlighting and warmed nonempty HTML before build with its wall-clock tokenization cutoff disabled, disabled CLI nonvisual services and transitions, deck diagnostics outside the slide excluded after verification, initial click position.',
       tolerance: { channelDelta: 8, changedPixelRatio: 0.001 },
       sourceFiles: Object.fromEntries(variants.filter(variant => variant.path).map(variant => [variant.name, variant.path])),
       fixtures: Object.fromEntries(Object.entries(docs).map(([name, src]) => [
