@@ -19,6 +19,8 @@ export default antfu({
     'skills/**/*.md',
     'plans/**',
     'online/vendor/**',
+    'online/test-results/**',
+    'online/playwright-report/**',
   ],
 })
   .removeRules(
