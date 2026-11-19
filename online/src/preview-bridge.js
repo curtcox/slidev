@@ -1,5 +1,6 @@
 import { applyDragPatches, dragPatchKey, parseDragPatch } from '../runtime/editor/document.js'
 import { createSandbox } from '../vendor/fragment-kit-v0.4.4/vendor/hashbin-sdk-v0.6.0.mjs'
+import { slidevDocument } from './document-type.js'
 
 /** A document replacement always destroys the previous author's execution world. */
 export function createPreviewBridge({ container, onStatus, onPosition = () => {}, onError = () => {}, onSourceChange = () => {}, getSource, onDragError = onError }) {
@@ -18,11 +19,10 @@ export function createPreviewBridge({ container, onStatus, onPosition = () => {}
   }
 
   function render({ src, css = '', slide = 1, click = 0, dark = false }) {
-    if (typeof src !== 'string' || typeof css !== 'string'
-      || src.length + css.length > 5 * 1024 * 1024
-      || new TextEncoder().encode(src).byteLength + new TextEncoder().encode(css).byteLength > 5 * 1024 * 1024) {
-      throw new Error('The document must contain at most 5 MiB of Markdown and CSS')
-    }
+    slidevDocument.normalize({
+      src,
+      slidev: { css },
+    })
     stop()
     const current = revision
     const cssBytes = new TextEncoder().encode(css).byteLength

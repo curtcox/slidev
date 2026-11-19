@@ -203,7 +203,8 @@ DocumentType `slidev` (envelope `format: hashbin-diagram`, `version: 1`, `type: 
 - `normalize` validates `src` (string, ≤5 MiB total) and `slidev.css` (string,
   default `""`), preserves unknown fields under `slidev` for forward
   compatibility, and rejects every other top-level field.
-- `isDefault` is true when `css` is empty. Default documents encode as a bare source string.
+- `isDefault` is true when `css` is empty and there are no extension fields.
+  Default documents encode as a source string.
 - `fileName` `slides.md`; `contentType` `text/markdown`. "Download" offers
   `slides.md`, `style.css`, or a zip of both.
 - Links: `#v1.<lz-string>` (kit default), `#<cid>`, `?example=<id>`,
@@ -446,7 +447,7 @@ contract, plus a fully offline reload that renders the gallery.
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
 | 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images and native/CSS transitions deployed; 141 exact SFC matches + 14 fallbacks and 52-slide DOM gate pass CI; 77 local visual comparisons cover fixtures and the gallery source; full demo visual fidelity and the 2 s phone target remain open |
-| 3 | Editor app (share, QR, HashBin, mobile) | TODO |
+| 3 | Editor app (share, QR, HashBin, mobile) | IN PROGRESS — document adapter and URL round-trip tests implemented; editor and app link handling pending |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
 | 6 | Offline / PWA | TODO |
@@ -1522,5 +1523,14 @@ records the measured results. Publication/tag approvals remain outstanding.
   **14 corpus fallbacks** and all **52 visible corpus cases**.
 - The resulting staged initial JS and CSS total **907,713 bytes gzip**.
   Five compressed local navigations on the same simulated profile took
-  **2,216–2,738 ms** (median **2,458 ms**). The 2 s timing target remains open,
-  and Phase 3 remains pending.
+  **2,216–2,738 ms** (median **2,458 ms**). The 2 s timing target remains open.
+
+### Phase 3 document format (2026-11-18)
+
+- The buildless Slidev adapter validates the combined 5 MiB Markdown and CSS
+  limit used by the preview. Fragment Kit round-trip tests cover compact v1
+  source links, CSS, extension fields, start-slide settings, malformed links
+  and unrelated document types. Extension fields keep the full envelope even
+  when CSS is empty, which preserves them across older editors.
+- The preview uses the same adapter for input validation. The editor UI, draft
+  recovery, app-level link opening, sharing and HashBin remain pending.
