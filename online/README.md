@@ -14,8 +14,9 @@ Links take priority over browser drafts. Failed links keep the current work.
 Use **More → Resume saved work** to recover a draft. Recovered drafts and file
 imports wait for Render. A `?run=0` link also waits for Render, even after edits.
 The Open dialog accepts Markdown, CSS, saved JSON documents and Slidev Online links.
-Download offers the two files separately or one JSON document that preserves both.
-ZIP download and the complete kit contract suite remain open.
+Download offers a ZIP with `slides.md` and `style.css`, the two files separately,
+or one JSON document that also preserves extension fields.
+The complete kit contract suite remains open.
 
 Phones and short windows use Slides, Markdown and CSS tabs. Desktop also has a
 Split view with a divider that supports dragging and keyboard arrows.

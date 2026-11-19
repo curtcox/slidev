@@ -447,7 +447,7 @@ contract, plus a fully offline reload that renders the gallery.
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
 | 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images, native/CSS transitions and lazy math deployed; 141 exact SFC matches + 14 fallbacks, 52-slide DOM gate and 77 gallery/fixture visual comparisons pass CI; full demo visual fidelity and the 2 s phone target remain open |
-| 3 | Editor app (share, QR, HashBin, mobile) | IN PROGRESS — Ace Markdown/CSS workspace, guarded link/CID loading, explicit draft recovery, sharing/QR and registration-gated HashBin controls deployed; complete kit contracts, ZIP download and preview polish pending |
+| 3 | Editor app (share, QR, HashBin, mobile) | IN PROGRESS — Ace Markdown/CSS workspace, guarded link/CID loading, explicit draft recovery, sharing/QR and registration-gated HashBin controls deployed; ZIP export verified locally in Chromium/WebKit; complete kit contracts and preview polish pending |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
 | 6 | Offline / PWA | TODO |
@@ -1611,3 +1611,14 @@ records the measured results. Publication/tag approvals remain outstanding.
 - No live paid Publish round trip ran. The registered client ID remains an
   owner action. Full kit contracts, ZIP download and preview polish remain
   Phase 3 work. The demo screenshot gate and 2 s phone target remain open.
+
+### Phase 3 ZIP export (2026-11-18)
+
+- Download now offers `slides.zip` containing the current `slides.md` and
+  `style.css`. Files retain their UTF-8 bytes and line endings. The saved JSON
+  option still preserves document extension fields. Archives use fixed filenames
+  and the document adapter enforces the combined 5 MiB limit before export.
+- All 38 online units pass, including byte-for-byte comparison with an archive
+  made independently by Python's `zipfile`. Local Chromium and WebKit pass the
+  editor suite with a real ZIP download. Lint and static/vendor/offline checks
+  pass. Deployment verification follows the push.

@@ -1,5 +1,6 @@
 import { isAppURL } from '../vendor/fragment-kit-v0.4.4/src/core/config.js'
 import { createDialog, download, element } from '../vendor/fragment-kit-v0.4.4/src/ui/dialog.js'
+import { deckZip } from './zip.js'
 
 export function createFileDialogs({ config, urlState, store, getDocument, onLink, onImport, onError }) {
   const open = createDialog('Open a deck', { id: 'open-dialog' })
@@ -58,6 +59,14 @@ export function createFileDialogs({ config, urlState, store, getDocument, onLink
   }
   open.body.append(link, load, fileLabel, message)
   const downloads = createDialog('Download deck', { id: 'download-dialog' })
+  const zip = element('button', 'ZIP (slides.md and style.css)', { type: 'button' })
+  zip.onclick = () => {
+    try {
+      download(deckZip(getDocument()), 'slides.zip')
+    }
+    catch (error) { onError(error.message) }
+  }
+  downloads.body.append(zip)
   for (const [label, name, type, content] of [
     [
       'Markdown',

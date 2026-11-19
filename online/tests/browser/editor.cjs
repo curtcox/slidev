@@ -1,5 +1,6 @@
 const assert = require('node:assert/strict')
 const { Buffer } = require('node:buffer')
+const { readFile } = require('node:fs/promises')
 const process = require('node:process')
 const { expect } = require('@playwright/test')
 const { chromium, firefox, webkit } = require('playwright')
@@ -109,6 +110,16 @@ async function main() {
     await page.getByRole('button', { name: 'Shorten link', exact: true }).click()
     await expect(page.locator('#share-link')).toHaveValue('https://is.gd/editor123')
     await page.locator('#share-dialog .fk-close').click()
+    await page.locator('#download').click()
+    const pendingDownload = page.waitForEvent('download')
+    await page.getByRole('button', { name: 'ZIP (slides.md and style.css)', exact: true }).click()
+    const zip = await pendingDownload
+    assert.equal(zip.suggestedFilename(), 'slides.zip')
+    const archive = await readFile(await zip.path())
+    assert.equal(archive.readUInt32LE(0), 0x04034B50)
+    assert.ok(archive.includes(Buffer.from(await source())))
+    assert.ok(archive.includes(Buffer.from(css)))
+    await page.locator('#download-dialog .fk-close').click()
     const kept = await source()
     const draft = await page.evaluate(() => localStorage.getItem('slidevonline:draft'))
     await page.evaluate(() => {
