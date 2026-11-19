@@ -445,7 +445,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images and native/CSS transitions deployed; 141 exact SFC matches + 14 fallbacks, 52-slide corpus DOM gate and 76 visual cases pass CI; full corpus visual fidelity and the 2 s phone target remain open |
+| 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images and native/CSS transitions deployed; 141 exact SFC matches + 14 fallbacks and 52-slide DOM gate pass CI; 77 local visual comparisons cover fixtures and the gallery source; full demo visual fidelity and the 2 s phone target remain open |
 | 3 | Editor app (share, QR, HashBin, mobile) | TODO |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -1497,3 +1497,30 @@ records the measured results. Publication/tag approvals remain outstanding.
 - On the same compressed local server and phone profile, five measurements
   before tuning had a **3,248 ms** median. Five after tuning had a **2,694 ms**
   median, ranging from **2,424 to 3,071 ms**. The phone target remains open.
+
+### Phase 2 lazy math and gallery fidelity (2026-11-18)
+
+- The [startup deployment](https://github.com/curtcox/slidev/actions/runs/44443846503)
+  passed all jobs, and the recovery site reported `b4c49eac` with
+  `dirty:false`. Local Chromium and WebKit passed the startup, font, theme,
+  transition, compiler and corpus checks.
+- `4c03f799` fixes rapid CSS-to-native navigation. A departing CSS slide is
+  excluded from the native snapshot so it cannot duplicate a shared element
+  name. The new regression passes in local Chromium and WebKit.
+- `3f33a1ed` adds every visible slide of each unmodified gallery example to
+  the CLI screenshot comparison. The current welcome example matches
+  pixel-for-pixel in Chromium and WebKit. Local reports passed **77 cases**
+  in each engine, with 75 and 76 exact matches respectively. Full screenshots
+  of the starter and composable-vue demos remain open. Their compiler and
+  DOM checks still run separately.
+- The trusted KaTeX ESM asset now loads on demand through the SDK. Offline
+  delivery verifies the original module bytes alongside the existing CSS,
+  fonts and MIT license. The first plain slide of a deck with math on later
+  slides makes no math asset request. Both local engines pass lazy loading,
+  shared assets on subsequent slides, renderer and stylesheet failure handling,
+  and offline math. Both also retained **141 exact SFC matches**,
+  **14 corpus fallbacks** and all **52 visible corpus cases**.
+- The resulting staged initial JS and CSS total **907,713 bytes gzip**.
+  Five compressed local navigations on the same simulated profile took
+  **2,216–2,738 ms** (median **2,458 ms**). The 2 s timing target remains open,
+  and Phase 3 remains pending.

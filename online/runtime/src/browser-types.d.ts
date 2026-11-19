@@ -7,5 +7,8 @@ declare const __SLIDEV_HAS_SERVER__: boolean
 declare const __SLIDEV_HASH_ROUTE__: boolean
 
 declare const hashbinSandbox: {
-  import: (url: string) => Promise<typeof import('./mermaid-entry')>
+  import: {
+    (url: 'runtime/diagrams/mermaid.js'): Promise<typeof import('./mermaid-entry')>
+    (url: 'runtime/math/katex.js'): Promise<typeof import('katex')>
+  }
 }

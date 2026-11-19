@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
+import { init, parse } from 'es-module-lexer'
 
 const require = createRequire(import.meta.url)
 
@@ -14,8 +15,13 @@ export function bundleMathStyles(): Plugin {
     async generateBundle() {
       const root = join(dirname(require.resolve('katex')), '..')
       const metadata = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'))
-      assert.equal(metadata.version, '0.19.1', 'Review math fonts and styles before upgrading KaTeX')
+      assert.equal(metadata.version, '0.19.1', 'Review the math runtime, fonts and styles before upgrading KaTeX')
       assert.equal(metadata.license, 'MIT')
+      const rendererFile = 'math/katex.js'
+      const renderer = await readFile(join(root, 'dist/katex.mjs'))
+      await init
+      assert.deepEqual(parse(renderer.toString())[0], [], 'The KaTeX ESM release must load directly from a Blob URL')
+      assert.ok(renderer.length < 1024 * 1024, 'Review the math renderer size')
       const source = await readFile(join(root, 'dist/katex.min.css'), 'utf8')
       const fonts = []
       let css = source
@@ -35,6 +41,7 @@ export function bundleMathStyles(): Plugin {
       assert.ok(!css.includes('url(fonts/'), 'All math fonts must be self-contained')
       assert.ok(css.length < 512 * 1024, 'Review the math stylesheet size')
       this.emitFile({ type: 'asset', fileName: 'math/katex.css', source: css })
+      this.emitFile({ type: 'asset', fileName: rendererFile, source: renderer })
       this.emitFile({ type: 'asset', fileName: 'math/LICENSE', source: await readFile(join(root, 'LICENSE')) })
       this.emitFile({
         type: 'asset',
@@ -47,6 +54,11 @@ export function bundleMathStyles(): Plugin {
           fileName: 'math/katex.css',
           bytes: css.length,
           sha256: createHash('sha256').update(css).digest('hex'),
+          renderer: {
+            fileName: rendererFile,
+            bytes: renderer.length,
+            sha256: createHash('sha256').update(renderer).digest('hex'),
+          },
           fonts,
         }, null, 2)}\n`,
       })

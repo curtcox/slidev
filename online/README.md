@@ -120,10 +120,11 @@ The offline browser suite also renders a seriph fact slide after a fully
 offline reload, checking that theme-specific styles survive cached delivery.
 
 The runtime fidelity harness compares the staged bundle through the editor
-bridge with `slidev build` on a separate origin. Its 76 cases cover nineteen
-fixtures in default and seriph, all 33 additional theme layouts and five font
-fixtures. Coverage includes Markdown, columns, scoped styles, code, built-in
-components, TOC, icons, lazy syntax languages, math, Mermaid, positioned drag
+bridge with `slidev build` on a separate origin. It checks the unmodified
+gallery examples, nineteen fixtures in default and seriph, all 33 additional
+theme layouts and five font fixtures. Coverage includes Markdown, columns,
+scoped styles, code, built-in components, TOC, icons, lazy syntax languages,
+math, Mermaid, positioned drag
 elements, named slots, theme artwork and initial click states. Font fixtures
 supply identical pinned bytes to both clients and require the used webfonts to
 load; Apple Basic retains its local/system font stack. Color-only image props
@@ -131,7 +132,8 @@ disable CLI image preloading. Reports and CLI/online/diff PNGs go to
 `runtime/.cache/fidelity/`, separated by browser. Use `--skip-reference-build`
 only when the fixtures and CLI are unchanged; `BROWSER=webkit` selects WebKit.
 CI uploads a nonblocking Chromium report while platform/font coverage
-stabilizes. Full example-corpus fidelity and phone performance remain open.
+stabilizes. The starter and composable-vue demo sources have separate compiler
+and DOM checks.
 
 The bundled navigation adapter provides slide aliases, counters, links, the
 upstream table of contents, slide-enter/leave hooks, conditional rendering,
@@ -178,13 +180,12 @@ support; characterization disables Shiki's elapsed-time cutoff in both test comp
 compare complete output under CI load. Product renders retain the CLI's default
 500 ms line budget.
 
-KaTeX styles and all twenty WOFF2 fonts load only when a slide contains math.
-The stylesheet embeds unchanged font bytes as data URLs so opaque frames can
-use the fonts without cross-origin requests. The build audits KaTeX 0.19.1,
-its MIT license, font count and size. Styles, license and audit metadata ship
-under `runtime/math/` and are cached offline. Equation click ranges use the
-upstream wrapper and highlighting rules. Failed delivery produces a visible
-notice. The page CSP permits data fonts; script permissions are unchanged.
+The pinned KaTeX 0.19.1 module loads when compiling a slide or slide title that
+may contain math. Rendered equations load a stylesheet with all twenty WOFF2
+fonts embedded as data URLs for the opaque frame. The original module and font
+bytes, MIT license and build audit ship under `runtime/math/` and are cached
+offline. Equation click ranges use the upstream wrapper and highlighting
+rules. Failed delivery produces a visible error or notice.
 
 Mermaid 12.3.0 is a separate standalone module, imported through the SDK only
 when the upstream Mermaid component renders a diagram. The build rejects

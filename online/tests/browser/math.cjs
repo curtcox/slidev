@@ -1,5 +1,6 @@
 const assert = require('node:assert/strict')
 const process = require('node:process')
+const { expect } = require('@playwright/test')
 const { chromium, firefox, webkit } = require('playwright')
 
 async function main() {
@@ -11,7 +12,11 @@ async function main() {
     const errors = []
     const requests = []
     page.on('pageerror', error => errors.push(String(error)))
-    page.on('request', request => /\/runtime\/math\/katex.css$/.test(request.url()) && requests.push(request.url()))
+    page.on('request', (request) => {
+      const asset = request.url().match(/\/runtime\/math\/(katex\.(?:css|js))$/)?.[1]
+      if (asset)
+        requests.push(asset)
+    })
     const initialize = async () => {
       await page.goto(process.argv[2] || 'http://127.0.0.1:8000/')
       await page.waitForSelector('body[data-ready="true"]')
@@ -24,11 +29,18 @@ async function main() {
         state.bridge = createPreviewBridge({
           container: host,
           onStatus: status => state.done = status === 'rendered',
+          onPosition: position => state.slide = position.slide,
           onError: message => state.errors.push(message),
         })
       })
     }
-    const source = String.raw`# Equations
+    const source = String.raw`# Introduction
+
+The equations are on the next slide.
+
+---
+
+# Equations
 
 Inline $E = mc^2$.
 
@@ -40,6 +52,7 @@ x &= y + z
 $$
 
 ---
+
 # More math
 
 $\int_0^1 x^2\,dx = \frac{1}{3}$
@@ -52,6 +65,10 @@ $\int_0^1 x^2\,dx = \frac{1}{3}$
     const verify = async () => {
       const frame = page.frameLocator('#math-test iframe')
       assert.equal(await page.locator('#math-test iframe').getAttribute('sandbox'), 'allow-scripts')
+      await page.evaluate(() => window.mathTest.bridge.goto(2))
+      await page.waitForFunction(() => window.mathTest.slide === 2 || window.mathTest.errors.length)
+      assert.deepEqual(await page.evaluate(() => window.mathTest.errors), [])
+      await frame.getByRole('heading', { name: 'Equations', exact: true }).waitFor()
       assert.equal(await frame.locator('.katex').count(), 2)
       assert.equal(await frame.locator('#online-notices').count(), 0)
       assert.ok(await frame.locator('.katex .dishonored').count() > 0)
@@ -62,19 +79,18 @@ $\int_0^1 x^2\,dx = \frac{1}{3}$
         return fonts.some(font => font.family.replaceAll('"', '') === 'KaTeX_Main')
       }), true, 'Bundled fonts must actually load in the opaque frame')
       const before = await frame.locator('.katex .dishonored').first().textContent()
-      await page.evaluate(() => window.mathTest.bridge.goto(1, 1))
-      await frame.locator('.katex .dishonored').first().waitFor()
-      await page.waitForFunction(() => window.mathTest.done)
-      assert.notEqual(await frame.locator('.katex .dishonored').first().textContent(), before)
-      await page.evaluate(() => window.mathTest.bridge.goto(2))
+      await page.evaluate(() => window.mathTest.bridge.goto(2, 1))
+      await expect(frame.locator('.katex .dishonored').first()).not.toHaveText(before)
+      await page.evaluate(() => window.mathTest.bridge.goto(3))
       await frame.getByRole('heading', { name: 'More math', exact: true }).waitFor()
       assert.equal(await frame.locator('#online-notices').count(), 0)
     }
     await initialize()
-    assert.equal(requests.length, 0, 'Plain welcome slides must not load math styles')
+    assert.deepEqual(requests, [], 'The welcome deck must not load math assets')
     await render()
+    assert.deepEqual(requests, [], 'A plain slide must not load math assets for later slides')
     await verify()
-    assert.equal(requests.length, 1, 'Later math slides must reuse the stylesheet')
+    assert.deepEqual(requests, ['katex.js', 'katex.css'], 'Later math slides must reuse the renderer and stylesheet')
     await page.waitForFunction(() => document.querySelector('#offline-status').textContent === 'Available offline')
     await context.setOffline(true)
     await initialize()
@@ -84,6 +100,10 @@ $\int_0^1 x^2\,dx = \frac{1}{3}$
     await context.close()
     const failureContext = await browser.newContext({ serviceWorkers: 'block' })
     const failurePage = await failureContext.newPage()
+    let rendererUnavailable = true
+    await failurePage.route('**/runtime/math/katex.js', route => rendererUnavailable
+      ? route.fulfill({ status: 404, body: 'Unavailable' })
+      : route.continue())
     await failurePage.route('**/runtime/math/katex.css', route => route.fulfill({ status: 404, body: 'Unavailable' }))
     await failurePage.goto(process.argv[2] || 'http://127.0.0.1:8000/')
     await failurePage.waitForSelector('body[data-ready="true"]')
@@ -92,18 +112,21 @@ $\int_0^1 x^2\,dx = \frac{1}{3}$
       const host = document.createElement('div')
       host.id = 'missing-math'
       document.body.append(host)
-      await new Promise((resolve, reject) => {
-        const bridge = createPreviewBridge({
+      window.renderMissingMath = () => new Promise((resolve, reject) => {
+        createPreviewBridge({
           container: host,
           onStatus: s => s === 'rendered' && resolve(),
-          onError: reject,
-        })
-        bridge.render({ src: '# Still readable\n\n$x^2$' })
+          onError: message => reject(new Error(message)),
+        }).render({ src: '# Still readable\n\n$x^2$' })
       })
     })
+    await assert.rejects(failurePage.evaluate(() => window.renderMissingMath()), /bundled KaTeX renderer is unavailable/)
+    await expect(failurePage.locator('#missing-math iframe')).toHaveCount(0)
+    rendererUnavailable = false
+    await failurePage.evaluate(() => window.renderMissingMath())
     assert.match(await failurePage.frameLocator('#missing-math iframe').locator('#online-notices').textContent(), /Math styles and fonts are unavailable/)
     await failureContext.close()
-    process.stdout.write(`${engine}: math styles, bundled fonts, equation click ranges, reuse, visible failure and offline reload passed\n`)
+    process.stdout.write(`${engine}: lazy math renderer and styles, bundled fonts, equation click ranges, reuse, visible failure and offline reload passed\n`)
   }
   finally { await browser.close() }
 }

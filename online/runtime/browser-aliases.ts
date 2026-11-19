@@ -68,6 +68,8 @@ export function browserTransforms(): Plugin {
         return shim('transformers')
       if (file.endsWith('/node/syntax/index.ts') && source === './snippet')
         return shim('snippet')
+      if (file.endsWith('/node/syntax/katex.ts') && source === 'katex')
+        return shim('katex')
       if (file.endsWith('/node/syntax/codeblock/magic-move.ts') && source === '../snippet')
         return shim('snippet')
       if (file.endsWith('/node/syntax/codeblock/index.ts')) {

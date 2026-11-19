@@ -7,6 +7,7 @@ import { parseSync } from '../../../../packages/parser/src/core'
 import { templateTitleRendererMd } from '../../../../packages/slidev/node/virtual/titles'
 import { wrapSlideLayout } from '../../../../packages/slidev/node/vite/layoutWrapperCore'
 import { createMarkdownPlugin } from '../../../../packages/slidev/node/vite/markdown'
+import { prepareKatex } from '../shims/katex'
 import { resolveTheme } from '../themes'
 import { loadLanguage } from './languages'
 
@@ -88,6 +89,7 @@ export async function createDeckCompiler(src: string, { plantUmlAllowed = false,
   const requestedTwoslash = headmatter.twoslash != null && headmatter.twoslash !== false
   config.twoslash = false
   let currentWarnings: string[] = []
+  const hasMath = src.includes('$')
   const safeShiki: Record<string, unknown> = {}
   for (const method of ['codeToHtml', 'codeToTokens'] as const) {
     safeShiki[method] = (async (code: string, options: any) => {
@@ -112,7 +114,7 @@ export async function createDeckCompiler(src: string, { plantUmlAllowed = false,
       config,
       slides,
       features: {
-        katex: src.includes('$'),
+        katex: hasMath,
       },
       watchFiles: {},
       markdownFiles: {},
@@ -149,6 +151,8 @@ export async function createDeckCompiler(src: string, { plantUmlAllowed = false,
       const pending = queue.then(async () => {
         currentWarnings = []
         const source = await templateTitleRendererMd.getContent.call({} as any, options)
+        if (hasMath && slides.some(slide => slide.title?.includes('$')))
+          await prepareKatex()
         const result = await (hook as any).call({
           error(error: unknown) { throw error },
         }, source, '/@slidev/title-renderer.md')
@@ -180,6 +184,8 @@ export async function createDeckCompiler(src: string, { plantUmlAllowed = false,
         currentWarnings = [...theme.warnings]
         if (requestedTwoslash || /^```[^\n]*\btwoslash\b|^\s*\/\/\s*\^[?!]/m.test(slide.content))
           currentWarnings.push('Twoslash is unavailable; code blocks use static highlighting')
+        if (hasMath && slide.content.includes('$'))
+          await prepareKatex()
         const id = `online-${key.slice(0, 16)}`
         const result = await (hook as any).call({
           error(error: unknown) { throw error },

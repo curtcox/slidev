@@ -110,7 +110,7 @@ it('ships forty pinned grammar bundles, embedded dependencies and the license in
   }
 })
 
-it('ships audited KaTeX fonts in a self-contained offline stylesheet', async () => {
+it('ships the original KaTeX renderer and self-contained fonts offline', async () => {
   const base = new URL('../dist/runtime/', import.meta.url)
   const audit = JSON.parse(await fs.readFile(new URL('math/audit.json', base), 'utf8'))
   assert.equal(audit.version, '0.19.1')
@@ -119,6 +119,10 @@ it('ships audited KaTeX fonts in a self-contained offline stylesheet', async () 
   const css = await fs.readFile(new URL(audit.fileName, base))
   assert.equal(css.length, audit.bytes)
   assert.equal(createHash('sha256').update(css).digest('hex'), audit.sha256)
+  const renderer = await fs.readFile(new URL(audit.renderer.fileName, base))
+  assert.deepEqual(renderer, await fs.readFile(new URL('../../node_modules/katex/dist/katex.mjs', import.meta.url)))
+  assert.equal(renderer.length, audit.renderer.bytes)
+  assert.equal(createHash('sha256').update(renderer).digest('hex'), audit.renderer.sha256)
   const embedded = [
     ...css.toString().matchAll(/data:font\/woff2;base64,([A-Za-z0-9+/=]+)/g),
   ]
@@ -136,6 +140,7 @@ it('ships audited KaTeX fonts in a self-contained offline stylesheet', async () 
   }
   vm.runInNewContext(await fs.readFile(new URL('../offline-assets.js', base), 'utf8'), scope)
   assert.equal(scope.module.exports.hashes[`runtime/${audit.fileName}`], audit.sha256)
+  assert.equal(scope.module.exports.hashes[`runtime/${audit.renderer.fileName}`], audit.renderer.sha256)
 })
 
 it('ships all theme font subsets with unchanged bytes, licenses and offline hashes', async () => {
