@@ -138,6 +138,21 @@ async function main() {
     }
     catch (error) { reportError(error.message) }
   }
+  const overview = createSlideOverview({
+    getSlides: () => metadata,
+    getPosition: () => slide,
+    onSelect: no => preview.goto(no),
+  })
+  // Hide inactive phone panels before Ace measures either editor.
+  const tabs = mountWorkspace({
+    onOverview: () => overview.open(),
+    onPrevious: () => preview.goto(Math.max(1, slide - 1)),
+    onNext: () => preview.goto(Math.min(total, slide + 1)),
+    onDark(value) {
+      dark = value
+      render()
+    },
+  })
   editors = createEditors({
     markdown: document.querySelector('#markdown-editor'),
     css: document.querySelector('#css-editor'),
@@ -279,20 +294,7 @@ async function main() {
     ])
       container.append(element('a', label, { href, target: '_blank', rel: 'noopener noreferrer' }))
   }
-  const overview = createSlideOverview({
-    getSlides: () => metadata,
-    getPosition: () => slide,
-    onSelect: no => preview.goto(no),
-  })
-  const tabs = mountWorkspace({
-    onOverview: () => overview.open(),
-    onPrevious: () => preview.goto(Math.max(1, slide - 1)),
-    onNext: () => preview.goto(Math.min(total, slide + 1)),
-    onDark(value) {
-      dark = value
-      render()
-    },
-  })
+
   function safely(work) {
     try {
       return work()
