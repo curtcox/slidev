@@ -104,7 +104,7 @@ export function createDocumentLoader({ urlState, store, onOpen, onError, onPendi
       ])
       if (current !== revision)
         return false
-      onOpen(urlState.documents.normalize(doc), { ...options, savedCid })
+      onOpen(urlState.documents.normalize(doc), { ...options, savedCid, kind: state.kind })
       return true
     }
     catch (error) {

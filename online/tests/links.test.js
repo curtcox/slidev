@@ -78,6 +78,20 @@ it('failed explicit links and unknown examples leave the existing document intac
   assert.equal(errors.length, 2)
 })
 
+it('reports example identity so opening it can replace the query with document state', async () => {
+  let opened
+  const loader = createDocumentLoader({
+    urlState,
+    fetchSource: async () => new Response('# Welcome'),
+    onOpen: (doc, options) => opened = { doc, options },
+    onError: error => assert.fail(error),
+  })
+  assert.equal(await loader.open('https://example.com/?example=welcome&run=0'), true)
+  assert.equal(opened.doc.src, '# Welcome')
+  assert.equal(opened.options.kind, 'example')
+  assert.equal(opened.options.run, false)
+})
+
 it('a late load cannot replace a newer document or manual edits', async () => {
   let resolve
   const opened = []

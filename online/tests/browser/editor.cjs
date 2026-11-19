@@ -32,6 +32,11 @@ async function main() {
     await page.goto(base)
     await page.waitForSelector('body[data-editor-ready="true"]')
     await expect(frame().locator('h1')).toHaveText('Hello, Slidev.')
+    await page.goto(`${base}?example=welcome&run=0`)
+    await page.waitForSelector('body[data-editor-ready="true"]')
+    await expect.poll(() => new URL(page.url()).hash.startsWith('#v1.')).toBe(true)
+    assert.equal(new URL(page.url()).searchParams.has('example'), false)
+    await expect(page.locator('#preview iframe')).toHaveCount(0)
     const deck = '# First\n\n<!-- <img src=x onerror=alert(1)> notes -->\n\n---\n\n# Second\n\n<script setup>globalThis.started = (globalThis.started || 0) + 1</script>\n'
     const css = 'h1 { color: rgb(12, 34, 56); }'
     const href = await build({
