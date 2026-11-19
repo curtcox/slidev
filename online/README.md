@@ -115,7 +115,10 @@ measurement with compressed delivery.
 The runtime browser suite exercises author scripts, style isolation, slots,
 click navigation, hostile-deck isolation, document replacement, built-ins,
 TOC navigation, motion, markers and visible unsupported features. Full source-
-corpus screenshots record known feature fallbacks separately. The phone performance target remains open.
+corpus screenshots record known feature fallbacks separately. The visual job is
+a blocking deployment gate: supported slides must meet the existing 0.1% pixel
+tolerance, and file imports must fail visibly. The phone performance target
+remains open.
 
 The official `default`, `seriph`, `bricks` and `shibainu` themes are pinned at
 0.25.0; `apple-basic` is pinned at 0.25.1. All five use the MIT license.

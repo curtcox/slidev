@@ -45,7 +45,7 @@ high-confidence security + correctness, then larger refactors. You may cherry-pi
 | 023 | Decompose god functions in `export.ts`/`cli.ts` | P3 | L | MED | 022 | TODO |
 | 024 | Incremental HMR parse cache | P3 | L | MED | — | TODO |
 | 025 | Guard `skills/`-vs-`docs/` drift in CI | P3 | S-M | LOW | — | TODO |
-| 026 | Slidev Online (browser editor on Fragment Kit, GitHub Pages) | P1 | XL | MED-HIGH | SDK v0.6.0 / kit v0.4.4 / workflow `@v4` verified | IN PROGRESS — Phases 0–1 and 3–4 complete; docs, 15-deck gallery, editor and five themes deployed; all three CI browsers pass 187 SFC comparisons and 84 corpus slides; 162-case demo/fixture visual report passes CI and local Chromium/WebKit with explicit fallbacks; live runtime/math/offline acceptance passes both engines; complete-editor phone timing is 3.23 s median, above the 2 s target; promotion to a blocking visual gate and Phases 5–8 remain open; HashBin registration remains an owner action |
+| 026 | Slidev Online (browser editor on Fragment Kit, GitHub Pages) | P1 | XL | MED-HIGH | SDK v0.6.0 / kit v0.4.4 / workflow `@v4` verified | IN PROGRESS — Phases 0–1 and 3–4 complete; docs, 15-deck gallery, editor and five themes deployed; all three CI browsers pass 187 SFC comparisons and 84 corpus slides; 162-case demo/fixture visual report passes CI and local Chromium/WebKit with explicit fallbacks; live runtime/math/offline acceptance passes both engines; the visual suite now blocks deployment; deferred QR and earlier shell loading reduce complete-editor phone timing to 2.75 s median, still above the 2 s target; Phases 5–8 remain open; HashBin registration remains an owner action |
 
 Status values: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED` (one-line reason) |
 `REJECTED` (one-line rationale).

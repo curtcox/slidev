@@ -446,7 +446,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images, native/CSS transitions and lazy math deployed; 187 exact SFC matches + 14 fallbacks, 84-slide DOM gate and 109 gallery/fixture visual comparisons pass CI; 162 visual cases cover both demos in CI and local Chromium/WebKit, including explicit fallbacks; the visual job remains a nonblocking report and the 2 s phone target remains open |
+| 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images, native/CSS transitions and lazy math deployed; 187 exact SFC matches + 14 fallbacks, 84-slide DOM gate and 109 gallery/fixture visual comparisons pass CI; 162 visual cases cover both demos in CI and local Chromium/WebKit, including explicit fallbacks; the visual job now blocks deployment; deferred QR loading and earlier shell loading reduce the clean-build phone median to 2.75 s, still above the 2 s target |
 | 3 | Editor app (share, QR, HashBin, mobile) | DONE — workspace, links/CIDs, drafts, sharing/QR, registration-gated HashBin controls, ZIP, kit contracts, overview/touch and source diagnostics deployed and verified live in Chromium/WebKit; client registration remains an owner action |
 | 4 | Docs and gallery | DONE — Markdown docs, 15 example decks, kit gallery and opaque-rendered covers deployed; all three CI browsers, 109 visual comparisons and live Chromium/WebKit gallery/offline checks pass |
 | 5 | AI-assisted editing | TODO |
@@ -1864,3 +1864,28 @@ records the measured results. Publication/tag approvals remain outstanding.
   with a median of 3,231 ms. The initial runtime is 922,087 bytes gzip.
   The 3 MB payload budget passes. The 2 s timing target remains open.
   These are simulated measurements on the development host.
+
+
+### Phase 2 startup and visual deployment gate (2026-11-19)
+
+- Commit `2e36515f` is pushed on `main`. Ace no longer blocks discovery of the
+  editor module. QR tools load when the user opens QR. The editor shell remains
+  native modules, and author code still runs only inside the opaque SDK frame.
+- Five cold Chromium loads of the clean committed build measured 2,725–3,089 ms,
+  with a median of 2,746 ms. The same-session baseline median was 3,083 ms.
+  Both runs used gzip delivery on a local server and the existing simulated
+  phone profile. These measurements describe the development host, not a
+  physical phone. The 2 s target remains open.
+- The initial runtime remains 922,087 bytes gzip. Its SHA-256 remains
+  `b930d19a87b71376037874cb2a81e29b60ffef310dffac326e4cd2ae3774511c`.
+  Loading changes do not change the runtime bytes or gallery fingerprints.
+- Local Chromium and WebKit pass all 74 applicable contracts, with four
+  demo-only skips across both engines. New cases cover deferred QR loading,
+  dialog reuse and a visible optional-module failure that preserves the document.
+  Both engines pass first-use QR after a fully offline reload, cached seriph
+  rendering and gallery interaction. WebKit also passes the editor and runtime
+  suites. All 40 online units, root lint and static/vendor/offline checks pass.
+- The visual job now blocks deployment. Supported slides retain the existing
+  0.1% pixel tolerance. Documented feature fallbacks remain diagnostic, and
+  file imports must fail visibly. Final local visual and deployment acceptance
+  follow this change. Phase 2 remains open for the phone timing target.

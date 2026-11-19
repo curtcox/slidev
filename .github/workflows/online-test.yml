@@ -54,10 +54,9 @@ jobs:
     with:
       kit-path: online/vendor/fragment-kit-v0.4.4
   fidelity:
-    name: Runtime visual fidelity (report)
+    name: Runtime visual fidelity
     runs-on: ubuntu-latest
-    # Start as a report until the platform/font matrix is stable in Actions.
-    continue-on-error: true
+    # Supported slides must match the CLI. Documented fallbacks stay diagnostic.
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
       - uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115

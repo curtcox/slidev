@@ -29,6 +29,12 @@ async function main() {
     await page.reload()
     await page.waitForSelector('body[data-ready="true"]')
     assert.match(await page.frameLocator('#preview iframe').locator('h1').textContent(), /Hello, Slidev/)
+    // The first QR import must also work after an offline reload, before any
+    // dialog has loaded the optional scanner into this page's module cache.
+    await expect(page.locator('#qr-dialog')).toHaveCount(0)
+    await page.locator('#qr').click()
+    await expect(page.locator('#qr-code svg')).toBeVisible()
+    await page.locator('#qr-dialog .fk-close').click()
     await page.evaluate(async () => {
       const { createPreviewBridge } = await import('./src/preview-bridge.js')
       const host = document.createElement('div')
@@ -59,7 +65,7 @@ async function main() {
     await page.frameLocator('#preview iframe').getByRole('button', { name: 'Votes: 0' }).click()
     await page.frameLocator('#preview iframe').getByRole('button', { name: 'Votes: 1' }).waitFor()
     assert.deepEqual(errors, [])
-    process.stdout.write(`${engine}: welcome deck, opaque boundary, offline reload, offline seriph theme and offline gallery interaction passed\n`)
+    process.stdout.write(`${engine}: welcome deck, opaque boundary, offline reload, first-use offline QR, offline seriph theme and offline gallery interaction passed\n`)
     await context.close()
   }
   finally { await browser.close() }
