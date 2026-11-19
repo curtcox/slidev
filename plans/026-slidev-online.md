@@ -446,7 +446,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images, native/CSS transitions and lazy math deployed; 187 exact SFC matches + 14 fallbacks, 84-slide DOM gate and 109 gallery/fixture visual comparisons pass CI; full demo visual fidelity and the 2 s phone target remain open |
+| 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images, native/CSS transitions and lazy math deployed; 187 exact SFC matches + 14 fallbacks, 84-slide DOM gate and 109 gallery/fixture visual comparisons pass CI; 162 visual cases now cover the demos locally, including explicit fallbacks; expanded CI acceptance and the 2 s phone target remain open |
 | 3 | Editor app (share, QR, HashBin, mobile) | DONE — workspace, links/CIDs, drafts, sharing/QR, registration-gated HashBin controls, ZIP, kit contracts, overview/touch and source diagnostics deployed and verified live in Chromium/WebKit; client registration remains an owner action |
 | 4 | Docs and gallery | DONE — Markdown docs, 15 example decks, kit gallery and opaque-rendered covers deployed; all three CI browsers, 109 visual comparisons and live Chromium/WebKit gallery/offline checks pass |
 | 5 | AI-assisted editing | TODO |
@@ -1811,3 +1811,26 @@ records the measured results. Publication/tag approvals remain outstanding.
   their image bytes. Their fingerprints now identify the updated runtime.
 - The expanded demo comparison runs locally. Its harness and final visual
   acceptance follow separately. Deployment acceptance follows the push.
+
+
+### Phase 2 full demo visual report (2026-11-19)
+
+- The visual harness now covers both original demo decks and all gallery decks.
+  CLI references retain local components, snippets and setup files. Each build
+  runs in its own process because the CLI caches its first project root.
+  Preloading HTML makes Markdown code colors independent of build order.
+- Local Chromium passes all 162 cases. It captures 160 screenshot comparisons
+  and checks two exact file-import errors. All 131 supported comparisons meet
+  the existing 0.1% tolerance. Of those, 127 match every pixel.
+- The remaining 29 screenshots identify known differences: filesystem
+  components, unbundled icons, Monaco, PlantUML consent and an imported TOC title.
+  They remain diagnostic comparisons and do not count as CLI pixel parity.
+  Deck-level warning text is checked before capture. Inline fallbacks remain
+  visible. Reports include source paths, hashes and separate case counts.
+- Both local browsers retain all 84 corpus cases with the shared expectations.
+  All 40 online units, root lint/typecheck, runtime build/typecheck and static,
+  vendor, gallery and offline checks pass. The revised reference helper also
+  passes an independent build from a different project root.
+- The expanded WebKit run and CI acceptance follow. The CI visual job remains
+  a nonblocking report while these cases stabilize. The initial runtime is
+  922,087 bytes gzip. The complete runtime's 2 s phone target remains open.

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { Buffer } from 'node:buffer'
+import { spawn } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
@@ -9,10 +10,9 @@ import { gzipSync } from 'node:zlib'
 import { parseSync } from '@slidev/parser/core'
 import { chromium, firefox, webkit } from 'playwright'
 import YAML from 'yaml'
-import { build } from '../../../packages/slidev/node/commands/build'
-import { resolveOptions } from '../../../packages/slidev/node/options'
 import { serve } from '../../vendor/fragment-kit-v0.4.4/tools/serve.mjs'
 import fontCatalog from '../src/font-catalog.json' with { type: 'json' }
+import { expectedErrors, missingComponents, titleComponents } from './corpus-expectations'
 
 const root = fileURLToPath(new URL('../../../', import.meta.url))
 const cache = resolve(root, 'online/runtime/.cache/fidelity')
@@ -32,6 +32,7 @@ x &= y + z
 \end{aligned}
 $$
 ` },
+  { layout: 'center', content: '# Built-in branding\n\n<PoweredBySlidev mt-10 />' },
   { layout: 'cover', content: '# Theme cover\n\nA browser presentation.' },
   { layout: 'default', content: '# Markdown\n\nA **strong** statement and *emphasis*.\n\n- First\n- Second\n\n> A quotation.\n\n| Name | Value |\n| --- | --- |\n| Answer | 42 |' },
   { layout: 'section', content: '# Section heading' },
@@ -51,8 +52,8 @@ $$
 async function main() {
   await mkdir(cache, { recursive: true })
   const docs: Record<string, string> = {}
-  type Fixture = typeof fixtures[number] & { expectedFonts?: string[], frontmatter?: Record<string, unknown> }
-  const variants: { name: string, theme: string, cases: Fixture[], themeFonts: boolean, source?: string }[] = ['default', 'seriph'].flatMap(theme => [
+  type Fixture = typeof fixtures[number] & { expectedFonts?: string[], frontmatter?: Record<string, unknown>, expectedError?: string, expectedDifferences?: string[] }
+  const variants: { name: string, theme: string, cases: Fixture[], themeFonts: boolean, source?: string, entry?: string, path?: string }[] = ['default', 'seriph'].flatMap(theme => [
     {
       name: theme,
       theme,
@@ -156,10 +157,17 @@ async function main() {
       ] as Fixture[],
     })
   }
-  const examples = resolve(root, 'online/examples')
-  for (const file of (await readdir(examples)).filter(file => file.endsWith('.md')).sort()) {
-    const source = await readFile(resolve(examples, file), 'utf8')
-    const { slides } = parseSync(source, file)
+  const sources = [
+    ...(await readdir(resolve(root, 'online/examples'))).filter(file => file.endsWith('.md')).sort().map(file => ({
+      name: `example-${file.slice(0, -3)}`,
+      path: `online/examples/${file}`,
+    })),
+    { name: 'demo-starter', path: 'demo/starter/slides.md' },
+    { name: 'demo-composable-vue', path: 'demo/composable-vue/slides.md' },
+  ]
+  for (const { name, path } of sources) {
+    const source = await readFile(resolve(root, path), 'utf8')
+    const { slides } = parseSync(source, path)
     const cases = slides.filter(slide => !slide.frontmatter.disabled && !slide.frontmatter.hide)
       .map((slide, index) => ({
         layout: slide.frontmatter.layout ?? (index === 0
@@ -169,16 +177,41 @@ async function main() {
         expectedDiagrams: [
           ...slide.content.matchAll(/^```mermaid\b/gm),
         ].length,
+        expectedError: expectedErrors[path]?.[index + 1],
+        // Full screenshots are still recorded for these known fallbacks. Their
+        // differing UI cannot be advertised as CLI pixel parity.
+        expectedDifferences: [
+          ...(path === 'demo/starter/slides.md' && index === 3
+            ? ['TOC title from a filesystem slide import']
+            : []),
+          ...(missingComponents[path]?.[index + 1] ?? []),
+          ...(path === 'demo/composable-vue/slides.md'
+            ? titleComponents.filter(name => new RegExp(`<${name}\\b`).test(slide.content))
+            : []),
+          ...(/^```[^\n]*\{monaco(?:-run)?\b/m.test(slide.content)
+            ? ['Monaco static fallback']
+            : []),
+          ...(/^```plantuml\b/m.test(slide.content)
+            ? ['PlantUML consent']
+            : []),
+        ],
       }))
     variants.push({
-      name: `example-${file.slice(0, -3)}`,
+      name,
       theme: 'default',
       themeFonts: true,
       cases,
       source,
+      path,
+      // CLI references retain the demo's own components, snippets and setup.
+      entry: name.startsWith('demo-')
+        ? resolve(root, path)
+        : undefined,
     })
   }
-  for (const { name, theme, cases, themeFonts, source } of variants) {
+  if (process.argv.includes('--demos-only'))
+    variants.splice(0, variants.length, ...variants.filter(variant => variant.name.startsWith('demo-')))
+  for (const { name, theme, cases, themeFonts, source, entry: sourceEntry } of variants) {
     const deck = source ?? cases.map((fixture, index) => `---\n${YAML.stringify({
       ...(index === 0
         ? {
@@ -217,14 +250,22 @@ async function main() {
     const entry = resolve(folder, 'slides.md')
     await writeFile(entry, deck)
     if (!process.argv.includes('--skip-reference-build')) {
-      await build(await resolveOptions({ entry, routerMode: 'hash' }, 'build'), {
-        base: './',
-        logLevel: 'warn',
-        build: {
-          outDir: resolve(cache, 'reference', name),
-          emptyOutDir: true,
-        },
-      }, {} as any)
+      // The CLI caches its project root for a single deck per process.
+      // Isolate references so demo snippets/components use their own roots.
+      await new Promise<void>((done, reject) => {
+        const worker = spawn(process.execPath, [
+          fileURLToPath(new URL('./fidelity-reference.mjs', import.meta.url)),
+          sourceEntry ?? entry,
+          resolve(cache, 'reference', name),
+          ...(sourceEntry
+            ? ['--demo']
+            : []),
+        ], { stdio: 'inherit' })
+        worker.on('error', reject)
+        worker.on('exit', code => code === 0
+          ? done()
+          : reject(new Error(`${name}: CLI reference build exited with ${code}`)))
+      })
     }
   }
   const baseline = await serve({
@@ -268,6 +309,8 @@ async function main() {
         }
         if (url.href.startsWith('https://www.plantuml.com/plantuml/svg/'))
           return route.fulfill({ contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="240" height="80"><text x="10" y="30">Alice to Bob</text></svg>' })
+        if (route.request().resourceType() === 'image' && url.hostname !== '127.0.0.1')
+          return route.fulfill({ contentType: 'image/svg+xml', body: '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><rect width="100" height="100" fill="#e2e8f0"/></svg>' })
         if (url.hostname === '127.0.0.1' || url.protocol === 'blob:' || url.protocol === 'data:')
           return route.continue()
         return route.abort()
@@ -287,6 +330,7 @@ async function main() {
         container: host,
         onStatus: status => state.rendered = status === 'rendered',
         onError: message => state.errors.push(message),
+        onPosition: position => state.position = position,
       })
     })()`)
     const decoder = await browser.newPage()
@@ -294,26 +338,60 @@ async function main() {
       path: resolve(root, 'online/spikes/phase-0/compare-pixels.js'),
     })
     const results = []
-    for (const { name: theme, cases } of variants) {
+    for (const { name: theme, cases, path } of variants) {
       const src = docs[theme]
-      await onlinePage.evaluate((src) => {
-        const state = (window as any).fidelity
-        state.rendered = false
-        state.bridge.render({ src })
-      }, src)
-      await onlinePage.waitForFunction(() => (window as any).fidelity.rendered || (window as any).fidelity.errors.length)
-      assert.deepEqual(await onlinePage.evaluate(() => (window as any).fidelity.errors), [])
+      let mounted = false
       for (let index = 0; index < cases.length; index++) {
+        const fixture = cases[index]
+        await onlinePage.evaluate(({ src, slide, mounted }) => {
+          const state = (window as any).fidelity
+          state.rendered = false
+          state.position = undefined
+          state.errors = []
+          if (mounted)
+            state.bridge.goto(slide)
+          else
+            state.bridge.render({ src, slide })
+        }, { src, slide: index + 1, mounted })
+        await onlinePage.waitForFunction(({ mounted, slide }) => {
+          const state = (window as any).fidelity
+          return state.errors.length || (mounted
+            ? state.position?.slide === slide
+            : state.rendered)
+        }, { mounted, slide: index + 1 })
+        const failures = await onlinePage.evaluate(() => (window as any).fidelity.errors)
+        if (fixture.expectedError) {
+          assert.deepEqual(failures, [fixture.expectedError], `${theme} ${index + 1}`)
+          assert.equal(await onlinePage.locator('iframe').count(), 0)
+          results.push({ theme, slide: index + 1, expectedError: fixture.expectedError })
+          process.stdout.write(`${theme} ${index + 1}: ${fixture.expectedError}\n`)
+          mounted = false
+          continue
+        }
+        assert.deepEqual(failures, [], `${theme} ${index + 1}`)
+        mounted = true
         await referencePage.goto(`${baseline.url}${theme}/index.html#/${index + 1}`)
         const referenceSlide = referencePage.locator(`.slidev-page[data-slidev-no="${index + 1}"]:visible`).first()
         await referenceSlide.waitFor()
-        await onlinePage.evaluate(slide => (window as any).fidelity.bridge.goto(slide), index + 1)
         const frame = onlinePage.frames().find(frame => frame.parentFrame())!
         const actualSlide = frame.locator(`.slidev-page[data-slidev-no="${index + 1}"]`)
         await actualSlide.waitFor()
         assert.equal(await frame.evaluate(() => globalThis.origin), 'null')
         assert.equal(await onlinePage.locator('iframe').getAttribute('sandbox'), 'allow-scripts')
-        assert.equal(await frame.locator('#online-notices').count(), 0)
+        // Deck diagnostics live outside the slide; verify them, then exclude
+        // that editor chrome from the slide-only comparison.
+        await frame.addStyleTag({ content: '#online-notices { visibility: hidden }' })
+        const notices = (await frame.locator('#online-notices').allTextContents()).flatMap(notice => notice.split('\n'))
+        assert.deepEqual(notices.toSorted(), [
+          ...(path === 'demo/composable-vue/slides.md'
+            ? titleComponents
+            : []),
+          ...(missingComponents[path ?? '']?.[index + 1] ?? []),
+        ].map(name => `Component ${name} is unavailable online`).toSorted())
+        for (const slide of [actualSlide, referenceSlide]) {
+          for (const image of await slide.locator('img[src^="https://"]').all())
+            await image.evaluate(element => (element as HTMLImageElement).decode())
+        }
         if (cases[index].expectedPlantUml) {
           await actualSlide.getByRole('button', { name: 'Enable PlantUML for this deck' }).click()
           for (const slide of [actualSlide, referenceSlide]) {
@@ -408,6 +486,7 @@ async function main() {
           theme,
           slide: index + 1,
           layout: cases[index].layout,
+          expectedDifferences: cases[index].expectedDifferences ?? [],
           ...pixels,
         })
         process.stdout.write(`${theme} ${index + 1} (${cases[index].layout}): ${diff.changed} differing pixels (${diff.exactChanged} exact)\n`)
@@ -415,11 +494,21 @@ async function main() {
     }
     const runtime = await readFile(resolve(root, 'online/dist/runtime/sandbox.js'))
     const css = await readFile(resolve(root, 'online/dist/runtime/sandbox.css'))
+    const mismatches = results.filter(result => !result.expectedError && !result.expectedDifferences?.length && result.ratio! > 0.001)
     const report = {
       browser: `${engine} ${browser.version()}`,
-      scope: `Actual staged runtime and editor bridge; ${fixtures.length} deterministic fixtures in default/seriph, every added theme layout, five theme-font fixtures and every visible slide from the unmodified online examples. Demo sources receive separate compiler and DOM checks.`,
-      adaptations: 'Local Arial/Georgia/monospace fonts in the original fixtures; pinned font bytes supplied identically to both clients in theme-font fixtures; fixed cover background, mocked PlantUML SVG after explicit consent, no external network, disabled nonvisual services, initial click position.',
+      scope: 'Actual staged runtime and editor bridge against independently built CLI references for the selected decks. Every visible source slide is included. Known unsupported features have explicit expected differences; file imports must fail visibly.',
+      selection: variants.map(variant => variant.name),
+      counts: {
+        slides: results.length,
+        compared: results.filter(result => !result.expectedError).length,
+        expectedErrors: results.filter(result => result.expectedError).length,
+        fallbackComparisons: results.filter(result => result.expectedDifferences?.length).length,
+        mismatches: mismatches.length,
+      },
+      adaptations: 'Local Arial/Georgia/monospace fonts in the original fixtures; pinned font bytes supplied identically to both clients in theme-font fixtures; fixed fixture cover background, identical mock SVGs for remote images, mocked PlantUML SVG after explicit consent, no external network, preloaded CLI optional HTML grammar and disabled its wall-clock tokenization cutoff, disabled CLI nonvisual services and transitions, deck diagnostics outside the slide excluded after verification, initial click position.',
       tolerance: { channelDelta: 8, changedPixelRatio: 0.001 },
+      sourceFiles: Object.fromEntries(variants.filter(variant => variant.path).map(variant => [variant.name, variant.path])),
       fixtures: Object.fromEntries(Object.entries(docs).map(([name, src]) => [
         name,
         createHash('sha256').update(src).digest('hex'),
@@ -432,7 +521,7 @@ async function main() {
     }
     await writeFile(resolve(cache, `report-${engine}.json`), `${JSON.stringify(report, null, 2)}\n`)
     assert.deepEqual(errors, [])
-    assert.ok(results.every(result => result.ratio <= 0.001), 'Visual differences exceed 0.1%; inspect online/runtime/.cache/fidelity/screenshots')
+    assert.deepEqual(mismatches.map(({ theme, slide, ratio }) => ({ theme, slide, ratio })), [], 'Visual differences exceed 0.1%; inspect online/runtime/.cache/fidelity/screenshots')
   }
   finally {
     await browser?.close()

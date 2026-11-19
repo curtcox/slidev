@@ -7,39 +7,10 @@ import { fileURLToPath } from 'node:url'
 import { parseSync } from '@slidev/parser/core'
 import { chromium, firefox, webkit } from 'playwright'
 import { serve } from '../../vendor/fragment-kit-v0.4.4/tools/serve.mjs'
+import { expectedErrors, missingComponents, titleComponents } from './corpus-expectations'
 
 const root = fileURLToPath(new URL('../../../', import.meta.url))
 const cache = resolve(root, 'online/runtime/.cache')
-
-// These exclusions cover demo filesystem components, the unavailable embed
-// widget and an unbundled icon collection. New missing widgets must fail.
-const titleComponents = [
-  'MarkerCore',
-  'MarkerPattern',
-  'MarkerTips',
-  'Marker',
-]
-const missingComponents: Record<string, Record<number, string[]>> = {
-  'demo/starter/slides.md': {
-    7: ['Counter', 'Tweet'],
-  },
-  'demo/composable-vue/slides.md': {
-    2: ['ri-github-line', 'ri-twitter-line', 'ri-user-3-line'],
-    11: ['DarkToggle', 'VueUse'],
-    12: ['Connections'],
-    16: ['VueUse'],
-    22: ['VueUse'],
-    23: ['VueUse'],
-    29: ['VueUse'],
-  },
-}
-
-const expectedErrors: Record<string, Record<number, string>> = {
-  'demo/starter/slides.md': {
-    5: 'File snippets (<<<) are not available online',
-    14: 'Slide imports (src:) are not available online',
-  },
-}
 
 async function main() {
   await mkdir(cache, { recursive: true })

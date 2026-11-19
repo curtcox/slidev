@@ -115,7 +115,7 @@ measurement with compressed delivery.
 The runtime browser suite exercises author scripts, style isolation, slots,
 click navigation, hostile-deck isolation, document replacement, built-ins,
 TOC navigation, motion, markers and visible unsupported features. Full source-
-corpus visual fidelity and phone performance gates remain open.
+corpus screenshots record known feature fallbacks separately. The phone performance target remains open.
 
 The official `default`, `seriph`, `bricks` and `shibainu` themes are pinned at
 0.25.0; `apple-basic` is pinned at 0.25.1. All five use the MIT license.
@@ -140,15 +140,14 @@ No script, connection or frame permissions change. Custom remote fonts are not
 cached by the app for offline use. Unavailable fonts, invalid configurations and
 the unsupported coollabs provider produce visible notices with local/system
 fallbacks. Each font-loading stage has a five-second deadline.
-See [fonts and privacy](docs/fonts.html). The complete runtime fidelity and
-phone-performance gates remain open.
+See [fonts and privacy](docs/fonts.html). The phone performance target remains open.
 See [bundled themes](docs/themes.html).
 The offline browser suite also renders a seriph fact slide after a fully
 offline reload, checking that theme-specific styles survive cached delivery.
 
 The runtime fidelity harness compares the staged bundle through the editor
 bridge with `slidev build` on a separate origin. It checks the unmodified
-gallery examples, nineteen fixtures in default and seriph, all 33 additional
+gallery examples, both demo decks, twenty fixtures in default and seriph, all 33 additional
 theme layouts and five font fixtures. Coverage includes Markdown, columns,
 scoped styles, code, built-in components, TOC, icons, lazy syntax languages,
 math, Mermaid, positioned drag
@@ -158,9 +157,29 @@ load; Apple Basic retains its local/system font stack. Color-only image props
 disable CLI image preloading. Reports and CLI/online/diff PNGs go to
 `runtime/.cache/fidelity/`, separated by browser. Use `--skip-reference-build`
 only when the fixtures and CLI are unchanged; `BROWSER=webkit` selects WebKit.
-CI uploads a nonblocking Chromium report while platform/font coverage
-stabilizes. The starter and composable-vue demo sources have separate compiler
-and DOM checks.
+CI uploads a nonblocking Chromium report while the expanded coverage stabilizes.
+
+The starter and composable-vue references build from their original entries.
+Each reference runs in a separate process because the CLI caches its project
+root. Their components, snippets and setup files remain available to the CLI.
+Online receives the exact original Markdown. Both clients receive identical
+mock SVGs for remote images. The CLI preloads the optional HTML grammar for
+Markdown code fences. This prevents build order from changing their colors.
+Its tokenization cutoff is disabled for repeatable comparisons.
+
+The report captures every renderable demo slide, including known fallbacks.
+It names differences for filesystem components, unbundled icons, Monaco,
+PlantUML consent and the TOC title from an imported slide. These screenshots
+are diagnostic comparisons. They do not count as CLI pixel parity.
+Every other slide retains the 0.1% pixel tolerance. The two unsupported file
+imports must produce their exact documented errors and terminate the frame.
+The harness then checks that rendering recovers on the following slide.
+Deck-level warnings outside the slide are verified before capture and hidden
+from slide-only screenshots. Inline fallback content stays visible.
+Reports include source paths, source hashes, counts and the runtime hash.
+
+For a focused demo run, use `node runtime/tests/fidelity.mjs --demos-only`.
+Add `--skip-reference-build` only when those reference inputs remain unchanged.
 
 The bundled navigation adapter provides slide aliases, counters, links, the
 upstream table of contents, slide-enter/leave hooks, conditional rendering,
