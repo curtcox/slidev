@@ -1542,6 +1542,10 @@ records the measured results. Publication/tag approvals remain outstanding.
   WebKit, the visual report and Pages deployment. The recovery site reported
   `e2967cca` with `dirty:false`. Live Chromium and WebKit passed lazy math,
   mixed CSS/native transitions and offline reload.
+- Five cold loads of `e2967cca` from GitHub Pages on the recorded Chromium
+  phone profile took **2,413–2,738 ms** (median **2,497 ms**, down from
+  **3,264 ms** on the earlier live release). Each browser download matched
+  the recorded runtime hash and used gzip. The 2 s target remains open.
 - Final Chromium and WebKit visual reports each passed **77** cases, with
   74 and 76 exact matches. The CI report passed 77 cases with 72 exact
   matches. All three reports compare the welcome example pixel-for-pixel
