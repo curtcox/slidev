@@ -27,12 +27,15 @@ async function main() {
       return result
     }
   }
-  // Empty input loads HTML but never tokenizes a line. Warm its real rules too.
+  // Markdown embeds text.html.derivative, not text.html.basic. Loading only
+  // HTML leaves that optional grammar absent until another fence loads Vue.
   options.utils.shikiOptions.tokenizeTimeLimit = 0
-  const probe = await options.utils.shiki.codeToHtml('<div class="probe">HTML</div>', { ...options.utils.shikiOptions, lang: 'html' })
+  const markup = '<div class="probe">HTML</div>'
+  await options.utils.shiki.codeToHtml(markup, { ...options.utils.shikiOptions, lang: 'html-derivative' })
+  const probe = await options.utils.shiki.codeToHtml(markup, { ...options.utils.shikiOptions, lang: 'md' })
   assert.ok(new Set([
     ...probe.matchAll(/--shiki-light:(#[\da-f]+)/gi),
-  ].map(match => match[1])).size > 2, 'CLI HTML reference must contain syntax colors')
+  ].map(match => match[1])).size > 2, 'CLI Markdown reference must highlight embedded HTML')
   if (process.argv.includes('--demo')) {
     Object.assign(options.data.config, {
       drawings: { enabled: false },
