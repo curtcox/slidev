@@ -20,6 +20,7 @@ await fs.mkdir(output, { recursive: true })
 for (const name of [
   'index.html',
   'gallery.html',
+  'gallery',
   'style.css',
   'docs.css',
   'fragment-kit.config.json',

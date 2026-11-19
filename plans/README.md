@@ -45,7 +45,7 @@ high-confidence security + correctness, then larger refactors. You may cherry-pi
 | 023 | Decompose god functions in `export.ts`/`cli.ts` | P3 | L | MED | 022 | TODO |
 | 024 | Incremental HMR parse cache | P3 | L | MED | — | TODO |
 | 025 | Guard `skills/`-vs-`docs/` drift in CI | P3 | S-M | LOW | — | TODO |
-| 026 | Slidev Online (browser editor on Fragment Kit, GitHub Pages) | P1 | XL | MED-HIGH | SDK v0.6.0 / kit v0.4.4 / workflow `@v4` verified | IN PROGRESS — Phases 0–1 and Phase 3 implementation complete; five themes, native/CSS transitions, lazy math, editor workspace and source diagnostics deployed; all three CI browsers pass 141 SFC comparisons and 52 corpus slides; 77 visual comparisons and 70 live Chromium/WebKit contracts pass; full demo visual fidelity, 2 s phone timing and Phases 4–8 remain open; HashBin registration remains an owner action |
+| 026 | Slidev Online (browser editor on Fragment Kit, GitHub Pages) | P1 | XL | MED-HIGH | SDK v0.6.0 / kit v0.4.4 / workflow `@v4` verified | IN PROGRESS — Phases 0–1 and Phase 3 implementation complete; five themes, native/CSS transitions, lazy math, editor workspace and source diagnostics deployed; all three CI browsers pass 141 SFC comparisons and 52 corpus slides; 77 visual comparisons and 70 live Chromium/WebKit contracts pass; Phase 4 docs/gallery implemented with 15 examples and local Chromium/WebKit/offline acceptance; final visual/deployment acceptance pending; full demo visual fidelity, 2 s phone timing and Phases 5–8 remain open; HashBin registration remains an owner action |
 
 Status values: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED` (one-line reason) |
 `REJECTED` (one-line rationale).

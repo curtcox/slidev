@@ -245,3 +245,43 @@ The local Vite drag adapter checks its upstream transformation anchors at build
 time. Builds also reject client storage-state modules without an opaque-origin
 adapter. The two upstream Markdown fixes for PascalCase and repeated/nested
 drag sources have their own separately committed regression tests.
+
+## Docs and gallery
+
+Edit `docs/*.md`, then run `npm run docs` from `online/`. Generated HTML stays
+committed. Static checks reject stale pages. Local documentation links point
+to the generated HTML.
+
+The gallery uses the unchanged Fragment Kit gallery and 15 local example decks.
+`examples/*.md` is the source of truth. Each deck can set `title`, `info` and
+`onlineTags` in its headmatter. The generated catalog contains the exact source
+bytes, so a gallery link carries its own document. `?example=<id>` also opens
+an allowlisted local deck. Unknown IDs cannot turn into arbitrary fetches.
+Browsing and filtering the gallery does not execute any slide code.
+
+After editing examples or changing a cover dependency, run these commands from
+`online/` after building the workspace packages:
+
+```sh
+npm run docs
+npm run examples
+pnpm -C runtime build
+npm run build
+npm run gallery
+npm run build
+npm run check
+npm run gallery:check
+```
+
+Cover generation starts a temporary local server and renders each deck's first
+slide through the real opaque preview in Chromium. Commit `gallery/*.png` and
+`gallery/fingerprints.json` with the sources. The fingerprints include the
+catalog, renderer, bridge, SDK and every built runtime asset. CI checks these
+hashes without comparing screenshots from different operating systems. The
+separate visual suite compares every visible example slide with the CLI and
+waits for its Mermaid diagrams before capture.
+
+`tests/browser/gallery.cjs` checks covers, filters, served-origin links, sandbox
+isolation, script interaction, deferred rendering, documentation links and a
+360 px layout. The offline suite opens the cached gallery and interacts with
+an example after disconnecting.

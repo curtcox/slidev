@@ -448,7 +448,7 @@ contract, plus a fully offline reload that renders the gallery.
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
 | 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images, native/CSS transitions and lazy math deployed; 141 exact SFC matches + 14 fallbacks, 52-slide DOM gate and 77 gallery/fixture visual comparisons pass CI; full demo visual fidelity and the 2 s phone target remain open |
 | 3 | Editor app (share, QR, HashBin, mobile) | DONE — workspace, links/CIDs, drafts, sharing/QR, registration-gated HashBin controls, ZIP, kit contracts, overview/touch and source diagnostics deployed and verified live in Chromium/WebKit; client registration remains an owner action |
-| 4 | Docs and gallery | TODO |
+| 4 | Docs and gallery | IN PROGRESS — generated docs, 15 example decks, kit gallery and opaque-rendered covers implemented; local browser/offline checks pass; final visual and deployment acceptance pending |
 | 5 | AI-assisted editing | TODO |
 | 6 | Offline / PWA | TODO |
 | 7 | Presenting and export | TODO |
@@ -1732,3 +1732,28 @@ records the measured results. Publication/tag approvals remain outstanding.
   registration remains an owner action; no live paid Publish round trip or
   physical phone acceptance is claimed. Phase 2's full demo screenshot gate and
   complete-runtime 2 s phone target remain open, alongside Phases 4–8.
+
+
+### Phase 4 docs and gallery (2026-11-18)
+
+- User documentation now has Markdown sources and reproducible HTML, covering
+  supported features, sharing/privacy, downloads, themes, fonts, PlantUML and
+  the pending AI workflow. Static checks reject stale docs and catalogs.
+- The unchanged kit gallery searches and filters 15 local example decks. Its
+  links contain the exact document and stay on the served origin/subpath.
+  Allowlists also support direct example query links without arbitrary fetches.
+  Browsing the gallery never executes deck code.
+- Committed covers render slide 1 through the actual opaque preview in Chromium.
+  The kit fingerprints the catalog, renderer, bridge, SDK and every runtime
+  asset. CI checks source and cover hashes. The example source uses Slidev's
+  formatter so per-slide configuration retains its meaning.
+- Local Chromium and WebKit pass gallery filtering, cover decoding, served-origin
+  navigation, script interaction, deferred rendering, docs links and a 360 px
+  layout. Both pass fully offline reload, cached gallery covers and interaction
+  with a gallery deck. Chromium also passes the existing editor suite.
+- Both local engines pass 187 exact SFC comparisons and 14 corpus fallbacks.
+  Their final corpus reports verify 84 visible slides, including two expected
+  file-import errors. All 40 online units, root lint/typecheck and static/vendor/
+  offline checks pass. The visual harness now waits for gallery Mermaid output
+  and JavaScript motion before capture. Final visual and deployment acceptance
+  follow the push. Phase 2's demo screenshot and 2 s phone targets remain open.

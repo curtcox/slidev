@@ -8,6 +8,7 @@ export default antfu({
     slidev: {
       files: [
         '**/slides.md',
+        'online/examples/*.md',
         '**/template.md',
         '**/example.md',
         'test/fixtures/markdown/**/*.md',

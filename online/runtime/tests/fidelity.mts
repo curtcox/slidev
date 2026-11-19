@@ -166,6 +166,9 @@ async function main() {
           ? 'cover'
           : 'default'),
         content: slide.content,
+        expectedDiagrams: [
+          ...slide.content.matchAll(/^```mermaid\b/gm),
+        ].length,
       }))
     variants.push({
       name: `example-${file.slice(0, -3)}`,
@@ -363,6 +366,31 @@ async function main() {
             for (const family of cases[index].expectedFonts!)
               assert.ok(families.includes(family), `${theme}: ${family} must actually render in both clients`)
           }
+        }
+        // Playwright disables CSS animations for screenshots, but VueUse Motion
+        // runs JavaScript springs. Compare their completed state in both clients.
+        for (const slide of [actualSlide, referenceSlide]) {
+          await slide.evaluate(async (root) => {
+            const motions = [
+              ...root.querySelectorAll('*'),
+            ]
+              .map(element => (element as any).motionInstance)
+              .filter(Boolean)
+            if (!motions.length)
+              return
+            const deadline = performance.now() + 5000
+            await new Promise<void>((resolve, reject) => {
+              const settle = () => {
+                if (motions.every(motion => !motion.isAnimating.value))
+                  resolve()
+                else if (performance.now() > deadline)
+                  reject(new Error('Slide motion did not finish before capture'))
+                else
+                  requestAnimationFrame(settle)
+              }
+              requestAnimationFrame(() => requestAnimationFrame(settle))
+            })
+          })
         }
         await referencePage.evaluate(() => document.fonts.ready)
         await frame.evaluate(() => document.fonts.ready)

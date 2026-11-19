@@ -1,0 +1,154 @@
+{
+  "dependencies": {
+    "src/examples.js": "f063448fd8596eec5cbf12302b43fd4f97be13721cdd21984d7321ab960f4bef",
+    "src/preview-bridge.js": "f623dbd069f2d65fc1be6a1dfaba8cbfad63e00c62d45d096dca10eca3ba1fa1",
+    "src/document-type.js": "f91d196a8eb83046ec2c38a99597e96874edcdb7f372b0de453af25a986f34fa",
+    "gallery.html": "8249dcb880bc37bde5abf655313640a625a0a0298a3d375d88c4426d9a3ef77e",
+    "style.css": "3ba5d47ae90b7e9de638222d435a9a94ae769d148bb32a42dff812c54d8cd539",
+    "vendor/fragment-kit-v0.4.4/vendor/hashbin-sdk-v0.6.0.mjs": "1333545eae17d46e77b190c7120e8b39c156c99b677e55e4a90df9fc37082000",
+    "runtime/dist/diagrams/audit.json": "2f2f4bc9fcf111909a8590a07b7a283524092431df1e6f3213fe661b7907bb59",
+    "runtime/dist/diagrams/LICENSE": "ec9fb67dcb25eccc416ed56e1aab819222c805a2a4bfe4cb19e7556bf2ffde80",
+    "runtime/dist/diagrams/mermaid.js": "ec115934d8b78017a00ed55fb690aecf280b8f5278d05a1dc2d58b57ddb761ce",
+    "runtime/dist/editor/document.js": "fa0257ca432fe32ff8345e069b252ba63c47122b52ba279280c33879f250ef6e",
+    "runtime/dist/fonts/audit.json": "e559885e3d3ef2bf5bb841ba696078db6022e6da158d286b2b6c5fd5a63413e1",
+    "runtime/dist/fonts/fira-code-LICENSE": "126cd7bf732b86f42885f1fbf682e6aeea456672c7fdb99f2d557ec44e468a28",
+    "runtime/dist/fonts/fira-code.css": "edf2ea232d352749e152411b0c5bbbf09ad12c88a2035d79fec7ffbd0d3f3618",
+    "runtime/dist/fonts/nunito-sans-LICENSE": "6632e6c45fcc18cc03909a0a53d84e9775185e06203ff80d6367cf93959b91a8",
+    "runtime/dist/fonts/nunito-sans.css": "9a681343dfd33bb92e5f538402231359bfa320120465470043949dc80582610f",
+    "runtime/dist/fonts/pt-mono-LICENSE": "df14159157b0f6d728e2186a19ed31bec4fd30d1e8be87647b6e1e0a30cb265f",
+    "runtime/dist/fonts/pt-mono.css": "7360b7b2e16c624117e233237d7a014d9d0465191005c7bda051086c8bd58dc7",
+    "runtime/dist/fonts/pt-serif-LICENSE": "28d2f6e154d4860524f6d5f7851c9a3b69492b82642e282381260bee7ab2f0a4",
+    "runtime/dist/fonts/pt-serif.css": "b2b6f63cdd208e78b1cadfa221f0997530ae1de5ce7ffa9ac1bbdf11e9927955",
+    "runtime/dist/fonts/sigmar-one-LICENSE": "fa49885c105e11de9449f072c37bb51291031a46b07157e7bea80edf66320c27",
+    "runtime/dist/fonts/sigmar-one.css": "c68dc93adc1a84d83415eed1c819b06a34db946c8b23ece335d3a2c8abfe86c2",
+    "runtime/dist/fonts/signika-negative-LICENSE": "84982ea80bd9d90b90507dc22cababde0569f5390d2e2c250214e4c1ca43497c",
+    "runtime/dist/fonts/signika-negative.css": "a70ab3ca723db742014c2d93d0e68c3a965e5c7bed0c39c7fc42747928ec21a4",
+    "runtime/dist/fonts/titillium-web-LICENSE": "74a09413ee50672765c52b8356bc03b68b274bc926888b37bb9092c8dcba09fd",
+    "runtime/dist/fonts/titillium-web.css": "e2bf6301fcf914724b5742ab76b6ae33153440deeaf12ed8ee2651f67b098789",
+    "runtime/dist/grammars/audit.json": "2afe052f87019cc0d259177281a44c9cab09ab1732c08e5c924a407e61e75ba7",
+    "runtime/dist/grammars/c.json": "4114a64256aec36ac7fa606d3f212395b4600b8fe94085d73bf0899c480dabcc",
+    "runtime/dist/grammars/cmake.json": "14df7f28ba79e7819ed16d21b3a75b7a897084327d5ebabb5dc590eba2865a1c",
+    "runtime/dist/grammars/cpp.json": "d4f13dfe5bd14f6065458b80da9ff9a01608cb6091ce64be1ddb2848e43abbaa",
+    "runtime/dist/grammars/csharp.json": "180ac1da698f63400e3ada0d14bfa2b036b887a8a8eab900e49947cb48f0c035",
+    "runtime/dist/grammars/css.json": "aad322ee114b33a952e49250064220f15847ce17d54e3960a75acad108f2ec5c",
+    "runtime/dist/grammars/diff.json": "5f7c79f8430c42b9fc60d8be0fe1b4127160466035040a4dccad7dba850b24bc",
+    "runtime/dist/grammars/docker.json": "bf4d5edef1b911d7f7d5d9dfd9f837bb9b153a1422f5b4f55661cdc52b7b9d56",
+    "runtime/dist/grammars/go.json": "9283b4579b463cd002e88656290b90fbb71398c09a6e2dad6461c2362454bd65",
+    "runtime/dist/grammars/graphql.json": "0180e64495a133dd12b349578a9d947c10a8b55195592e06ba5f1cffae6e2423",
+    "runtime/dist/grammars/html.json": "d03a5fd59ed9ad7ef4a8b7d096bc53d9be9665039cdfd5cbf2233414428d6e21",
+    "runtime/dist/grammars/ini.json": "679509e36fc57952de958bea73875df7e39c4500e3e524d36b4fa5f22322dd7c",
+    "runtime/dist/grammars/java.json": "68753a0ab505bbaaf1c3561a59c705d53d9e238a811e4167dbf4a4f70b30ca17",
+    "runtime/dist/grammars/javascript.json": "c9a6f357026ec8ac0fbda4a59fbe0d251dbcb4c7bbfd6725c429148f90595170",
+    "runtime/dist/grammars/json.json": "af4ea5157694cefb6ee2105d6541eb2859d2e77c195e57d94a85b9e83f76984e",
+    "runtime/dist/grammars/json5.json": "5d0f9d5b11f11e16dc57f1fe112c1520cd378633a6043dbf869681d27e824bbd",
+    "runtime/dist/grammars/jsonc.json": "1f2b0ef9c7cd53d86899d94e707caf2a76d8a203cb1dba632f81cb4301abe3cc",
+    "runtime/dist/grammars/jsx.json": "f40e173aa607f02e63c368f17f47afe0cb080c6e302b13ea18911679fbd86c71",
+    "runtime/dist/grammars/kotlin.json": "cc7ab86876277539ff6c070895f5ba2af677fd0679bc6e61091dc3cf144a368f",
+    "runtime/dist/grammars/less.json": "312a329279e97750ed74e13efaca8e83a6fe1bc845393370b8f3d5c5bc7f7e8c",
+    "runtime/dist/grammars/LICENSE": "7a9d8d01038aeacf9e5bcdabbddf2a7815200dce9fc1118468cc553e00ae3eee",
+    "runtime/dist/grammars/lua.json": "eb38142cf859813d7b20da800a37414e44e4ff9b0e0df897ec5abf5d00b4f29a",
+    "runtime/dist/grammars/make.json": "44f9c5545ef3ba623c129555c092878585c35f7629b2d00eff22d7b7dcfa0415",
+    "runtime/dist/grammars/markdown.json": "2ee96b6d194f5311f6c0ab1d2570ce016ac978bed68f6a4bc8e62dcffc187f82",
+    "runtime/dist/grammars/mdx.json": "16b4c374cc3010003ba509bee9a32a646458bd1f1fde6e753b6d7810711aab75",
+    "runtime/dist/grammars/perl.json": "f3cf9121be6c538e09d98311540d219d470b808edf511f77eb90fe32948c468b",
+    "runtime/dist/grammars/php.json": "138417dd4119f606adf2f1cf8a273a0351ca9cf858453a87ac9e072dd4983255",
+    "runtime/dist/grammars/powershell.json": "167c24852940b9211f6e253987c9121eec8df3125ca11f3a8e54a7da6d1df54a",
+    "runtime/dist/grammars/python.json": "c2f2c730c79aa1daaa8477b8f5ab456eb7fb3422fdea3cda0bb11f5371e83a71",
+    "runtime/dist/grammars/r.json": "87ca0a69c1f42ad2e27e9739f2fbb993ddf7718336557bc79ed3d42e01a6ce03",
+    "runtime/dist/grammars/ruby.json": "cb0c031c927552f66e8e0a8e260d797a8279265abef0e97eab523022ab2caa0d",
+    "runtime/dist/grammars/rust.json": "acdc36c67d28d83f1825679029f97616d4dfef8ff44d8b5f9818305f802d72e8",
+    "runtime/dist/grammars/scss.json": "1334198b9bc03360945125bf150882cc89e6439acaab81bd7d0c44f01dd34176",
+    "runtime/dist/grammars/shellscript.json": "6e82b7fa751e7f93470a117a7d39ea4337d395ca39ef5da6363f3c54313cee3a",
+    "runtime/dist/grammars/sql.json": "106eef62dc0d7541e8137a63124f952c10a5d4ce4a31528b0ff79aac783a0cba",
+    "runtime/dist/grammars/swift.json": "93225ef9e6d1a31b9ae65ce6d3bc7f0b2e3a38d5657d70360fa0588089f76281",
+    "runtime/dist/grammars/toml.json": "04754a1f08ec7522ddb69abbb70e97c2edc75728c4ab7049249d2644de3414fc",
+    "runtime/dist/grammars/tsx.json": "71e44e3dd7cef30ee2862cde7d0a1a0e34ca753de48c67247bb652fcdade8a08",
+    "runtime/dist/grammars/typescript.json": "7b0ad150955d0524926cdc7f4c5e883ea8353e6d344603a700a76bf589284036",
+    "runtime/dist/grammars/vue.json": "f144b194be722c879c0e90082c5466aa623028bcbfe15120900256714926d6c9",
+    "runtime/dist/grammars/xml.json": "ec463c744e233d47b96afdc28a9c387ef1deea29b44271344e8a87fbb0b17e38",
+    "runtime/dist/grammars/yaml.json": "bbd442922536599cbcd9ef61a237e230bdeb78eb805100f1e3e979852ac17fe1",
+    "runtime/dist/icons/attribution.json": "9be042797a43e357e10b81bd5cbe3ba4553ca95a16fa494ae5327f39887fc1b6",
+    "runtime/dist/icons/carbon.json": "00fee34dfc33e56e971730b72423d3477a1647272ce5229566783867873cc1b3",
+    "runtime/dist/icons/logos.json": "9d17469b4679df0f9e7745145648548de73abc8a8ffc5784f42bcbf8c06cb8ae",
+    "runtime/dist/icons/mdi.json": "cf9b89dda466f1c384af19d3c7bf835c3c1e75eccf313f7821ac48c14f2c8c7b",
+    "runtime/dist/icons/ph.json": "c530113dab503dae58492e46cad79c7bb3e4d6fbe85b1c181e7c6208cbfa28f8",
+    "runtime/dist/icons/simple-icons.json": "e220e5bb49246cdf0a5cd89718031b8c4cab86501a3b9e386755f7205426b13c",
+    "runtime/dist/icons/svg-spinners.json": "5df4968cf5f36ff5ffdb51387a9707a18d8115d911b351eb5968fddc21102f41",
+    "runtime/dist/icons/twemoji.json": "ac1ef422058cfd8a4803940a8caea453d00340d18b9a0864085b9d908e46f9a3",
+    "runtime/dist/licenses/theme-apple-basic.txt": "81405b601a5bb20cdae6349dd3ae5161adf2f05708f1ae118c801c9733fcd322",
+    "runtime/dist/licenses/theme-bricks.txt": "81405b601a5bb20cdae6349dd3ae5161adf2f05708f1ae118c801c9733fcd322",
+    "runtime/dist/licenses/theme-default.txt": "81405b601a5bb20cdae6349dd3ae5161adf2f05708f1ae118c801c9733fcd322",
+    "runtime/dist/licenses/theme-seriph.txt": "81405b601a5bb20cdae6349dd3ae5161adf2f05708f1ae118c801c9733fcd322",
+    "runtime/dist/licenses/theme-shibainu.txt": "81405b601a5bb20cdae6349dd3ae5161adf2f05708f1ae118c801c9733fcd322",
+    "runtime/dist/math/audit.json": "b99fe657553ff77c7860a6c97007bed62ac4554c3eb8b7c9f6b5cfb1d0fd2e06",
+    "runtime/dist/math/katex.css": "c8154259fb268d0e8d3e32fe2bc86ad3f9b8ffa696623012dedf7363d039f96c",
+    "runtime/dist/math/katex.js": "5f0c3749f8b28ce1a63b68de34d3950bb4aa1a9e0130865e4b09ecc9a250c8b7",
+    "runtime/dist/math/LICENSE": "766ccc1f306c885aa45542a9846bbd0a505b27a0374f146778171c2254ce18e3",
+    "runtime/dist/sandbox.css": "29e467ab701fb17d1087aa0f48b8816b3c0835f43c69d92532bf11e6b1ed9969",
+    "runtime/dist/sandbox.js": "3fe0733fbe2fab34366665422a11e9a7b2467c3a727740c893449cae585ad09d",
+    "runtime/dist/theme-audit.json": "da95cef7d63b893a029717f7a95cc3bb18b7d8e8d992464974ae82ef35a14db5"
+  },
+  "renderer": "f3bd48e23d4d089ab357d782bdd1fb9e299edfb5bc1e45afd85ee4a628d1e333",
+  "examples": {
+    "clicks": {
+      "document": "ac6a94ea14ebce4a6b9c482e8b433bf86234c20879ddee9d8c644b8b95688a9d",
+      "cover": "31f146377609ed35a98febeceae84c784709bd4e0b4ffceb7efff3b8e7c076aa"
+    },
+    "code": {
+      "document": "a7301e6b072d6e523cafe96dfeadf9af40ad0d4f619ce5cebad6abc7bc382ebc",
+      "cover": "462cb805b00550fceee8ec6e3c8e8d88a9f0d1506daec2fb95da277d4ecc27bd"
+    },
+    "columns": {
+      "document": "8e2fcabf5304e0522ed2f1f7740af260101f281dc1993aecef10248134d2adc7",
+      "cover": "d19ae73cfc8431174cc333960e7e4f9e8eedb18ee10f14193bdbef942720a54a"
+    },
+    "conference": {
+      "document": "145bed6affc0721eb63688bc2825193fbc7396c35b65fb1e17ff821e24b9d3c3",
+      "cover": "9855c809f131bb896fb252d4c0feb5071605ddc128d35076f56a2a7d52532af7"
+    },
+    "drag": {
+      "document": "16c02eb2f051a487aa14827db6e68bb417a11c25c8d0733e4b8886014714a079",
+      "cover": "0c02e43fa5422234a815ef2178a9862314329f086c81a47729134a1761c7ebaa"
+    },
+    "interactivity": {
+      "document": "a6a2caf3e4bc9381bfaeb32b6246fdbedb4ab245e50a03d961deca07ab7874d8",
+      "cover": "2fc692394193611295a8a87d853de8e80d5bd3f089c47a6d3331d61b6b9c78f5"
+    },
+    "layouts": {
+      "document": "a9a40ca49a9510c22dc3977e116c725f70cdf5cb042a79628c5d930f9950f8b1",
+      "cover": "4cf6d2f654c797c6290222925a7525d3cf55da8277c176959ab9a43a0a074d0e"
+    },
+    "math-diagrams": {
+      "document": "37a1e7dda3ada47327d062fffd61c736858ec08f9dbf4e02efac9029f8bcda31",
+      "cover": "4224ebdaaf4b61730cb340132fde547bffb1457633443f0fa2175db18068c8c8"
+    },
+    "starter": {
+      "document": "21748eb9f6c72cfa9246f2e43224509c460cc3300664412c0c7899de5cea61d1",
+      "cover": "e5e52d95e0c3a31b2f9f11a1aa6ab10303ef8a41f081cbe1b64a28b6756f370c"
+    },
+    "theme-apple-basic": {
+      "document": "7f3f5dee7ec191218b5f385f073b45d1638329246f4f3c5b5d683eb9d43747ec",
+      "cover": "e640fefe4902656c0084e59dbc7c843ed4db6e6dd882cf52781bc34ebd194635"
+    },
+    "theme-bricks": {
+      "document": "9ab7c7120a249b3297addace408d8b8760eca3e5a4f3ac5743830b399a0153fa",
+      "cover": "2299bf4bc7898684a474d2d967e49202fdaf7a575a133d88ff20570b263e8f26"
+    },
+    "theme-default": {
+      "document": "57ade0187a4247fc63528797b88031975502907f88ff99cd6a7be957e30a2a1c",
+      "cover": "5beb114bc60a89450fd2e3f78217f4fc1e0cc1c45bee58b1411359885187bee1"
+    },
+    "theme-seriph": {
+      "document": "3a689b8e4dd51e7b358e25865b93b7b64cd3e510db9371846c43923e3ea08299",
+      "cover": "35419969594a10773c89c21b5bc1e5d9226f25585ca01d84bb0eb028176fd8ba"
+    },
+    "theme-shibainu": {
+      "document": "5d82060bd74463fda36b29d603b1445a6a2b7238eec4815ca9ff0ce6ee43433f",
+      "cover": "5fed170321965e324554644f35a4aa356d20efca18689b52c074b14f9294a31a"
+    },
+    "welcome": {
+      "document": "5fc108d456e99c12d1d4f0067c64f19bb56de8894778b4921c8a3b24ad69779b",
+      "cover": "6e640a3e3f216e19a46c95183cb07505e5fc9a1c102a57cb28da466efe1a6dfc"
+    }
+  }
+}

@@ -136,3 +136,20 @@ it('loading bounds streamed example bytes and times out stalled delivery', async
   await stalled.open('https://example.com/')
   assert.match(errors[1], /too long/)
 })
+
+it('resolves every catalog ID through a fixed local Markdown path', async () => {
+  const { exampleIds } = await import('../src/example-ids.js')
+  const fetched = []
+  const loader = createDocumentLoader({
+    urlState,
+    fetchSource: async (path) => {
+      fetched.push(path)
+      return new Response('# Example')
+    },
+    onOpen() {},
+    onError: error => assert.fail(error),
+  })
+  for (const id of exampleIds)
+    assert.equal(await loader.open(`https://example.com/?example=${id}`), true)
+  assert.deepEqual(fetched, exampleIds.map(id => `examples/${id}.md`))
+})

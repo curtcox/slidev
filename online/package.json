@@ -8,10 +8,12 @@
     "test": "node --test tests/*.test.js",
     "test:contracts": "playwright test --config playwright.contract.config.mjs",
     "check": "node scripts/check.mjs",
-    "gallery:check": "node scripts/check.mjs --gallery",
+    "gallery:check": "node scripts/gen-examples.mjs --check && node scripts/render-gallery.mjs --check",
     "docs": "node scripts/render-docs.mjs",
     "offline": "node vendor/fragment-kit-v0.4.4/tools/offline-assets.mjs --config dist/offline.config.json",
-    "serve": "node vendor/fragment-kit-v0.4.4/tools/serve.mjs --root dist"
+    "serve": "node vendor/fragment-kit-v0.4.4/tools/serve.mjs --root dist",
+    "examples": "node scripts/gen-examples.mjs",
+    "gallery": "node scripts/render-gallery.mjs"
   },
   "devDependencies": {
     "@playwright/test": "1.64.1",

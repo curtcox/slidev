@@ -1,6 +1,7 @@
 import { readResponse, text } from '../vendor/fragment-kit-v0.4.4/src/core/bytes.js'
 import { createUrlState } from '../vendor/fragment-kit-v0.4.4/src/core/url-state.js'
 import { slidevDocument } from './document-type.js'
+import { exampleIds } from './example-ids.js'
 
 // Kit removes adapter settings when rebuilding a document URL. Position belongs
 // to this workspace, so apply it to both shared links and delayed history writes.
@@ -84,11 +85,14 @@ export function createDocumentLoader({ urlState, store, onOpen, onError, onPendi
           return result.snapshot ?? store.load(result.cid)
         }
         // Only catalog IDs are allowed; never turn a query into an arbitrary fetch.
-        if (state.kind === 'example' && state.id !== 'welcome')
+        const id = state.kind === 'example'
+          ? state.id
+          : 'welcome'
+        if (!exampleIds.includes(id))
           throw new Error('That example is unavailable. Open the gallery to choose a deck.')
-        const response = await fetchSource('examples/welcome.md', { signal })
+        const response = await fetchSource(`examples/${id}.md`, { signal })
         if (!response.ok)
-          throw new Error('The welcome deck is unavailable')
+          throw new Error('The example deck is unavailable')
         return {
           src: text(await readResponse(response)),
         }

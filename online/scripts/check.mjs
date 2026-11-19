@@ -11,6 +11,9 @@ import { verifyManifest } from '../vendor/fragment-kit-v0.4.4/tools/vendor-sync.
 
 execFileSync(process.execPath, [new URL('./render-docs.mjs', import.meta.url).pathname, '--check'], { stdio: 'inherit' })
 
+execFileSync(process.execPath, [new URL('./gen-examples.mjs', import.meta.url).pathname, '--check'], { stdio: 'inherit' })
+execFileSync(process.execPath, [new URL('./render-gallery.mjs', import.meta.url).pathname, '--check'], { stdio: 'inherit' })
+
 const root = fileURLToPath(new URL('../', import.meta.url))
 const kit = path.join(root, 'vendor/fragment-kit-v0.4.4')
 await checkVirtualModules()

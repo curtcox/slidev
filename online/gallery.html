@@ -1,1 +1,24 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Slidev Online gallery</title><link rel="stylesheet" href="style.css"></head><body><main><h1>Slidev Online gallery</h1><p>Example decks are coming as editing support arrives.</p><a href="./">Open the welcome deck</a></main></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Gallery · Slidev Online</title>
+  <link rel="stylesheet" href="vendor/fragment-kit-v0.4.4/src/ui/kit.css">
+  <link rel="stylesheet" href="vendor/fragment-kit-v0.4.4/src/gallery/gallery.css">
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="docs.css">
+  <script type="module" src="src/gallery.js"></script>
+</head>
+<body>
+  <nav aria-label="Site"><a href="./">Editor</a><a href="docs/index.html">Online docs</a></nav>
+  <main class="fk-gallery">
+    <h1>Start with an idea.</h1>
+    <p>Choose a deck, then make it your own. Examples run inside the isolated slide preview.</p>
+    <div id="gallery"><p id="gallery-status" role="status">Loading examples…</p></div>
+    <noscript>Enable JavaScript to search and open example decks.</noscript>
+  </main>
+</body>
+</html>
