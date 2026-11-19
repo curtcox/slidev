@@ -446,7 +446,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images and native/CSS transitions deployed; 141 exact SFC matches + 14 fallbacks and 52-slide DOM gate pass CI; 77 local visual comparisons cover fixtures and the gallery source; full demo visual fidelity and the 2 s phone target remain open |
+| 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images, native/CSS transitions and lazy math deployed; 141 exact SFC matches + 14 fallbacks, 52-slide DOM gate and 77 gallery/fixture visual comparisons pass CI; full demo visual fidelity and the 2 s phone target remain open |
 | 3 | Editor app (share, QR, HashBin, mobile) | IN PROGRESS — document adapter and URL round-trip tests implemented; editor and app link handling pending |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
@@ -1534,3 +1534,20 @@ records the measured results. Publication/tag approvals remain outstanding.
   when CSS is empty, which preserves them across older editors.
 - The preview uses the same adapter for input validation. The editor UI, draft
   recovery, app-level link opening, sharing and HashBin remain pending.
+
+### Deployed lazy math and visual acceptance (2026-11-18)
+
+- The [deployment of `e2967cca`](https://github.com/curtcox/slidev/actions/runs/44444941233)
+  passed units, independent publication verification, Chromium, Firefox,
+  WebKit, the visual report and Pages deployment. The recovery site reported
+  `e2967cca` with `dirty:false`. Live Chromium and WebKit passed lazy math,
+  mixed CSS/native transitions and offline reload.
+- Final Chromium and WebKit visual reports each passed **77** cases, with
+  74 and 76 exact matches. The CI report passed 77 cases with 72 exact
+  matches. All three reports compare the welcome example pixel-for-pixel
+  and agree on runtime SHA-256
+  `524341344516c9779cda6be38dfa8bbc4892afe4d27b79230ecbdfb13384c641`.
+- All **396** repository tests and **26** online units pass locally, with
+  lint, typechecks and the static/vendor/offline checks. The drag regression
+  now waits for the final coordinates after a multi-step pointer move.
+  Chromium and WebKit both pass the updated test.
