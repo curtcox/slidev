@@ -1887,5 +1887,33 @@ records the measured results. Publication/tag approvals remain outstanding.
   suites. All 40 online units, root lint and static/vendor/offline checks pass.
 - The visual job now blocks deployment. Supported slides retain the existing
   0.1% pixel tolerance. Documented feature fallbacks remain diagnostic, and
-  file imports must fail visibly. Final local visual and deployment acceptance
-  follow this change. Phase 2 remains open for the phone timing target.
+  file imports must fail visibly. Deployed acceptance is recorded below.
+  Phase 2 remains open for the phone timing target.
+
+
+### Deployed startup and blocking visual acceptance (2026-11-19)
+
+- Implementation commits `2e36515f` and `7d952677` are pushed on `main`.
+  [The blocking deployment workflow](https://github.com/curtcox/slidev/actions/runs/44538990784)
+  passed every job, including Chromium, Firefox, WebKit, visual fidelity and Pages.
+  Repository tests and autofix also passed. The separate
+  [Continuous Releases workflow](https://github.com/curtcox/slidev/actions/runs/44538989990)
+  still fails because `pkg-pr-new` lacks access to this fork.
+- Local Chromium and WebKit each pass all 162 visual cases. All 131 supported
+  comparisons meet the unchanged tolerance. Exact matches number 127 in Chromium
+  and 128 in WebKit. The other cases remain 29 diagnostic fallback comparisons
+  and two exact file-import errors.
+- The downloaded final CI visual artifact also passes all 162 cases. It retains
+  125 exact supported comparisons. Every source hash and the runtime hash match
+  the local reports. The actual Firefox log confirms 37 applicable contracts,
+  first-use offline QR, 187 exact SFC comparisons, all 40 grammars and 84 visible
+  corpus slides.
+- The recovery site serves `7d952677` with `dirty:false`. Its HTML, app module,
+  runtime and CSS match the staged bytes. Live Chromium and WebKit pass all
+  74 applicable contracts, with four demo-only skips across both engines.
+  Both also pass real ZIP downloads and fully offline reload, including first-use
+  QR, cached seriph rendering and gallery interaction.
+- Publish, camera frames and shortening use mocks. No live paid Publish or
+  physical phone acceptance ran. HashBin registration remains an owner action.
+  Phase 2 remains open for the 2 s phone target, and Phases 5–8 remain open.
+  This final update changes documentation only.
