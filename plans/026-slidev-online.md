@@ -447,7 +447,7 @@ contract, plus a fully offline reload that renders the gallery.
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
 | 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images, native/CSS transitions and lazy math deployed; 141 exact SFC matches + 14 fallbacks, 52-slide DOM gate and 77 gallery/fixture visual comparisons pass CI; full demo visual fidelity and the 2 s phone target remain open |
-| 3 | Editor app (share, QR, HashBin, mobile) | IN PROGRESS — workspace, links/CIDs, drafts, sharing/QR, registration-gated HashBin controls, ZIP, kit contracts and overview/touch controls deployed; precise compiler diagnostics implemented and locally verified, deployment acceptance pending |
+| 3 | Editor app (share, QR, HashBin, mobile) | DONE — workspace, links/CIDs, drafts, sharing/QR, registration-gated HashBin controls, ZIP, kit contracts, overview/touch and source diagnostics deployed and verified live in Chromium/WebKit; client registration remains an owner action |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
 | 6 | Offline / PWA | TODO |
@@ -1707,3 +1707,28 @@ records the measured results. Publication/tag approvals remain outstanding.
   **14 corpus fallbacks**. The earlier full Chromium/WebKit contracts passed
   **68** applicable checks (four demo-only skips); the final directive case adds
   one check per engine. Deployment acceptance follows the push.
+
+### Deployed Phase 3 diagnostics acceptance (2026-11-18)
+
+- [The corrected release workflow](https://github.com/curtcox/slidev/actions/runs/44455476664)
+  passed all jobs for `61fc136b`: Chromium, Firefox, WebKit, units, independent
+  kit verification, the visual report and Pages deployment. Each CI browser
+  passed 35 applicable contracts, 141 exact SFC comparisons and all 52 visible
+  corpus slides. The visual report passed all 77 comparisons, with 75 exact
+  matches and a pixel-for-pixel welcome slide.
+- The recovery site served `61fc136b` with `dirty:false`. Its runtime SHA-256
+  `3fe0733fbe2fab34366665422a11e9a7b2467c3a727740c893449cae585ad09d`
+  matches the local build and CI. Live Chromium and WebKit passed all **70**
+  applicable contracts, with four demo-only skips across both engines. Both
+  also passed the editor suite with a real ZIP download, opaque isolation and
+  fully offline reload, including the cached seriph theme.
+- Compiler messages now show the author's file and coordinates without generated
+  filenames, injected code frames or conflicting relative YAML coordinates.
+  Corpus expectations use the normalized message format. All 39 online units,
+  396 repository tests, lint/typechecks, runtime build and static/vendor/offline
+  checks pass locally; the repository's main CI also passes.
+- Phase 3 implementation and its planned contract suite are complete. Publish,
+  camera frames and shortening still use mocks in acceptance. HashBin client
+  registration remains an owner action; no live paid Publish round trip or
+  physical phone acceptance is claimed. Phase 2's full demo screenshot gate and
+  complete-runtime 2 s phone target remain open, alongside Phases 4–8.
