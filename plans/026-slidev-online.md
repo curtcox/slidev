@@ -446,7 +446,7 @@ contract, plus a fully offline reload that renders the gallery.
 |---|---|---|
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
-| 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images, native/CSS transitions and lazy math deployed; 187 exact SFC matches + 14 fallbacks, 84-slide DOM gate and 109 gallery/fixture visual comparisons pass CI; 162 visual cases now cover the demos locally, including explicit fallbacks; expanded CI acceptance and the 2 s phone target remain open |
+| 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images, native/CSS transitions and lazy math deployed; 187 exact SFC matches + 14 fallbacks, 84-slide DOM gate and 109 gallery/fixture visual comparisons pass CI; 162 visual cases cover both demos in CI and local Chromium/WebKit, including explicit fallbacks; the visual job remains a nonblocking report and the 2 s phone target remains open |
 | 3 | Editor app (share, QR, HashBin, mobile) | DONE — workspace, links/CIDs, drafts, sharing/QR, registration-gated HashBin controls, ZIP, kit contracts, overview/touch and source diagnostics deployed and verified live in Chromium/WebKit; client registration remains an owner action |
 | 4 | Docs and gallery | DONE — Markdown docs, 15 example decks, kit gallery and opaque-rendered covers deployed; all three CI browsers, 109 visual comparisons and live Chromium/WebKit gallery/offline checks pass |
 | 5 | AI-assisted editing | TODO |
@@ -1834,3 +1834,33 @@ records the measured results. Publication/tag approvals remain outstanding.
 - The expanded WebKit run and CI acceptance follow. The CI visual job remains
   a nonblocking report while these cases stabilize. The initial runtime is
   922,087 bytes gzip. The complete runtime's 2 s phone target remains open.
+
+
+### Phase 2 demo coverage and complete-editor timing (2026-11-19)
+
+- Implementation commits `da423c13` and `424f898b` are pushed on `main`.
+  [The runtime-fix deployment](https://github.com/curtcox/slidev/actions/runs/44532102959)
+  passed every job, including all three browser engines and Pages.
+- Chromium and WebKit each pass all 162 visual cases locally. The 131 supported
+  comparisons meet the unchanged tolerance. Exact matches number 127 in Chromium
+  and 129 in WebKit. The other cases remain 29 diagnostic fallback comparisons
+  and two exact file-import errors.
+- [The expanded CI visual report](https://github.com/curtcox/slidev/actions/runs/44533140036)
+  also passes all 162 cases. Its downloaded artifact matches every local source
+  hash and the runtime hash. It retains 127 exact supported comparisons.
+  All three browser jobs, units, kit verification and Pages also pass in that
+  workflow. Repository CI for `424f898b` passes. The visual job remains nonblocking.
+- The recovery site served `da423c13` with `dirty:false` during live acceptance.
+  Its runtime SHA-256 is
+  `b930d19a87b71376037874cb2a81e29b60ffef310dffac326e4cd2ae3774511c`.
+  This matches both local engines and CI. Live Chromium and WebKit pass the
+  runtime and math suites, including branding, TOC equations, opaque isolation,
+  visible delivery failures and fully offline math reload. The final deployment
+  then served `424f898b` with `dirty:false` and the same verified runtime hash.
+- Five fresh Chromium contexts measured the complete editor at clean commit
+  `424f898b` on a local server with precompressed gzip assets. The profile uses
+  390 × 844, DPR 2, 4× CPU slowdown, 40 ms latency and 1.5 MB/s downloads.
+  Navigation to two frames after render acknowledgement takes 3,108–3,747 ms,
+  with a median of 3,231 ms. The initial runtime is 922,087 bytes gzip.
+  The 3 MB payload budget passes. The 2 s timing target remains open.
+  These are simulated measurements on the development host.
