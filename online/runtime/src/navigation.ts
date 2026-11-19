@@ -1,8 +1,7 @@
 import type { ClicksContext } from '@slidev/types'
-import type { Ref } from 'vue'
-import { computed, ref } from 'vue'
+import type { Ref, TransitionGroupProps } from 'vue'
+import { computed, ref, shallowRef } from 'vue'
 import { useTocTree } from '../../../packages/client/composables/useTocTree'
-import { getCurrentTransition } from '../../../packages/client/logic/transition'
 import { slides } from './virtual/slides'
 
 let activeNavigation: ReturnType<typeof createNavigation> | undefined
@@ -20,6 +19,7 @@ export function createNavigation(
   const total = computed(() => slides.value.length)
   const navDirection = ref(0)
   const clicksDirection = ref(0)
+  const currentTransition = shallowRef<TransitionGroupProps>()
   const isPrintMode = ref(false)
   const isPresenter = ref(false)
   const prevRoute = computed(() => slides.value[Math.max(0, position.value - 2)])
@@ -30,7 +30,6 @@ export function createNavigation(
     const route = slides.value.find(route => String(route.no) === name || route.meta.slide.frontmatter.routeAlias === name)
     if (!route)
       throw new Error(`Slide ${name} is unavailable`)
-    navDirection.value = Math.sign(route.no - position.value)
     clicksDirection.value = Math.sign(click - currentClicks.value)
     await navigate(route.no, click)
   }
@@ -42,7 +41,7 @@ export function createNavigation(
     currentPage: currentSlideNo,
     currentSlideNo,
     currentSlideRoute,
-    currentTransition: computed(() => getCurrentTransition(navDirection.value, currentSlideRoute.value, prevRoute.value)),
+    currentTransition,
     currentLayout: computed(() => currentSlideRoute.value?.meta.layout || (position.value === 1
       ? 'cover'
       : 'default')),

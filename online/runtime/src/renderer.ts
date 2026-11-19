@@ -35,6 +35,7 @@ import DragControl from '../../../packages/client/internals/DragControl.vue'
 import SlideWrapper from '../../../packages/client/internals/SlideWrapper.vue'
 import * as layoutHelper from '../../../packages/client/layoutHelper'
 import * as slideLogic from '../../../packages/client/logic/slides'
+import { getCurrentTransition } from '../../../packages/client/logic/transition'
 import { createVClickDirectives } from '../../../packages/client/modules/v-click'
 import { createVDragDirective } from '../../../packages/client/modules/v-drag'
 import { createVMarkDirective } from '../../../packages/client/modules/v-mark'
@@ -112,10 +113,12 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
   const navigation = createNavigation(position, clicks, goto, next, prev)
   const transition = Vue.computed(() => {
     const selected = navigation.currentTransition.value
-    return selected?.name === 'view-transition'
-      ? { ...selected, name: 'fade' }
-      : selected
+    if (selected?.name !== 'view-transition')
+      return selected
+    if (typeof document.startViewTransition !== 'function')
+      return { ...selected, name: 'fade' }
   })
+  let activeViewTransition: ViewTransition | undefined
   const scale = Vue.shallowRef(1)
   const plantUmlAllowed = Vue.ref(false)
   let generation = 0
@@ -322,37 +325,65 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
     styles.push((await uno.generate(`${compiled.sfc}\n${JSON.stringify(source.frontmatter)}\n${Object.values(layoutSources).join('\n')}\n${Object.values(directiveSources).join('\n')}\n${Object.values(dragControlSource).join('\n')}\n${Object.values(dragComponentSources).join('\n')}\n${compiler.theme.sources.join('\n')}`)).css)
     if (generation !== version)
       return
-    navigation.navDirection.value = Math.sign(index + 1 - position.value)
-    position.value = index + 1
-    if (navigation.currentTransition.value?.name === 'view-transition')
-      warnings.push('Native view transitions are not available online; using fade')
-    // Let slide-leave watchers observe the new position before their owning
-    // component is unmounted and its effect scope is disposed.
-    await Vue.nextTick()
-    if (generation !== version)
-      return
     const route = slides.value[index]
-    route.component = Vue.markRaw(component)
-    clicks.value = createFixedClicks(route, click)
+    const direction = Math.sign(route.no - position.value)
+    const selected = getCurrentTransition(direction, route, view.value?.route)
+    const nativeRequested = selected?.name === 'view-transition'
+    const nativeSupported = typeof document.startViewTransition === 'function'
+    if (nativeRequested && !nativeSupported)
+      warnings.push('Native view transitions are unavailable in this browser; using fade')
     const stylesheet = document.createElement('style')
     stylesheet.dataset.onlineSlide = String(route.no)
     stylesheet.textContent = styles.join('\n')
-    document.head.insertBefore(stylesheet, document.querySelector('#online-document-css'))
-    stylesheets.set(version, stylesheet)
-    if (app) {
-      for (const [name, component] of iconComponents)
-        app.component(name, component)
+    async function updateSlide() {
+      if (generation !== version)
+        return
+      navigation.navDirection.value = direction
+      position.value = route.no
+      // Give the old slide's leave watchers a tick before unmounting it.
+      await Vue.nextTick()
+      if (generation !== version)
+        return
+      navigation.currentTransition.value = selected
+      route.component = Vue.markRaw(component)
+      clicks.value = createFixedClicks(route, click)
+      document.head.insertBefore(stylesheet, document.querySelector('#online-document-css'))
+      stylesheets.set(version, stylesheet)
+      if (app) {
+        for (const [name, component] of iconComponents)
+          app.component(name, component)
+      }
+      view.value = {
+        key: version,
+        route,
+        clicksContext: clicks.value,
+      }
+      if (!app)
+        mount()
+      await Vue.nextTick()
     }
-    view.value = {
-      key: version,
-      route,
-      clicksContext: clicks.value,
+    activeViewTransition?.skipTransition()
+    if (app && nativeRequested && nativeSupported) {
+      // The old state is captured before updateSlide changes its DOM or CSS.
+      // Capture the new state only after Vue commits the updated slide.
+      const running = document.startViewTransition(updateSlide)
+      activeViewTransition = running
+      // A skipped animation (for example, in a hidden tab) still updates the slide.
+      void running.ready.catch(() => {})
+      const clear = () => {
+        if (activeViewTransition === running)
+          activeViewTransition = undefined
+      }
+      void running.finished.then(clear, clear)
+      await running.updateCallbackDone
     }
-    if (!app)
-      mount()
-    await Vue.nextTick()
+    else {
+      await updateSlide()
+    }
     if (fonts)
       warnings.push(...await fonts.ready())
+    if (generation !== version)
+      return
     document.querySelector('#online-notices')?.remove()
     if (warnings.length) {
       const notice = document.createElement('aside')
@@ -472,6 +503,7 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
     resize,
     async render(input: RenderInput) {
       generation++
+      activeViewTransition?.skipTransition()
       plantUmlAllowed.value = false
       configureDragUpdates(patch => report({ type: 'drag', patch }))
       app?.unmount()

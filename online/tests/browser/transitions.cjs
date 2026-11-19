@@ -184,13 +184,96 @@ transition: none
     assert.equal(await frame.locator('style[data-online-slide]').count(), 1)
     assert.deepEqual(await page.evaluate(() => window.transitions.errors), [])
 
-    await render('---\ntransition: view-transition\nfonts:\n  provider: none\n---\n# Native transition fallback\n\n---\n# Fade destination')
+    const native = `---
+transition: view-transition
+fonts:
+  provider: none
+---
+<h1 style="view-transition-name: online-title">Native first</h1>
+
+<div v-click>Native reveal</div>
+
+---
+
+<h1 style="view-transition-name: online-title">Native second</h1>
+
+---
+
+<h1 style="view-transition-name: online-title">Native third</h1>
+<div style="view-transition-name: online-title">Duplicate name</div>
+`
+    const nativeCss = `
+      :root { --slidev-transition-duration: 0.2s; }
+      ::view-transition-group(online-title) { animation-duration: 1s; }
+    `
+    await render(native, nativeCss)
     frame = await getFrame()
-    assert.match(await frame.locator('#online-notices').textContent(), /Native view transitions are not available online; using fade/)
+    await expect(frame.locator('h1')).toHaveText('Native first')
+    const supported = await frame.evaluate(() => {
+      if (typeof document.startViewTransition !== 'function')
+        return false
+      if (document.documentElement.matches(':active-view-transition'))
+        throw new Error('Initial render must not start a native transition')
+      const start = document.startViewTransition.bind(document)
+      window.nativeTransitions = []
+      document.startViewTransition = (update) => {
+        const record = { before: document.querySelector('h1').textContent }
+        window.nativeTransitions.push(record)
+        const running = start(update)
+        running.ready.then(() => {
+          record.ready = true
+          record.duration = getComputedStyle(document.documentElement, '::view-transition-group(online-title)').animationDuration
+          record.active = document.documentElement.matches(':active-view-transition')
+          record.pages = document.querySelectorAll('.slidev-page').length
+        }, (error) => {
+          record.skipped = error.name
+        })
+        running.finished.then(() => {
+          record.finished = true
+        }, () => {})
+        return running
+      }
+      return true
+    })
+    await go(1, 1)
+    await expect(frame.locator('.slidev-vclick-hidden')).toHaveCount(0)
+    if (supported) {
+      assert.equal(await frame.evaluate(() => window.nativeTransitions.length), 0, 'Click changes must not capture the document')
+      await go(2)
+      await frame.waitForFunction(() => window.nativeTransitions[0]?.ready)
+      assert.deepEqual(await frame.evaluate(() => {
+        const { before, duration, active, pages } = window.nativeTransitions[0]
+        return { before, duration, active, pages }
+      }), {
+        before: 'Native first',
+        duration: '1s',
+        active: true,
+        pages: 1,
+      })
+      await expect(frame.locator('#online-notices')).toHaveCount(0)
+      await go(1)
+      await frame.waitForFunction(() => window.nativeTransitions[0]?.finished && window.nativeTransitions[1]?.ready)
+      assert.equal(await frame.evaluate(() => window.nativeTransitions[1].before), 'Native second')
+      await go(3)
+      await frame.waitForFunction(() => window.nativeTransitions[2]?.skipped)
+      await expect(frame.locator('h1')).toHaveText('Native third')
+      assert.equal(await frame.locator('style[data-online-slide]').count(), 1)
+      // Duplicate author names skip a browser animation. Later navigation
+      // still works, including a jump across the slide with those names.
+      await go(1)
+      await expect(frame.locator('h1')).toHaveText('Native first')
+      await go(2)
+      await frame.waitForFunction(() => window.nativeTransitions[4]?.ready)
+      await render(native, nativeCss)
+      assert.ok(frame.isDetached(), 'Replacing a deck must tear down its native animation with the opaque frame')
+      frame = await getFrame()
+      await frame.evaluate(() => Object.defineProperty(document, 'startViewTransition', { value: undefined }))
+    }
     await go(2)
+    await expect(frame.locator('#online-notices')).toHaveText('Native view transitions are unavailable in this browser; using fade')
     await expect(frame.locator('.slidev-page')).toHaveCount(1)
-    assert.equal(await frame.locator('h1').textContent(), 'Fade destination')
-    assert.match(await frame.locator('#online-notices').textContent(), /using fade/)
+    await expect(frame.locator('h1')).toHaveText('Native second')
+    assert.equal(await frame.locator('style[data-online-slide]').count(), 1)
 
     await page.waitForFunction(() => document.querySelector('#offline-status').textContent === 'Available offline')
     await page.context().setOffline(true)
@@ -202,7 +285,7 @@ transition: none
     assert.equal(await frame.locator('h1').textContent(), 'Second')
     assert.equal(await frame.locator('style[data-online-slide]').count(), 1)
     assert.deepEqual(errors, [])
-    process.stdout.write(`${engine}: directional transitions, overrides, actual CSS, style cleanup, click state, rapid navigation, replacement isolation, native fallback and offline rendering passed\n`)
+    process.stdout.write(`${engine}: directional transitions, overrides, actual CSS, style cleanup, click state, rapid navigation, replacement isolation, ${supported ? 'native named transitions and fallback' : 'native fallback'} and offline rendering passed\n`)
   }
   finally { await browser.close() }
 }

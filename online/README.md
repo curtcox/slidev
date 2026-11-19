@@ -137,8 +137,10 @@ object options and custom transitions from `style.css`. An explicit `none`
 disables animation. The first render does not animate. Departing slides retain
 their styles until their animation ends. Click changes on the current slide
 preserve author state and do not rerun its script. A new document still gets a
-fresh opaque frame. Native `view-transition` requests show a visible notice and
-use fade. Native view transitions remain unimplemented.
+fresh opaque frame. `transition: view-transition` uses the browser's View
+Transition API inside that frame. Set the same `view-transition-name` on one
+element in each slide to animate between them. Browsers without the API show
+a notice and use fade.
 
 Icons from carbon, ph, mdi, logos, simple-icons, twemoji and svg-spinners are
 bundled as separate JSON assets from pinned `@iconify/json` 2.2.553. Collections
