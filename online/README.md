@@ -16,7 +16,9 @@ imports wait for Render. A `?run=0` link also waits for Render, even after edits
 The Open dialog accepts Markdown, CSS, saved JSON documents and Slidev Online links.
 Download offers a ZIP with `slides.md` and `style.css`, the two files separately,
 or one JSON document that also preserves extension fields.
-The complete kit contract suite remains open.
+The Phase 3 kit contracts run against the Ace adapter with `npm run test:contracts`.
+They cover links, sharing, QR upload/camera, HashBin callbacks, drafts and layout.
+Publish and shortener checks use mocked services.
 
 Phones and short windows use Slides, Markdown and CSS tabs. Desktop also has a
 Split view with a divider that supports dragging and keyboard arrows.
@@ -39,6 +41,8 @@ npm run build
 npm test
 npm run check
 npm run serve
+# In another terminal; selects the kit's three browser engines by default.
+npm run test:contracts
 node tests/browser/all.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/editor.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/runtime.cjs http://127.0.0.1:8000/ chromium

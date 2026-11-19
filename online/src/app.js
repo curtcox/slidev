@@ -36,6 +36,7 @@ async function main() {
   let preview
   let share
   let qr
+  let qrSave
   let hashbin
   let openDialog
   let downloads
@@ -123,6 +124,7 @@ async function main() {
     hashbin?.cancelLoad()
     clearTimeout(timer)
     saved = undefined
+    qrSave = undefined
     hasDocument = true
     try {
       persist()
@@ -286,6 +288,7 @@ async function main() {
     urlState.cancel()
     preview.stop()
     total = 0
+    qrSave = undefined
     cursorSlide = undefined
     document.body.dataset.ready = 'false'
     drafts.opened()
@@ -357,8 +360,16 @@ async function main() {
       saved = { fingerprint: current, href }
       urlState.cancel()
       history.replaceState(history.state, '', href)
+      if (qrSave === current && hashbin.dialog.open) {
+        qrSave = undefined
+        hashbin.dialog.close()
+        qr.open(href)
+      }
     },
     container: shell.drawer.body,
+  })
+  hashbin.dialog.addEventListener('close', () => {
+    qrSave = undefined
   })
   share = createShareDialog({
     urlState,
@@ -374,6 +385,7 @@ async function main() {
         rememberLink(href)
     },
     onSave() {
+      qrSave = fingerprint()
       qr.dialog.close()
       void hashbin.openSave()
     },
@@ -411,9 +423,19 @@ async function main() {
       shell.offlineStatus.textContent = 'Offline copy unavailable'
     })
   }
+  let navigatingHref
   const navigate = () => {
+    const href = location.href
+    // WebKit can deliver both popstate and hashchange for one navigation.
+    // A Publish callback consumes its transaction, so resolve it only once.
+    if (navigatingHref === href)
+      return
+    navigatingHref = href
     hashbin.cancelLoad()
-    void loader.open(location.href)
+    void loader.open(href).finally(() => {
+      if (navigatingHref === href)
+        navigatingHref = undefined
+    })
   }
   addEventListener('hashchange', navigate)
   addEventListener('popstate', navigate)

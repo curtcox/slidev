@@ -32,6 +32,7 @@ jobs:
         npm --prefix online run build
       server-command: npm run serve
       browser-command: |
+        FRAGMENT_KIT_BASE_URL=http://127.0.0.1:8000/ npm run test:contracts
         node tests/browser/all.cjs http://127.0.0.1:8000/ "$BROWSER"
         node tests/browser/editor.cjs http://127.0.0.1:8000/ "$BROWSER"
         node tests/browser/runtime.cjs http://127.0.0.1:8000/ "$BROWSER"

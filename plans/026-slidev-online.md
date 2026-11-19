@@ -447,7 +447,7 @@ contract, plus a fully offline reload that renders the gallery.
 | 0 | Feasibility spikes | DONE — released-byte S1–S3 and prototype S4 pass; recheck the complete runtime budget in Phase 2 |
 | 1 | Skeleton, CI, deploy (+ kit `@v4`) | DONE — published kit/workflow pins verified; live welcome deck and offline reload pass Chromium/WebKit |
 | 2 | Slidev runtime | IN PROGRESS — five themes, HTTPS images, native/CSS transitions and lazy math deployed; 141 exact SFC matches + 14 fallbacks, 52-slide DOM gate and 77 gallery/fixture visual comparisons pass CI; full demo visual fidelity and the 2 s phone target remain open |
-| 3 | Editor app (share, QR, HashBin, mobile) | IN PROGRESS — Ace Markdown/CSS workspace, guarded link/CID loading, explicit draft recovery, sharing/QR and registration-gated HashBin controls deployed; ZIP export verified locally in Chromium/WebKit; complete kit contracts and preview polish pending |
+| 3 | Editor app (share, QR, HashBin, mobile) | IN PROGRESS — Ace Markdown/CSS workspace, guarded link/CID loading, explicit draft recovery, sharing/QR and registration-gated HashBin controls deployed; ZIP export and Phase 3 kit contracts verified locally in Chromium/WebKit; overview/swipe controls and precise error locations pending |
 | 4 | Docs and gallery | TODO |
 | 5 | AI-assisted editing | TODO |
 | 6 | Offline / PWA | TODO |
@@ -1622,3 +1622,20 @@ records the measured results. Publication/tag approvals remain outstanding.
   made independently by Python's `zipfile`. Local Chromium and WebKit pass the
   editor suite with a real ZIP download. Lint and static/vendor/offline checks
   pass. Deployment verification follows the push.
+
+### Phase 3 kit contracts (2026-11-18)
+
+- Added the Ace adapter and `npm run test:contracts` for the unchanged kit's
+  URL identity, sharing, QR round-trip, HashBin callback, draft recovery and
+  mobile layout contracts. CI runs them in each existing browser job.
+  App-owned cases also verify both Ace files, deferred rendering and cancelled
+  QR saves. Two demo-only kit cases per engine intentionally skip consumers;
+  Slidev's own editor suite checks its workspace views. Vendor bytes stay intact.
+- The contracts exposed two bugs: a large-deck QR save did not reopen the QR
+  dialog with its saved CID, and WebKit's paired navigation events could consume
+  a Publish callback twice. Both flows now pass, including cancelling a QR save
+  before a later ordinary save.
+- Local Chromium and WebKit pass all 40 applicable tests (four demo-only skips
+  across both engines). Lint and static/vendor/offline checks pass. Publish,
+  camera frames and the shortener use the kit's mocks; no live paid Publish
+  round trip is claimed. CI and deployment verification follow the push.
