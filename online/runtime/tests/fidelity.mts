@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict'
 import { Buffer } from 'node:buffer'
 import { createHash } from 'node:crypto'
-import { mkdir, readFile, writeFile } from 'node:fs/promises'
+import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises'
 import { resolve } from 'node:path'
 import process from 'node:process'
 import { fileURLToPath } from 'node:url'
 import { gzipSync } from 'node:zlib'
+import { parseSync } from '@slidev/parser/core'
 import { chromium, firefox, webkit } from 'playwright'
 import YAML from 'yaml'
 import { build } from '../../../packages/slidev/node/commands/build'
@@ -51,7 +52,7 @@ async function main() {
   await mkdir(cache, { recursive: true })
   const docs: Record<string, string> = {}
   type Fixture = typeof fixtures[number] & { expectedFonts?: string[], frontmatter?: Record<string, unknown> }
-  const variants = ['default', 'seriph'].flatMap(theme => [
+  const variants: { name: string, theme: string, cases: Fixture[], themeFonts: boolean, source?: string }[] = ['default', 'seriph'].flatMap(theme => [
     {
       name: theme,
       theme,
@@ -155,8 +156,27 @@ async function main() {
       ] as Fixture[],
     })
   }
-  for (const { name, theme, cases, themeFonts } of variants) {
-    const deck = cases.map((fixture, index) => `---\n${YAML.stringify({
+  const examples = resolve(root, 'online/examples')
+  for (const file of (await readdir(examples)).filter(file => file.endsWith('.md')).sort()) {
+    const source = await readFile(resolve(examples, file), 'utf8')
+    const { slides } = parseSync(source, file)
+    const cases = slides.filter(slide => !slide.frontmatter.disabled && !slide.frontmatter.hide)
+      .map((slide, index) => ({
+        layout: slide.frontmatter.layout ?? (index === 0
+          ? 'cover'
+          : 'default'),
+        content: slide.content,
+      }))
+    variants.push({
+      name: `example-${file.slice(0, -3)}`,
+      theme: 'default',
+      themeFonts: true,
+      cases,
+      source,
+    })
+  }
+  for (const { name, theme, cases, themeFonts, source } of variants) {
+    const deck = source ?? cases.map((fixture, index) => `---\n${YAML.stringify({
       ...(index === 0
         ? {
             theme,
@@ -194,7 +214,7 @@ async function main() {
     const entry = resolve(folder, 'slides.md')
     await writeFile(entry, deck)
     if (!process.argv.includes('--skip-reference-build')) {
-      await build(await resolveOptions({ entry }, 'build'), {
+      await build(await resolveOptions({ entry, routerMode: 'hash' }, 'build'), {
         base: './',
         logLevel: 'warn',
         build: {
@@ -374,7 +394,7 @@ async function main() {
     const css = await readFile(resolve(root, 'online/dist/runtime/sandbox.css'))
     const report = {
       browser: `${engine} ${browser.version()}`,
-      scope: `Actual staged runtime and editor bridge; ${fixtures.length} deterministic fixtures in default/seriph, every added theme layout and five theme-font fixtures. Full example corpus and phone timing remain open.`,
+      scope: `Actual staged runtime and editor bridge; ${fixtures.length} deterministic fixtures in default/seriph, every added theme layout, five theme-font fixtures and every visible slide from the unmodified online examples. Demo sources receive separate compiler and DOM checks.`,
       adaptations: 'Local Arial/Georgia/monospace fonts in the original fixtures; pinned font bytes supplied identically to both clients in theme-font fixtures; fixed cover background, mocked PlantUML SVG after explicit consent, no external network, disabled nonvisual services, initial click position.',
       tolerance: { channelDelta: 8, changedPixelRatio: 0.001 },
       fixtures: Object.fromEntries(Object.entries(docs).map(([name, src]) => [
