@@ -5,12 +5,12 @@
     "src/runtime-assets.js": "c03b3ee39f39d98ade4aff537152c193b3d6769ec84fc7a80cd77afa909ebbe1",
     "src/document-type.js": "f91d196a8eb83046ec2c38a99597e96874edcdb7f372b0de453af25a986f34fa",
     "gallery.html": "8249dcb880bc37bde5abf655313640a625a0a0298a3d375d88c4426d9a3ef77e",
-    "style.css": "3ba5d47ae90b7e9de638222d435a9a94ae769d148bb32a42dff812c54d8cd539",
+    "style.css": "b827ca797fedd6255845a4cdd3e6f447185df9628c4f6298b2002c13607f49e7",
     "vendor/fragment-kit-v0.4.4/vendor/hashbin-sdk-v0.6.0.mjs": "1333545eae17d46e77b190c7120e8b39c156c99b677e55e4a90df9fc37082000",
     "runtime/dist/diagrams/audit.json": "2f2f4bc9fcf111909a8590a07b7a283524092431df1e6f3213fe661b7907bb59",
     "runtime/dist/diagrams/LICENSE": "ec9fb67dcb25eccc416ed56e1aab819222c805a2a4bfe4cb19e7556bf2ffde80",
     "runtime/dist/diagrams/mermaid.js": "ec115934d8b78017a00ed55fb690aecf280b8f5278d05a1dc2d58b57ddb761ce",
-    "runtime/dist/editor/document.js": "fa0257ca432fe32ff8345e069b252ba63c47122b52ba279280c33879f250ef6e",
+    "runtime/dist/editor/document.js": "7206dc5fa1cd25dc6b525ad2cfe8fe77142f5112b14be45275a5bd992c81744c",
     "runtime/dist/fonts/audit.json": "e559885e3d3ef2bf5bb841ba696078db6022e6da158d286b2b6c5fd5a63413e1",
     "runtime/dist/fonts/fira-code-LICENSE": "126cd7bf732b86f42885f1fbf682e6aeea456672c7fdb99f2d557ec44e468a28",
     "runtime/dist/fonts/fira-code.css": "edf2ea232d352749e152411b0c5bbbf09ad12c88a2035d79fec7ffbd0d3f3618",
@@ -89,10 +89,10 @@
     "runtime/dist/math/katex.js": "5f0c3749f8b28ce1a63b68de34d3950bb4aa1a9e0130865e4b09ecc9a250c8b7",
     "runtime/dist/math/LICENSE": "766ccc1f306c885aa45542a9846bbd0a505b27a0374f146778171c2254ce18e3",
     "runtime/dist/sandbox.css": "29e467ab701fb17d1087aa0f48b8816b3c0835f43c69d92532bf11e6b1ed9969",
-    "runtime/dist/sandbox.js": "5bb50ea52ac00454c8af983a791fdb4c0ef43e8386460062fbd18cb88b807bd1",
+    "runtime/dist/sandbox.js": "d4ddfe35c5163005f3e4ce2c8a0ae93ceb0b9951079cd5c85bed229dff323cfb",
     "runtime/dist/theme-audit.json": "da95cef7d63b893a029717f7a95cc3bb18b7d8e8d992464974ae82ef35a14db5"
   },
-  "renderer": "bbdc2f79e203f905cd1b2d6a009a7772dc7d47a02b0857510d26aa388968b78a",
+  "renderer": "423bbf6b54fb6e64ef5bb930345595b0853bb81c3cf9fa123290e5d87fe56e11",
   "examples": {
     "clicks": {
       "document": "ac6a94ea14ebce4a6b9c482e8b433bf86234c20879ddee9d8c644b8b95688a9d",

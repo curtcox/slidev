@@ -14,8 +14,29 @@
   <main class="online-docs">
 <!-- Generated from ai.md by npm run docs. -->
 <h1>AI editing</h1>
-<p>AI-assisted editing is planned. The current editor does not include an Ask AI panel or model configuration. Opening a deck does not call a model.</p>
-<p>The planned workflow lets you request a change, review the proposed Markdown and CSS, then choose whether to apply it. A fresh isolated preview will test proposals. Applying a proposal will pause rendering until you select Render.</p>
+<p>Ask AI lets you request changes to Markdown and CSS. Opening a deck does not call a model or load the AI interface.</p>
+<h2>Use your chat</h2>
+<p>Paste handoff works without an API key or a network connection in this editor:</p>
+<ol>
+<li>Select Ask AI. On a phone, open More first.</li>
+<li>Describe the change and select the paste model.</li>
+<li>Select Copy prompt to prepare the request. Review What will be sent.</li>
+<li>Select Copy prompt again. Paste the prompt into your chat.</li>
+<li>Paste the JSON reply into Paste model reply, then select Review pasted reply.</li>
+<li>Review the proposed changes. Select Check proposal to compile every slide in a separate, isolated sandbox.</li>
+<li>Select Accept change to update the editor. Select Render when you want to run the changed deck.</li>
+</ol>
+<p>The compilation sandbox checks Markdown, Vue and CSS syntax without running slide scripts. A successful compilation does not test runtime behavior or external media.</p>
+<p>Applying a proposal pauses rendering and saves a draft. Its URL also keeps rendering paused after reload. Undo AI change restores the previous document unless you edited it afterward. Browser Back also opens the previous document with rendering paused.</p>
+<h2>Connect a provider</h2>
+<p>AI settings offers OpenAI, OpenRouter, Anthropic and Gemini connections. Keys stay in memory for the current page session. Disconnect or reload to remove them. OpenRouter also offers sign-in through a separate window.</p>
+<p>Spending caps start at zero. Set your total, daily and monthly caps before sending a paid request. Review the destination and allow sending the document before each request. Unknown model prices require a positive maximum cost for that call. Use provider limits as well because the browser ledger cannot enforce your provider bill.</p>
+<p>The recovery site uses direct connections. Scripts on this page can access a connected key during that session. The future canonical site will use a separate AI host. Unrecognized deployment URLs offer paste handoff only.</p>
+<p>Add a local model in AI settings to use a server on localhost or 127.0.0.1. The page permits HTTP and HTTPS loopback connections. Browser models require explicit inspection, download approval and compatible hardware. The optional browser engine is not part of the offline download.</p>
+<h2>Compare models</h2>
+<p>Compare models offers six tasks for summaries, columns, themes, click reveals, heading styles and frontmatter corrections. Select two to four models with known prices, review their destinations, and set a spending cap. Start the comparison only after allowing its requests. You can also compare a request for your current deck.</p>
+<p>Results stay on this device. Reports exclude private cases by default. Applying a comparison proposal also pauses rendering until you select Render.</p>
+<p>The current deck must contain a visible slide and valid YAML before you prepare an AI prompt. Correct YAML syntax errors in the editor first. Proposals can change only Markdown and CSS. Other document extension fields stay outside the model request and remain unchanged.</p>
 <p>Do not put API keys in a deck, stylesheet or shared URL. Anyone with a shared link can read its document text.</p>
   </main>
 </body>

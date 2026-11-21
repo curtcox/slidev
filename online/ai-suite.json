@@ -1,0 +1,253 @@
+{
+  "format": "fragment-kit-eval-suite",
+  "version": 1,
+  "app": "slidev",
+  "cases": [
+    {
+      "id": "summary",
+      "kind": "change",
+      "base": {
+        "src": "# Topic\n\n- First idea\n- Second idea\n\n---\n\n# Detail\n\nSupporting facts.\n\n<!-- Keep this note. -->\n",
+        "slidev": {
+          "css": ""
+        }
+      },
+      "request": "Append a summary slide with exactly the heading \"Summary\" and the bullets \"First idea\" and \"Second idea\". Preserve all existing text.",
+      "checks": [
+        {
+          "type": "fieldEquals",
+          "path": "/src",
+          "value": "# Topic\n\n- First idea\n- Second idea\n\n---\n\n# Detail\n\nSupporting facts.\n\n<!-- Keep this note. -->\n\n---\n\n# Summary\n\n- First idea\n- Second idea\n"
+        },
+        {
+          "type": "fieldEquals",
+          "path": "/slidev/css",
+          "value": ""
+        },
+        {
+          "type": "site",
+          "name": "compiles"
+        }
+      ],
+      "reference": {
+        "good": {
+          "src": "# Topic\n\n- First idea\n- Second idea\n\n---\n\n# Detail\n\nSupporting facts.\n\n<!-- Keep this note. -->\n\n---\n\n# Summary\n\n- First idea\n- Second idea\n",
+          "slidev": {
+            "css": ""
+          }
+        },
+        "bad": {
+          "src": "# Topic\n\n- First idea\n- Second idea\n\n---\n\n# Detail\n\nSupporting facts.\n\n<!-- Keep this note. -->\n",
+          "slidev": {
+            "css": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "two-columns",
+      "kind": "change",
+      "base": {
+        "src": "# Topic\n\n- First idea\n- Second idea\n\n---\n\n# Detail\n\nSupporting facts.\n\n<!-- Keep this note. -->\n",
+        "slidev": {
+          "css": ""
+        }
+      },
+      "request": "Use the two-cols layout on slide 2. Keep its heading and put Supporting facts. in the right slot. Preserve slide 1 and the speaker note.",
+      "checks": [
+        {
+          "type": "fieldEquals",
+          "path": "/src",
+          "value": "# Topic\n\n- First idea\n- Second idea\n\n---\nlayout: two-cols\n---\n\n# Detail\n\n::right::\n\nSupporting facts.\n\n<!-- Keep this note. -->\n"
+        },
+        {
+          "type": "fieldEquals",
+          "path": "/slidev/css",
+          "value": ""
+        },
+        {
+          "type": "site",
+          "name": "compiles"
+        }
+      ],
+      "reference": {
+        "good": {
+          "src": "# Topic\n\n- First idea\n- Second idea\n\n---\nlayout: two-cols\n---\n\n# Detail\n\n::right::\n\nSupporting facts.\n\n<!-- Keep this note. -->\n",
+          "slidev": {
+            "css": ""
+          }
+        },
+        "bad": {
+          "src": "# Topic\n\n- First idea\n- Second idea\n\n---\n\n# Detail\n\nSupporting facts.\n\n<!-- Keep this note. -->\n",
+          "slidev": {
+            "css": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "seriph",
+      "kind": "change",
+      "base": {
+        "src": "# Topic\n\n- First idea\n- Second idea\n\n---\n\n# Detail\n\nSupporting facts.\n\n<!-- Keep this note. -->\n",
+        "slidev": {
+          "css": ""
+        }
+      },
+      "request": "Set theme: seriph in YAML headmatter. Preserve the rest of the document.",
+      "checks": [
+        {
+          "type": "fieldEquals",
+          "path": "/src",
+          "value": "---\ntheme: seriph\n---\n# Topic\n\n- First idea\n- Second idea\n\n---\n\n# Detail\n\nSupporting facts.\n\n<!-- Keep this note. -->\n"
+        },
+        {
+          "type": "fieldEquals",
+          "path": "/slidev/css",
+          "value": ""
+        },
+        {
+          "type": "site",
+          "name": "compiles"
+        }
+      ],
+      "reference": {
+        "good": {
+          "src": "---\ntheme: seriph\n---\n# Topic\n\n- First idea\n- Second idea\n\n---\n\n# Detail\n\nSupporting facts.\n\n<!-- Keep this note. -->\n",
+          "slidev": {
+            "css": ""
+          }
+        },
+        "bad": {
+          "src": "# Topic\n\n- First idea\n- Second idea\n\n---\n\n# Detail\n\nSupporting facts.\n\n<!-- Keep this note. -->\n",
+          "slidev": {
+            "css": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "reveals",
+      "kind": "change",
+      "base": {
+        "src": "# Topic\n\n- First idea\n- Second idea\n\n---\n\n# Detail\n\nSupporting facts.\n\n<!-- Keep this note. -->\n",
+        "slidev": {
+          "css": ""
+        }
+      },
+      "request": "Wrap only the two bullet points on slide 1 in <v-clicks> tags, with a blank line after the opening tag and before the closing tag. Preserve everything else.",
+      "checks": [
+        {
+          "type": "fieldEquals",
+          "path": "/src",
+          "value": "# Topic\n\n<v-clicks>\n\n- First idea\n- Second idea\n\n</v-clicks>\n\n---\n\n# Detail\n\nSupporting facts.\n\n<!-- Keep this note. -->\n"
+        },
+        {
+          "type": "fieldEquals",
+          "path": "/slidev/css",
+          "value": ""
+        },
+        {
+          "type": "site",
+          "name": "compiles"
+        }
+      ],
+      "reference": {
+        "good": {
+          "src": "# Topic\n\n<v-clicks>\n\n- First idea\n- Second idea\n\n</v-clicks>\n\n---\n\n# Detail\n\nSupporting facts.\n\n<!-- Keep this note. -->\n",
+          "slidev": {
+            "css": ""
+          }
+        },
+        "bad": {
+          "src": "# Topic\n\n- First idea\n- Second idea\n\n---\n\n# Detail\n\nSupporting facts.\n\n<!-- Keep this note. -->\n",
+          "slidev": {
+            "css": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "headings-css",
+      "kind": "change",
+      "base": {
+        "src": "# Topic\n\n- First idea\n- Second idea\n\n---\n\n# Detail\n\nSupporting facts.\n\n<!-- Keep this note. -->\n",
+        "slidev": {
+          "css": ""
+        }
+      },
+      "request": "Set the global stylesheet to exactly h1 { color: rebeccapurple; } followed by a newline. Preserve Markdown.",
+      "checks": [
+        {
+          "type": "fieldEquals",
+          "path": "/src",
+          "value": "# Topic\n\n- First idea\n- Second idea\n\n---\n\n# Detail\n\nSupporting facts.\n\n<!-- Keep this note. -->\n"
+        },
+        {
+          "type": "fieldEquals",
+          "path": "/slidev/css",
+          "value": "h1 { color: rebeccapurple; }\n"
+        },
+        {
+          "type": "site",
+          "name": "compiles"
+        }
+      ],
+      "reference": {
+        "good": {
+          "src": "# Topic\n\n- First idea\n- Second idea\n\n---\n\n# Detail\n\nSupporting facts.\n\n<!-- Keep this note. -->\n",
+          "slidev": {
+            "css": "h1 { color: rebeccapurple; }\n"
+          }
+        },
+        "bad": {
+          "src": "# Topic\n\n- First idea\n- Second idea\n\n---\n\n# Detail\n\nSupporting facts.\n\n<!-- Keep this note. -->\n",
+          "slidev": {
+            "css": ""
+          }
+        }
+      }
+    },
+    {
+      "id": "frontmatter-repair",
+      "kind": "change",
+      "base": {
+        "src": "---\nlayuot: center\n---\n# Topic\n",
+        "slidev": {
+          "css": ""
+        }
+      },
+      "request": "Fix the misspelled layuot key to layout. Preserve all other text.",
+      "checks": [
+        {
+          "type": "fieldEquals",
+          "path": "/src",
+          "value": "---\nlayout: center\n---\n# Topic\n"
+        },
+        {
+          "type": "fieldEquals",
+          "path": "/slidev/css",
+          "value": ""
+        },
+        {
+          "type": "site",
+          "name": "compiles"
+        }
+      ],
+      "reference": {
+        "good": {
+          "src": "---\nlayout: center\n---\n# Topic\n",
+          "slidev": {
+            "css": ""
+          }
+        },
+        "bad": {
+          "src": "---\nlayuot: center\n---\n# Topic\n",
+          "slidev": {
+            "css": ""
+          }
+        }
+      }
+    }
+  ]
+}

@@ -24,6 +24,7 @@ for (const name of [
   'style.css',
   'docs.css',
   'fragment-kit.config.json',
+  'ai-suite.json',
   'service-worker.js',
   'src',
   'docs',

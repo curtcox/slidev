@@ -169,6 +169,23 @@ main {
 #hashbin-cid {
   width: 100%;
 }
+#ai-check-status {
+  white-space: pre-wrap;
+}
+#ai-ask-dialog input,
+#ai-ask-dialog select,
+#ai-ask-dialog textarea,
+#ai-settings input,
+#ai-settings select,
+.fk-ai-compare input,
+.fk-ai-compare textarea {
+  font-size: 16px;
+}
+.fk-ai-compare input,
+.fk-ai-compare textarea {
+  box-sizing: border-box;
+  max-width: 100%;
+}
 @media (prefers-color-scheme: dark) {
   :root {
     --fk-accent: #75d0ee;

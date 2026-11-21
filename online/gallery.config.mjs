@@ -45,7 +45,7 @@ export default {
     if (await frame.evaluate(() => globalThis.origin) !== 'null' || await page.locator('#preview iframe').getAttribute('sandbox') !== 'allow-scripts')
       throw new Error('Gallery covers require an opaque preview')
     if (await frame.locator('#online-notices').count())
-      throw new Error(`${example.id}: unexpected runtime notice`)
+      throw new Error(`${example.id}: unexpected runtime notice: ${(await frame.locator('#online-notices').textContent()).slice(0, 2000)}`)
     await frame.evaluate(async () => {
       await document.fonts.ready
       await Promise.all([...document.images].map(image => image.decode()))

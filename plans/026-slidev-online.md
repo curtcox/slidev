@@ -449,7 +449,7 @@ contract, plus a fully offline reload that renders the gallery.
 | 2 | Slidev runtime | DONE: five pinned themes, the browser compiler, opaque adapters, lazy assets, navigation and source writeback pass. CI verifies 187 exact SFC comparisons, 84 corpus slides and 162 visual cases. The initial runtime is 817,174 bytes gzip. Clean-release simulated-phone timing passes at 1.80 s median / 1.95 s maximum. Deployment and live Chromium/WebKit acceptance pass |
 | 3 | Editor app (share, QR, HashBin, mobile) | DONE — workspace, links/CIDs, drafts, sharing/QR, registration-gated HashBin controls, ZIP, kit contracts, overview/touch and source diagnostics deployed and verified live in Chromium/WebKit; client registration remains an owner action |
 | 4 | Docs and gallery | DONE — Markdown docs, 15 example decks, kit gallery and opaque-rendered covers deployed; all three CI browsers, 109 visual comparisons and live Chromium/WebKit gallery/offline checks pass |
-| 5 | AI-assisted editing | IN PROGRESS — parse-only proposal validation and fresh opaque compilation checks implemented; kit UI integration and deployment acceptance follow |
+| 5 | AI-assisted editing | IN PROGRESS — kit Ask, settings, comparisons, isolated checks and paused apply implemented. Local Chromium/WebKit acceptance passes, including provider mocks and first-use offline AI. CI and deployment acceptance follow |
 | 6 | Offline / PWA | TODO |
 | 7 | Presenting and export | TODO |
 | 8 | Canonical origin | TODO |
@@ -2172,3 +2172,33 @@ records the measured results. Publication/tag approvals remain outstanding.
   Chromium and WebKit pass fresh-frame isolation, every-slide diagnostics,
   CSS errors, cancellation and preservation of the live preview. Their good
   fixture contains a throwing script that the compilation check never runs.
+
+### Phase 5 editor integration (2026-11-19)
+
+- Ask AI, AI settings and Compare models load on the first explicit AI action.
+  Opening a link does not import the AI UI or call a provider. Recovery and
+  loopback deployments use the public PythonOnline provider routes, pinned
+  model and zero default spending caps. Other deployments offer paste only.
+- The kit handles paste prompts, streamed provider replies, text-only diffs,
+  explicit acceptance, consent, budgets, model comparisons and guarded Undo.
+  Acceptance cancels pending typing renders, destroys the live preview, saves
+  the draft and commits a `run=0` URL. Undo and Back also remain paused.
+- AI sees only Markdown and CSS. The kit's settings update can fill empty CSS,
+  while a strict AI adapter rejects other settings. The app preserves extension
+  metadata in drafts and both history snapshots without sending it to a model.
+- Six comparison tasks cover summaries, columns, themes, click reveals, CSS and
+  frontmatter key repair. Both local engines pass all twelve mocked results.
+  The kit requires valid YAML in the starting snapshot. Syntax errors must be
+  corrected manually before preparing a prompt. This limit is documented.
+- Chromium and WebKit pass paste review, isolated proposal checks, guarded Undo,
+  consent, zero-cap refusal, provider mocks, key-storage checks, empty CSS,
+  extension preservation and first-use AI after a fully offline reload.
+  Four additional contracts pass across those engines: typing-render cancellation,
+  safe Back navigation and 360 px phone controls. No paid provider call ran.
+- All 46 online units, runtime type checking, root lint/type checking, static
+  checks, vendor integrity, gallery fingerprints and offline asset checks pass.
+  Gallery image bytes remain unchanged. The first pushed checker workflow
+  passed all three browser suites and the visual gate, but stopped on stale
+  gallery fingerprints. Covers and fingerprints are now regenerated.
+- CI and deployment acceptance for the UI follow. Phases 6–8 and HashBin
+  client registration remain open.

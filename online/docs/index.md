@@ -26,5 +26,5 @@ If a slide fails to compile, the editor shows its file and source location when 
 - [Bundled themes](themes.md)
 - [Fonts and privacy](fonts.md)
 - [PlantUML diagrams and permission](plantuml.md)
-- [AI editing status](ai.md)
+- [AI editing and model comparisons](ai.md)
 - [Slidev syntax guide](https://sli.dev/guide/syntax)

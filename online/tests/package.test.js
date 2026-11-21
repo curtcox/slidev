@@ -19,6 +19,11 @@ it('offline artifact covers the actual shipped runtime and SDK bytes', async () 
     'runtime/sandbox.css',
     'runtime/editor/document.js',
     'runtime/highlighting/shiki.js',
+    'src/ai.mjs',
+    'src/ai-type.js',
+    'src/ai-check.js',
+    'ai-suite.json',
+    'vendor/fragment-kit-v0.4.4/src/ai/ui/ai.css',
     'vendor/fragment-kit-v0.4.4/vendor/hashbin-sdk-v0.6.0.mjs',
   ]) {
     const actual = createHash('sha256').update(await fs.readFile(new URL(file, base))).digest('hex')

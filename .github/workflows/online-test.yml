@@ -37,6 +37,7 @@ jobs:
         node tests/browser/gallery.cjs http://127.0.0.1:8000/ "$BROWSER"
         node tests/browser/editor.cjs http://127.0.0.1:8000/ "$BROWSER"
         node tests/browser/ai-check.cjs http://127.0.0.1:8000/ "$BROWSER"
+        node tests/browser/ai.cjs http://127.0.0.1:8000/ "$BROWSER"
         node tests/browser/runtime.cjs http://127.0.0.1:8000/ "$BROWSER"
         node tests/browser/transitions.cjs http://127.0.0.1:8000/ "$BROWSER"
         node tests/browser/icons.cjs http://127.0.0.1:8000/ "$BROWSER"

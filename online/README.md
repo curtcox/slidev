@@ -295,6 +295,33 @@ time. Builds also reject client storage-state modules without an opaque-origin
 adapter. The two upstream Markdown fixes for PascalCase and repeated/nested
 drag sources have their own separately committed regression tests.
 
+## AI editing
+
+Ask AI loads on an explicit click. The kit provides paste handoff, provider
+connections, review, Undo and model comparisons. Applying a proposal pauses
+the preview and commits a `run=0` URL. Render starts the changed deck.
+The AI adapter exposes only Markdown and CSS. Other document extensions stay
+outside prompts and survive acceptance, Undo and URL history.
+
+Check proposal compiles every visible slide in a fresh opaque SDK frame.
+It never imports or mounts generated author modules. It reports Vue and CSS
+errors, then destroys the frame. Automated comparisons use this same checker.
+The six tasks and their good/bad references live in `ai-suite.json`.
+
+From `online/`, run these checks against the staged site:
+
+```sh
+node tests/browser/ai-check.cjs http://127.0.0.1:8000/ chromium
+node tests/browser/ai.cjs http://127.0.0.1:8000/ chromium
+```
+
+Use `webkit` or `firefox` for the other engines. The provider suite uses
+synthetic keys and mocked responses. It blocks service workers in that context
+because workers can bypass network interception. A separate context tests
+first-use offline paste and compilation without connecting a provider.
+Phone layout and safe history checks also run in `npm run test:contracts`.
+See [the AI guide](docs/ai.html) for connections, budgets and current limits.
+
 ## Docs and gallery
 
 Edit `docs/*.md`, then run `npm run docs` from `online/`. Generated HTML stays

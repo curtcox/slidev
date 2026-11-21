@@ -17,6 +17,12 @@ import { mountWorkspace } from './workspace.js'
 
 const status = document.querySelector('#preview-status')
 async function main() {
+  const params = new URLSearchParams(location.search)
+  if ((params.has('code') && params.has('state')) || (params.has('error') && window.opener)) {
+    const { handleAiCallback } = await import('../vendor/fragment-kit-v0.4.4/src/ai/connections/oauth.js')
+    if (handleAiCallback())
+      return
+  }
   const response = await fetch('fragment-kit.config.json')
   if (!response.ok)
     throw new Error('App configuration is unavailable')
@@ -45,6 +51,8 @@ async function main() {
   let cursorSlide
   let initialPosition = false
   let hasDocument = false
+  let ai
+  let aiLoading
   const reportError = (message) => {
     status.textContent = message
   }
@@ -132,6 +140,7 @@ async function main() {
     try {
       persist()
       inspect()
+      ai?.refresh()
       status.textContent = run ? 'Changes saved in this browser. Updating preview…' : 'Changes saved in this browser. Press Render to preview.'
       if (run)
         timer = setTimeout(render, 500)
@@ -248,6 +257,51 @@ async function main() {
     }
     catch { reportError('Fullscreen is unavailable. Select Slides to present in this window.') }
   }
+  async function openAi(action) {
+    if (!hasDocument) {
+      reportError('Open a document before using AI editing.')
+      return
+    }
+    try {
+      aiLoading ??= import('./ai.mjs').then(({ mountAi }) => mountAi({
+        config,
+        getSnapshot: getDocument,
+        getFingerprint: fingerprint,
+        onApply(doc) {
+          // Acceptance, including Undo and blind comparisons, never runs code.
+          run = false
+          clearTimeout(timer)
+          preview.stop()
+          total = 0
+          document.body.dataset.ready = 'false'
+          editors.setDocument(doc)
+          changed()
+          status.textContent = 'AI change applied — press Render to preview.'
+          updateNavigation()
+        },
+        urlState: {
+          commit(doc, options) {
+            const preserve = value => ({
+              ...value,
+              slidev: { ...extensions, css: value.slidev.css },
+            })
+            return urlState.commit(preserve(doc), {
+              ...options,
+              previous: preserve(options.previous),
+              run: false,
+              view,
+            })
+          },
+        },
+      })).catch((error) => {
+        aiLoading = undefined
+        throw error
+      })
+      ai = await aiLoading
+      await ai[action]()
+    }
+    catch (error) { reportError(error.message) }
+  }
   const shell = createShell({
     config,
     actions: [
@@ -282,6 +336,24 @@ async function main() {
         extra: true,
         onClick: () => downloads.open(),
       },
+      {
+        label: 'Ask AI',
+        id: 'ask-ai',
+        extra: true,
+        onClick: () => { void openAi('ask') },
+      },
+      {
+        label: 'AI settings',
+        id: 'ai-settings-action',
+        extra: true,
+        onClick: () => { void openAi('settings') },
+      },
+      {
+        label: 'Compare models',
+        id: 'ai-compare-action',
+        extra: true,
+        onClick: () => { void openAi('compare') },
+      },
     ],
   })
   for (const [label, href] of [
@@ -302,6 +374,7 @@ async function main() {
     catch (error) { reportError(error.message) }
   }
   function opened(doc, options = {}) {
+    ai?.cancel()
     overview.close()
     clearTimeout(timer)
     urlState.cancel()
@@ -351,6 +424,7 @@ async function main() {
     store,
     onOpen: opened,
     onPending() {
+      ai?.cancel()
       clearTimeout(timer)
       urlState.cancel()
       status.textContent = 'Opening document…'
@@ -470,6 +544,8 @@ async function main() {
     urlState.cancel()
     clearTimeout(timer)
     preview.stop()
+    ai?.destroy()
+    ai = aiLoading = undefined
   })
   addEventListener('pageshow', (event) => {
     if (event.persisted && hasDocument && run)
