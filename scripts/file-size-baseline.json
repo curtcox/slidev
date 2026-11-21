@@ -1,0 +1,23 @@
+{
+  "$comment": "Ratchet for files that exceed the limits in scripts/check-file-sizes.mjs. Sizes are in bytes and may only go down. Regenerate with `pnpm size:update`.",
+  "files": {
+    "assets/screenshots/cover.png": 907804,
+    "assets/screenshots/covers.png": 1846729,
+    "assets/screenshots/integrated-editor.png": 542810,
+    "assets/screenshots/navbar.png": 706839,
+    "assets/screenshots/slides-overview.png": 696236,
+    "assets/themes/seriph.png": 639197,
+    "docs/public/screenshots/cover.png": 907804,
+    "docs/public/screenshots/covers.png": 1846729,
+    "docs/public/screenshots/integrated-editor.png": 542810,
+    "docs/public/screenshots/navbar.png": 706839,
+    "docs/public/screenshots/slides-overview.png": 696236,
+    "online/vendor/ace-1.43.3/ace.js": 473183,
+    "online/vendor/fragment-kit-v0.4.4/vendor/jsqr/jsQR-fk.js": 257045,
+    "online/vendor/fragment-kit-v0.4.4/vendor/jsqr/jsQR.js": 256885,
+    "online/vendor/fragment-kit-v0.4.4/vendor/wllama-3.8.1/compat.js": 171615,
+    "online/vendor/fragment-kit-v0.4.4/vendor/wllama-3.8.1/compat.wasm": 16005007,
+    "online/vendor/fragment-kit-v0.4.4/vendor/wllama-3.8.1/index.js": 382633,
+    "online/vendor/fragment-kit-v0.4.4/vendor/wllama-3.8.1/wllama.wasm": 8763949
+  }
+}

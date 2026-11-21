@@ -20,6 +20,8 @@
     "dev": "turbo run dev --filter=\"./packages/*\"",
     "lint": "eslint . --cache",
     "lint:fix": "nr lint --fix",
+    "size:check": "node scripts/check-file-sizes.mjs",
+    "size:update": "node scripts/check-file-sizes.mjs --update",
     "typecheck": "vue-tsc --noEmit",
     "docs": "pnpm -C docs run dev",
     "docs:build": "pnpm run --filter=\"./docs...\" build && pnpm demo:build",
@@ -84,7 +86,8 @@
     "vite": "catalog:prod"
   },
   "simple-git-hooks": {
-    "pre-commit": "npx lint-staged"
+    "pre-commit": "npx lint-staged",
+    "pre-push": "node scripts/check-file-sizes.mjs --pre-push"
   },
   "lint-staged": {
     "**/*.{js,ts,vue,json}": [
