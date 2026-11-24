@@ -112,7 +112,41 @@ export interface RenderInput {
   dark: boolean
 }
 
-export function createRenderer(report: (message: Record<string, unknown>) => void) {
+export interface ExportHtmlInput {
+  src: string
+  css: string
+  dark: boolean
+  notes: boolean
+}
+
+function escapeHtml(text: string) {
+  return text
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll('\'', '&#39;')
+}
+
+function safeStyleText(css: string) {
+  return css.replaceAll(/<\/style/gi, '<\\/style')
+}
+
+async function waitForMermaid(root: Element) {
+  const containers = [
+    ...root.querySelectorAll('.mermaid'),
+  ]
+  if (!containers.length)
+    return
+  const deadline = Date.now() + 10000
+  while (Date.now() < deadline) {
+    if (containers.every(el => el.shadowRoot?.querySelector('svg') || el.querySelector('svg') || el.textContent?.includes('unavailable')))
+      return
+    await new Promise(resolve => setTimeout(resolve, 50))
+  }
+}
+
+export function createRenderer(report: (message: Record<string, unknown>) => void, runtimeCss = '') {
   let app: App | undefined
   let compiler: Awaited<ReturnType<typeof createDeckCompiler>> | undefined
   const clicks = Vue.shallowRef<ClicksContext>()
@@ -614,6 +648,230 @@ export function createRenderer(report: (message: Record<string, unknown>) => voi
         warnings,
         origin: globalThis.origin,
       })
+    },
+    async exportHtml(input: ExportHtmlInput) {
+      navigation.isPrintMode.value = true
+      try {
+        await this.render({
+          src: input.src,
+          css: input.css,
+          slide: 1,
+          click: 999999,
+          dark: input.dark,
+        })
+        if (!compiler)
+          throw new Error('Deck compiler is unavailable')
+        const width = configs.canvasWidth
+        const height = Math.ceil(configs.canvasWidth / configs.aspectRatio)
+        const sharedCss = [
+          runtimeCss,
+          commonCss,
+          ...compiler.theme.css,
+        ]
+        const slideStyles = new Set<string>()
+        const pages: string[] = []
+        const sharedPrefix = `${[commonCss, ...compiler.theme.css].join('\n')}\n`
+
+        for (let no = 1; no <= compiler.slides.length; no++) {
+          if (no > 1)
+            await goto(no, 999999)
+          await Vue.nextTick()
+          if (container)
+            await waitForMermaid(container)
+          await new Promise(resolve => setTimeout(resolve, 0))
+          const activeStyle = [
+            ...document.head.querySelectorAll('style[data-online-slide]'),
+          ].at(-1)
+          if (activeStyle?.textContent) {
+            const text = activeStyle.textContent.startsWith(sharedPrefix)
+              ? activeStyle.textContent.slice(sharedPrefix.length)
+              : activeStyle.textContent
+            if (text.trim())
+              slideStyles.add(text)
+          }
+          const clone = container?.cloneNode(true) as HTMLElement | undefined
+          if (!clone)
+            throw new Error(`Slide ${no} failed to render`)
+          const origShadowHosts = [
+            ...container!.querySelectorAll('.mermaid'),
+          ]
+          const cloneShadowHosts = [
+            ...clone.querySelectorAll('.mermaid'),
+          ]
+          for (let i = 0; i < origShadowHosts.length; i++) {
+            const shadow = origShadowHosts[i].shadowRoot
+            if (shadow && cloneShadowHosts[i])
+              cloneShadowHosts[i].innerHTML = shadow.innerHTML
+          }
+          clone.removeAttribute('id')
+          clone.removeAttribute('style')
+          clone.querySelectorAll('script').forEach(node => node.remove())
+          const note = input.notes
+            ? (compiler.slides[no - 1]?.note ?? '').trim()
+            : ''
+          const noteHtml = note
+            ? `<aside class="print-notes"><h2>Slide ${no} notes</h2><pre>${escapeHtml(note)}</pre></aside>`
+            : ''
+          pages.push(`<section class="print-slide-sheet"><div class="print-slide-page" style="width:${width}px;height:${height}px">${clone.innerHTML}</div>${noteHtml}</section>`)
+        }
+
+        const fontLinks = [
+          ...document.head.querySelectorAll('link[data-online-fonts]'),
+        ]
+          .map(link => `<link rel="stylesheet" referrerpolicy="no-referrer" href="${escapeHtml((link as HTMLLinkElement).href)}">`)
+          .join('\n  ')
+        const fontStyles = [
+          ...document.head.querySelectorAll('style[data-online-fonts]'),
+        ]
+          .map(style => style.textContent ?? '')
+        const mathStyle = document.querySelector('#online-math-css')?.textContent ?? ''
+        const title = escapeHtml(String(configs.title || 'Slidev Online deck'))
+        const themeName = escapeHtml(compiler.theme.name)
+        const fontVars = (['sans', 'serif', 'mono'] as const)
+          .map(kind => `--slidevonline-font-${kind}:${configs.fonts[kind].join(',')}`)
+          .join(';')
+
+        const printCss = `
+html, body {
+  margin: 0;
+  padding: 0;
+  width: auto !important;
+  height: auto !important;
+  overflow: visible !important;
+  background: ${input.dark ? '#111820' : '#eef2f5'};
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+}
+.print-banner {
+  max-width: ${width}px;
+  margin: 16px auto;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: ${input.dark ? '#1d303c' : '#fff'};
+  color: ${input.dark ? '#e1eef5' : '#182e3b'};
+  border: 1px solid ${input.dark ? '#3a5565' : '#c8d6df'};
+  font: 14px/1.5 system-ui, sans-serif;
+}
+.print-deck {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  padding: 0 16px 32px;
+}
+.print-slide-sheet {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+.print-slide-page {
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.16);
+  background: var(--slidev-theme-background, ${input.dark ? '#121212' : '#fff'});
+}
+.print-slide-page > div {
+  width: 100%;
+  height: 100%;
+}
+.print-notes {
+  width: ${width}px;
+  box-sizing: border-box;
+  padding: 12px 16px;
+  border-radius: 6px;
+  background: ${input.dark ? '#1d303c' : '#fff'};
+  color: ${input.dark ? '#e1eef5' : '#182e3b'};
+  border: 1px solid ${input.dark ? '#3a5565' : '#c8d6df'};
+  font: 14px/1.5 system-ui, sans-serif;
+}
+.print-notes h2 {
+  margin: 0 0 6px;
+  font-size: 13px;
+  opacity: 0.75;
+}
+.print-notes pre {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: inherit;
+}
+@page {
+  size: ${width}px ${height}px;
+  margin: 0;
+}
+@media print {
+  html, body {
+    background: transparent !important;
+  }
+  .print-banner {
+    display: none !important;
+  }
+  .print-deck {
+    display: block;
+    padding: 0;
+    gap: 0;
+  }
+  .print-slide-sheet {
+    display: block;
+    break-after: page;
+    page-break-after: always;
+  }
+  .print-slide-sheet:last-child {
+    break-after: auto;
+    page-break-after: auto;
+  }
+  .print-slide-page {
+    box-shadow: none;
+  }
+  .print-notes {
+    margin-top: 8px;
+    break-inside: avoid;
+  }
+}
+`
+        const allStyles = [
+          ...fontStyles,
+          ...(mathStyle
+            ? [mathStyle]
+            : []),
+          ...sharedCss,
+          ...slideStyles,
+          input.css,
+          printCss,
+        ].filter(Boolean).join('\n')
+
+        const html = `<!doctype html>
+<html lang="en"${input.dark ? ' class="dark"' : ''} data-online-theme="${themeName}" style="${escapeHtml(fontVars)}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline' https://fonts.googleapis.com; img-src data: https:; font-src data: https://fonts.gstatic.com; base-uri 'none'; form-action 'none'">
+  <title>${title}</title>
+  ${fontLinks}
+  <style>${safeStyleText(allStyles)}</style>
+</head>
+<body>
+  <header class="print-banner">Exported from Slidev Online (${compiler.slides.length} slide${compiler.slides.length === 1
+    ? ''
+    : 's'}). Use your browser's Print → Save as PDF (with Background graphics enabled) to create a PDF.</header>
+  <main class="print-deck">
+    ${pages.join('\n    ')}
+  </main>
+</body>
+</html>
+`
+        report({
+          type: 'exported-html',
+          html,
+          slides: compiler.slides.length,
+          origin: globalThis.origin,
+        })
+      }
+      finally {
+        navigation.isPrintMode.value = false
+      }
     },
   }
 }

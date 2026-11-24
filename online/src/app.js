@@ -429,6 +429,12 @@ async function main() {
         onClick: () => downloads.open(),
       },
       {
+        label: 'Print / PDF',
+        id: 'print-pdf',
+        extra: true,
+        onClick: () => downloads.open(),
+      },
+      {
         label: 'Ask AI',
         id: 'ask-ai',
         extra: true,
@@ -589,6 +595,7 @@ async function main() {
     urlState,
     store,
     getDocument,
+    getDark: () => dark,
     async onLink(href) {
       if (!await loader.open(href))
         return false

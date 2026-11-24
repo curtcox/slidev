@@ -45,7 +45,7 @@ high-confidence security + correctness, then larger refactors. You may cherry-pi
 | 023 | Decompose god functions in `export.ts`/`cli.ts` | P3 | L | MED | 022 | TODO |
 | 024 | Incremental HMR parse cache | P3 | L | MED | — | TODO |
 | 025 | Guard `skills/`-vs-`docs/` drift in CI | P3 | S-M | LOW | — | TODO |
-| 026 | Slidev Online (browser editor on Fragment Kit, GitHub Pages) | P1 | XL | MED-HIGH | SDK v0.6.0 / kit v0.4.4 / workflow `@v4` verified | IN PROGRESS: Phases 0–5 complete (Phase 5 deployed in run `45474430596` and verified live in Chromium/WebKit). Phase 6 PWA manifest, icons, repair/update-preserving controls and kit `offline.spec.js` + offline gallery/docs/update contracts pass locally in Chromium/WebKit; Phase 6 CI/deploy acceptance, Phases 7–8 and HashBin registration remain open |
+| 026 | Slidev Online (browser editor on Fragment Kit, GitHub Pages) | P1 | XL | MED-HIGH | SDK v0.6.0 / kit v0.4.4 / workflow `@v4` verified | IN PROGRESS: Phases 0–6 complete (Phase 6 deployed in run `45476886127` and verified live in Chromium/WebKit). Phase 7 Presenter view and printable standalone HTML export pass locally in Chromium/WebKit; lazy Monaco (`{monaco}`/`{monaco-run}`), Phase 7 CI/deploy acceptance, Phase 8 and HashBin registration remain open |
 
 Status values: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED` (one-line reason) |
 `REJECTED` (one-line rationale).

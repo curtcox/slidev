@@ -25,7 +25,7 @@ Headmatter is the YAML configuration at the start of a deck. Per-slide frontmatt
 | `src:` slide imports and `<<<` file snippets                         | Unavailable. The slide shows an error                                    |
 | Custom components, layouts, setup directories and npm imports        | Unavailable. Use bundled components and supported imports                |
 | Themes and addons downloaded from npm                                | Unavailable                                                              |
-| Presenter window, print/PDF and standalone HTML export               | Pending                                                                  |
+| Presenter window, print/PDF and standalone HTML export               | Presenter opens in a second window with opaque previews, text notes and timer; Print/PDF downloads standalone script-free printable HTML |
 | Camera, recording and remote-control synchronization                 | Unavailable                                                              |
 
 Missing components, icons, imports and languages produce visible errors or notices. The Tweet widget is unavailable. Remote media and additional Google fonts need an internet connection.

@@ -1,9 +1,10 @@
-import type { RenderInput } from './renderer'
+import type { ExportHtmlInput, RenderInput } from './renderer'
 
 const MAX_BYTES = 5 * 1024 * 1024
 const encoder = new TextEncoder()
 
 export type RuntimeCommand = ({ protocol: 1, type: 'render' } & RenderInput)
+  | ({ protocol: 1, type: 'export-html' } & ExportHtmlInput)
   | { protocol: 1, type: 'goto', slide: number, click: number }
   | { protocol: 1, type: 'next' }
   | { protocol: 1, type: 'prev' }
@@ -12,8 +13,15 @@ export function parseCommand(value: unknown): RuntimeCommand {
   if (!value || typeof value !== 'object' || Array.isArray(value))
     throw new Error('Invalid preview command')
   const data = value as Record<string, unknown>
-  if (data.protocol !== 1 || !['render', 'goto', 'next', 'prev'].includes(String(data.type)))
+  if (data.protocol !== 1 || ![
+    'render',
+    'export-html',
+    'goto',
+    'next',
+    'prev',
+  ].includes(String(data.type))) {
     throw new Error('Unsupported preview protocol or command')
+  }
   const fields = data.type === 'render'
     ? [
         'protocol',
@@ -24,13 +32,31 @@ export function parseCommand(value: unknown): RuntimeCommand {
         'click',
         'dark',
       ]
-    : data.type === 'goto'
-      ? ['protocol', 'type', 'slide', 'click']
-      : ['protocol', 'type']
+    : data.type === 'export-html'
+      ? [
+          'protocol',
+          'type',
+          'src',
+          'css',
+          'dark',
+          'notes',
+        ]
+      : data.type === 'goto'
+        ? ['protocol', 'type', 'slide', 'click']
+        : ['protocol', 'type']
   if (Object.keys(data).some(key => !fields.includes(key)))
     throw new Error('Unknown preview command field')
   if (data.type === 'next' || data.type === 'prev')
     return data as RuntimeCommand
+  if (data.type === 'export-html') {
+    if (typeof data.src !== 'string' || typeof data.css !== 'string' || typeof data.dark !== 'boolean' || typeof data.notes !== 'boolean')
+      throw new TypeError('Invalid export document')
+    if (data.src.length + data.css.length > MAX_BYTES
+      || encoder.encode(data.src).byteLength + encoder.encode(data.css).byteLength > MAX_BYTES) {
+      throw new Error('The document exceeds the 5 MiB limit')
+    }
+    return data as RuntimeCommand
+  }
   if (!Number.isSafeInteger(data.slide) || (data.slide as number) < 1 || (data.slide as number) > 10000
     || !Number.isSafeInteger(data.click) || (data.click as number) < 0 || (data.click as number) > 1000000) {
     throw new Error('Invalid preview position')

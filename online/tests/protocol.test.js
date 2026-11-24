@@ -27,6 +27,21 @@ it('bounds and validates the document and position before runtime execution', ()
   })
   assert.deepEqual(parseCommand({ protocol: 1, type: 'next' }), { protocol: 1, type: 'next' })
   assert.deepEqual(parseCommand({ protocol: 1, type: 'prev' }), { protocol: 1, type: 'prev' })
+  assert.deepEqual(parseCommand({
+    protocol: 1,
+    type: 'export-html',
+    src: '# Deck',
+    css: '',
+    dark: false,
+    notes: true,
+  }), {
+    protocol: 1,
+    type: 'export-html',
+    src: '# Deck',
+    css: '',
+    dark: false,
+    notes: true,
+  })
   for (const value of [
     null,
     [],
@@ -34,6 +49,14 @@ it('bounds and validates the document and position before runtime execution', ()
     { ...render, type: 'print' },
     { protocol: 1, type: 'next', slide: 1 },
     { protocol: 1, type: 'prev', extra: true },
+    {
+      protocol: 1,
+      type: 'export-html',
+      src: '# Deck',
+      css: '',
+      dark: false,
+      notes: 'yes',
+    },
     { ...render, slide: 0 },
     { ...render, slide: 1.5 },
     { ...render, slide: 10001 },

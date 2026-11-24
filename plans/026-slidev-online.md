@@ -450,8 +450,8 @@ contract, plus a fully offline reload that renders the gallery.
 | 3 | Editor app (share, QR, HashBin, mobile) | DONE — workspace, links/CIDs, drafts, sharing/QR, registration-gated HashBin controls, ZIP, kit contracts, overview/touch and source diagnostics deployed and verified live in Chromium/WebKit; client registration remains an owner action |
 | 4 | Docs and gallery | DONE — Markdown docs, 15 example decks, kit gallery and opaque-rendered covers deployed; all three CI browsers, 109 visual comparisons and live Chromium/WebKit gallery/offline checks pass |
 | 5 | AI-assisted editing | DONE — kit Ask, settings, six comparison tasks, isolated compilation checks and paused apply deployed; CI run `45474430596` (all three browsers + visual gate) and live Chromium/WebKit acceptance pass |
-| 6 | Offline / PWA | IN PROGRESS — `manifest.webmanifest`, icons, repair and update-preserving controls, kit `offline.spec.js` and offline gallery/docs/update contracts implemented and passing locally in Chromium/WebKit; CI and live deployment acceptance follow |
-| 7 | Presenting and export | TODO |
+| 6 | Offline / PWA | DONE — `manifest.webmanifest`, icons, repair and update-preserving controls, kit `offline.spec.js` and offline gallery/docs/update contracts deployed; CI run `45476886127` (all three browsers + visual gate) and live Chromium/WebKit acceptance pass |
+| 7 | Presenting and export | IN PROGRESS — Presenter view (second editor-origin window, opaque current/next previews, text notes, timer, two-way sync) and printable standalone HTML export (spike confirmed `allow-scripts` blocks `print()`) implemented and passing Chromium/WebKit; lazy Monaco (`{monaco}` / `{monaco-run}`) follows |
 | 8 | Canonical origin | TODO |
 
 ### Phase 0 evidence (2026-11-12)
@@ -2236,3 +2236,35 @@ records the measured results. Publication/tag approvals remain outstanding.
   checks, ESLint, file-size check, all 90 applicable Playwright contracts
   (4 demo-only skips) across Chromium and WebKit, plus `all.cjs` and
   `gallery.cjs` in Chromium and WebKit. CI and live deployment acceptance follow.
+
+### Phase 6 deployed acceptance (2026-11-24)
+
+- Commit `685e975b` is pushed on `main`.
+  [Deployment run 45476886127](https://github.com/curtcox/slidev/actions/runs/45476886127)
+  passed every job: Chromium, Firefox, WebKit, units, vendor verification,
+  blocking visual fidelity and Pages deployment.
+- Live `https://curtcox.github.io/slidev/release.json` reports `685e975b` with
+  `dirty:false`. Live Chromium and WebKit pass all eight `offline.spec.js` and
+  `offline-pwa.spec.js` contracts, including atomic install, offline reload,
+  corrupt-cache repair, `slidevonline-` cache prefixing, offline manifest/icon
+  decoding, offline gallery/KaTeX/Mermaid/docs rendering and waiting-update
+  preservation of edited Markdown and CSS. Phase 6 is complete.
+
+### Phase 7 presenter view and printable HTML export (2026-11-24)
+
+- **Print spike (Chromium + WebKit):** verified that an `allow-scripts`-only
+  opaque sandbox cannot call `window.print()` (Chromium logs
+  `Ignored call to 'print()'. The document is sandboxed, and the 'allow-modals' keyword is not set.`).
+  Per the plan, `sandbox="allow-scripts"` stays unchanged and Print/PDF exports
+  a self-contained, script-free printable standalone HTML file.
+- **Presenter view (`517934bd`):** `presenter.html` opens on the editor origin
+  with current-slide and next-slide previews in separate opaque sandboxes,
+  strictly text-rendered speaker notes, a presentation timer (Pause/Resume/Reset),
+  dark-mode sync and two-way position/click navigation via a session-scoped
+  `BroadcastChannel('slidevonline:presenter')`. Sandboxes never talk to each other.
+- **Printable standalone HTML export:** runs inside a disposable opaque sandbox,
+  renders every visible slide at final click state (including KaTeX, Mermaid,
+  bundled fonts, themes, UnoCSS and user CSS), strips `<script>` tags, adds
+  `@page` / `@media print` rules and strict `default-src 'none'` CSP, and
+  optionally includes escaped speaker notes.
+- Lazy Monaco (`{monaco}` and `{monaco-run}`) remains to complete Phase 7.

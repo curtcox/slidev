@@ -15,11 +15,12 @@ export async function start(styles: Response) {
   // The SDK proxies the stylesheet through the parent's verified offline cache.
   if (!styles.ok)
     throw new Error('Slide styles are unavailable')
+  const runtimeCss = await styles.text()
   const style = document.createElement('style')
-  style.textContent = await styles.text()
+  style.textContent = runtimeCss
   document.head.append(style)
   const report = (message: Record<string, unknown>) => postMessage({ protocol: 1, ...message })
-  const renderer = createRenderer(report)
+  const renderer = createRenderer(report, runtimeCss)
   let queue = Promise.resolve()
   const fail = (error: any) => report({
     type: 'error',
@@ -37,6 +38,8 @@ export async function start(styles: Response) {
       queue = queue.then(async () => {
         if (command.type === 'render')
           await renderer.render(command)
+        else if (command.type === 'export-html')
+          await renderer.exportHtml(command)
         else if (command.type === 'goto')
           await renderer.goto(command.slide, command.click)
         else if (command.type === 'next')

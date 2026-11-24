@@ -1,8 +1,9 @@
 import { isAppURL } from '../vendor/fragment-kit-v0.4.4/src/core/config.js'
 import { createDialog, download, element } from '../vendor/fragment-kit-v0.4.4/src/ui/dialog.js'
+import { exportPrintableHtml } from './export-html.js'
 import { deckZip } from './zip.js'
 
-export function createFileDialogs({ config, urlState, store, getDocument, onLink, onImport, onError }) {
+export function createFileDialogs({ config, urlState, store, getDocument, getDark = () => false, onLink, onImport, onError }) {
   const open = createDialog('Open a deck', { id: 'open-dialog' })
   const message = element('p', '', { role: 'status' })
   const fail = (error) => {
@@ -98,5 +99,40 @@ export function createFileDialogs({ config, urlState, store, getDocument, onLink
     }
     downloads.body.append(button)
   }
+  const printNote = element('p', 'Browser sandbox isolation blocks direct printing from the preview. Download standalone HTML, open it in a browser tab, and choose Print → Save as PDF (with Background graphics enabled).')
+  const notesCheckbox = element('input', null, { type: 'checkbox', id: 'export-notes' })
+  const notesLabel = element('label', 'Include speaker notes')
+  notesLabel.prepend(notesCheckbox)
+  const htmlStatus = element('p', '', { id: 'export-html-status', role: 'status' })
+  const htmlButton = element('button', 'Printable HTML (Print / PDF)', { type: 'button', id: 'download-html' })
+  htmlButton.onclick = async () => {
+    htmlButton.disabled = true
+    htmlStatus.textContent = 'Building printable HTML…'
+    try {
+      const doc = getDocument()
+      const includeNotes = notesCheckbox.checked
+      const result = await exportPrintableHtml({
+        src: doc.src,
+        css: doc.slidev.css,
+        dark: getDark(),
+        notes: includeNotes,
+      })
+      download(
+        new Blob([result.html], { type: 'text/html; charset=utf-8' }),
+        includeNotes ? 'slides-with-notes.html' : 'slides.html',
+      )
+      htmlStatus.textContent = `Downloaded printable HTML (${result.slides} slide${result.slides === 1
+        ? ''
+        : 's'}). Open it and choose Print → Save as PDF.`
+    }
+    catch (error) {
+      htmlStatus.textContent = error.message
+      onError(error.message)
+    }
+    finally {
+      htmlButton.disabled = false
+    }
+  }
+  downloads.body.append(printNote, notesLabel, htmlButton, htmlStatus)
   return { open, downloads }
 }
