@@ -449,8 +449,8 @@ contract, plus a fully offline reload that renders the gallery.
 | 2 | Slidev runtime | DONE: five pinned themes, the browser compiler, opaque adapters, lazy assets, navigation and source writeback pass. CI verifies 187 exact SFC comparisons, 84 corpus slides and 162 visual cases. The initial runtime is 817,174 bytes gzip. Clean-release simulated-phone timing passes at 1.80 s median / 1.95 s maximum. Deployment and live Chromium/WebKit acceptance pass |
 | 3 | Editor app (share, QR, HashBin, mobile) | DONE — workspace, links/CIDs, drafts, sharing/QR, registration-gated HashBin controls, ZIP, kit contracts, overview/touch and source diagnostics deployed and verified live in Chromium/WebKit; client registration remains an owner action |
 | 4 | Docs and gallery | DONE — Markdown docs, 15 example decks, kit gallery and opaque-rendered covers deployed; all three CI browsers, 109 visual comparisons and live Chromium/WebKit gallery/offline checks pass |
-| 5 | AI-assisted editing | IN PROGRESS — kit Ask, settings, comparisons, isolated checks and paused apply implemented. Local Chromium/WebKit acceptance passes, including provider mocks and first-use offline AI. CI and deployment acceptance follow |
-| 6 | Offline / PWA | TODO |
+| 5 | AI-assisted editing | DONE — kit Ask, settings, six comparison tasks, isolated compilation checks and paused apply deployed; CI run `45474430596` (all three browsers + visual gate) and live Chromium/WebKit acceptance pass |
+| 6 | Offline / PWA | IN PROGRESS — `manifest.webmanifest`, icons, repair and update-preserving controls, kit `offline.spec.js` and offline gallery/docs/update contracts implemented and passing locally in Chromium/WebKit; CI and live deployment acceptance follow |
 | 7 | Presenting and export | TODO |
 | 8 | Canonical origin | TODO |
 
@@ -2202,3 +2202,37 @@ records the measured results. Publication/tag approvals remain outstanding.
   gallery fingerprints. Covers and fingerprints are now regenerated.
 - CI and deployment acceptance for the UI follow. Phases 6–8 and HashBin
   client registration remain open.
+
+### Phase 5 deployed acceptance (2026-11-24)
+
+- The earlier push deployment `44921510184` passed every test job (Chromium,
+  Firefox, WebKit, units, vendor verification and visual fidelity) and failed
+  only on GitHub Pages' transient artifact lookup. Fresh dispatch
+  [run 45474430596](https://github.com/curtcox/slidev/actions/runs/45474430596)
+  on `main` (`c24661b1`) passed every job, including Pages deployment.
+- Live `https://curtcox.github.io/slidev/release.json` reports `c24661b1` with
+  `dirty:false`. Live Chromium and WebKit pass `ai-check.cjs`, `ai.cjs`
+  (paste review, isolated checks, paused apply/reload, guarded undo, consent,
+  budgets, mocked provider, key privacy, 12 comparison results, extension
+  preservation and first-use offline AI) and all four `ai.spec.js` contracts.
+- Phase 5 is complete. No paid provider calls ran.
+
+### Phase 6 offline / PWA implementation (2026-11-24)
+
+- Added `online/manifest.webmanifest` and PWA icons (`icons/icon.svg`,
+  `icons/icon-192.png`, `icons/icon-512.png`, `icons/icon-maskable-512.png`),
+  linked from `index.html`, `gallery.html` and rendered docs, and shipped into
+  `dist/` and `offline-assets.js` under the `slidevonline-` cache prefix.
+- Added `online/src/offline.js` mounting `#offline-repair` ("Repair offline
+  copy") and `#offline-update` ("Apply update") in More. Waiting updates do not
+  disrupt active editing; activating an update synchronously flushes the local
+  draft and URL fragment so edited Markdown and CSS survive both live
+  controller activation and subsequent offline reloads.
+- Enabled the Fragment Kit `offline.spec.js` contract alongside new
+  `tests/contracts/offline-pwa.spec.js` checks covering manifest/icon decoding,
+  `slidevonline-` cache prefixing, offline gallery/KaTeX/Mermaid/docs reloads,
+  and waiting-update preservation of edited Markdown and CSS.
+- Local verification passes: 47 online unit tests, docs/gallery/manifest/offline
+  checks, ESLint, file-size check, all 90 applicable Playwright contracts
+  (4 demo-only skips) across Chromium and WebKit, plus `all.cjs` and
+  `gallery.cjs` in Chromium and WebKit. CI and live deployment acceptance follow.

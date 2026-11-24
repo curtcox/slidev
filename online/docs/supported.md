@@ -32,7 +32,7 @@ Missing components, icons, imports and languages produce visible errors or notic
 
 ## Offline use
 
-Wait for the editor to report “Available offline” before disconnecting. The app caches the editor, docs, examples, themes, bundled fonts, icon collections, grammars, math and Mermaid assets.
+Wait for the editor to report “Available offline” before disconnecting. The app caches the editor, docs, examples, themes, bundled fonts, icon collections, grammars, math and Mermaid assets. You can install Slidev Online as a web app from your browser. Use **More → Repair offline copy** if cached files need verification, and **More → Apply update** when a new release is ready without losing your current slides.
 
 Remote images, videos, additional fonts and PlantUML are outside this download. Browser storage can be cleared or evicted. Keep a downloaded copy of important work.
 

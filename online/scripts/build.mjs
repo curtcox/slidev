@@ -21,6 +21,8 @@ for (const name of [
   'index.html',
   'gallery.html',
   'gallery',
+  'manifest.webmanifest',
+  'icons',
   'style.css',
   'docs.css',
   'fragment-kit.config.json',

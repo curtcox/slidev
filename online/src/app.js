@@ -4,13 +4,13 @@ import { createStorage } from '../vendor/fragment-kit-v0.4.4/src/core/storage.js
 import { LocalDrafts } from '../vendor/fragment-kit-v0.4.4/src/drafts/local-drafts.js'
 import { HashBinPanel } from '../vendor/fragment-kit-v0.4.4/src/hashbin/panel.js'
 import { HashBinStore } from '../vendor/fragment-kit-v0.4.4/src/hashbin/store.js'
-import { OfflineClient } from '../vendor/fragment-kit-v0.4.4/src/offline/client.js'
 import { createShareDialog } from '../vendor/fragment-kit-v0.4.4/src/share/share-dialog.js'
 import { element } from '../vendor/fragment-kit-v0.4.4/src/ui/dialog.js'
 import { createShell } from '../vendor/fragment-kit-v0.4.4/src/ui/shell.js'
 import { createEditors } from './editor.js'
 import { createFileDialogs } from './files.js'
 import { createDocumentLoader, createWorkspaceUrls } from './links.js'
+import { mountOffline } from './offline.js'
 import { createSlideOverview } from './overview.js'
 import { createPreviewBridge } from './preview-bridge.js'
 import { mountWorkspace } from './workspace.js'
@@ -510,18 +510,21 @@ async function main() {
   })
   openDialog = files.open
   downloads = files.downloads
+  const offline = mountOffline({
+    container: shell.drawer.body,
+    statusNode: shell.offlineStatus,
+    onBeforeActivate() {
+      if (!hasDocument)
+        return
+      const doc = getDocument()
+      drafts.attempt(doc, true)
+      urlState.cancel()
+      history.replaceState(history.state, '', urlState.build(doc, { run, view }).href)
+    },
+  })
   startOffline = () => {
     startOffline = undefined
-    const offline = new OfflineClient({
-      onStatus(result) {
-        shell.offlineStatus.textContent = result.ready
-          ? 'Available offline'
-          : result.error ?? 'Preparing offline copy'
-      },
-    })
-    void offline.init().catch(() => {
-      shell.offlineStatus.textContent = 'Offline copy unavailable'
-    })
+    void offline.start()
   }
   let navigatingHref
   const navigate = () => {

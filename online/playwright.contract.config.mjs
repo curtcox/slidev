@@ -12,7 +12,7 @@ export default defineConfig({
   testDir: '.',
   testIgnore: ['**/dist/**', '**/node_modules/**'],
   testMatch: [
-    '**/testing/contract/{url-identity,sharing,qr-roundtrip,hashbin-callback,draft-recovery,mobile-layout}.spec.js',
+    '**/testing/contract/{url-identity,sharing,qr-roundtrip,hashbin-callback,draft-recovery,mobile-layout,offline}.spec.js',
     '**/tests/contracts/*.spec.js',
   ],
   use: { ...kit.use, baseURL: external ?? 'http://127.0.0.1:8000/' },

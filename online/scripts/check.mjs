@@ -24,8 +24,17 @@ await check({
 })
 const html = await fs.readFile(path.join(root, 'dist/index.html'), 'utf8')
 assert.ok(html.includes('slidev-fragment-kit-v0.4.4'))
+assert.ok(html.includes('href="manifest.webmanifest"'))
+const manifest = JSON.parse(await fs.readFile(path.join(root, 'dist/manifest.webmanifest'), 'utf8'))
+assert.equal(manifest.name, 'Slidev Online')
+assert.equal(manifest.display, 'standalone')
+assert.ok(Array.isArray(manifest.icons) && manifest.icons.length >= 3)
+const worker = await fs.readFile(path.join(root, 'dist/service-worker.js'), 'utf8')
+assert.ok(worker.includes('offline-assets.js') && worker.includes('sw-core.js'))
 for (const file of [
   'gallery.html',
+  'manifest.webmanifest',
+  ...manifest.icons.map(icon => icon.src),
   'docs/index.html',
   'examples/welcome.md',
   'runtime/sandbox.js',
@@ -33,4 +42,4 @@ for (const file of [
 ])
   assert.ok((await fs.stat(path.join(root, 'dist', file))).size > 0, `${file} must be shipped`)
 await generateOffline(path.join(root, 'dist/offline.config.json'), true)
-console.log('Online scaffold, docs, gallery, runtime and offline assets verified')
+console.log('Online scaffold, docs, gallery, runtime, PWA manifest and offline assets verified')

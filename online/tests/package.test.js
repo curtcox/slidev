@@ -218,3 +218,33 @@ it('ships the standalone Shiki engine and its original license with verified off
   assert.equal(createHash('sha256').update(bytes).digest('hex'), audit.sha256)
   assert.deepEqual(await fs.readFile(new URL(audit.licenseFile, base)), await fs.readFile(new URL('../../node_modules/shiki/LICENSE', import.meta.url)))
 })
+
+it('ships a valid PWA manifest, icons and offline service worker with prefixed cache entries', async () => {
+  const base = new URL('../dist/', import.meta.url)
+  const manifest = JSON.parse(await fs.readFile(new URL('manifest.webmanifest', base), 'utf8'))
+  assert.equal(manifest.name, 'Slidev Online')
+  assert.equal(manifest.start_url, './')
+  assert.equal(manifest.scope, './')
+  assert.equal(manifest.display, 'standalone')
+  assert.ok(manifest.icons.some(icon => icon.sizes === '192x192' && icon.type === 'image/png'))
+  assert.ok(manifest.icons.some(icon => icon.sizes === '512x512' && icon.type === 'image/png' && icon.purpose === 'any'))
+  assert.ok(manifest.icons.some(icon => icon.sizes === '512x512' && icon.type === 'image/png' && icon.purpose === 'maskable'))
+  assert.ok(manifest.icons.some(icon => icon.type === 'image/svg+xml'))
+  const scope = {
+    module: { exports: {} },
+    globalThis: {},
+  }
+  vm.runInNewContext(await fs.readFile(new URL('offline-assets.js', base), 'utf8'), scope)
+  const offline = scope.module.exports
+  assert.equal(offline.prefix, 'slidevonline')
+  assert.ok(offline.version.startsWith('slidevonline-'))
+  for (const file of [
+    'manifest.webmanifest',
+    'service-worker.js',
+    'src/offline.js',
+    ...manifest.icons.map(icon => icon.src),
+  ]) {
+    const actual = createHash('sha256').update(await fs.readFile(new URL(file, base))).digest('hex')
+    assert.equal(offline.hashes[file], actual, `${file} must match offline manifest hash`)
+  }
+})

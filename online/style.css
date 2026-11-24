@@ -172,6 +172,11 @@ main {
 #ai-check-status {
   white-space: pre-wrap;
 }
+#offline-update-status {
+  margin: 0;
+  font-size: 13px;
+  color: var(--fk-muted);
+}
 #ai-ask-dialog input,
 #ai-ask-dialog select,
 #ai-ask-dialog textarea,

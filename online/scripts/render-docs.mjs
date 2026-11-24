@@ -28,6 +28,7 @@ for (const name of (await fs.readdir(root)).filter(name => name.endsWith('.md'))
   <meta name="referrer" content="no-referrer">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'self'; img-src 'self' data:; base-uri 'none'; form-action 'none'">
   <title>${escape(title)} · Slidev Online</title>
+  <link rel="icon" href="../icons/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="../style.css">
   <link rel="stylesheet" href="../docs.css">
 </head>
