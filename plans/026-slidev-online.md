@@ -2314,3 +2314,44 @@ records the measured results. Publication/tag approvals remain outstanding.
 - Phases 0–7 are complete. Phase 8 (canonical origin `slides.hashbin.page`,
   HashBin client registration, and `ai.hashbin.page` allowlist) awaits owner
   actions.
+
+### Phase 8 preflight audit (2026-11-24)
+
+- Checked `curtcox/hashbin.org` and `curtcox/Tools-for-pages-with-state-in-URL-fragments`
+  to verify every prerequisite for the Phase 8 canonical rollout:
+  - `slides.hashbin.page` does not currently resolve in DNS (`Could not resolve host`)
+    and `slides` is not yet registered in `curtcox/hashbin.org`'s `OWNED_APPS`
+    (`scripts/owned-apps.mjs`) or `.github/workflows/deploy-owned-apps.yml`.
+  - Every asset in `online/dist/` is within Cloudflare's 25 MiB static-asset
+    limit (largest is optional `wllama-3.8.1/compat.wasm` at 15 MiB, excluded
+    from `offline-assets.js`; largest offline asset is `runtime/icons/twemoji.json`
+    at 10 MiB), so `slides.hashbin.page` will not need Apptron-style chunked
+    Worker streaming.
+  - `online/dist/offline-assets.js` uses the `slidevonline-` cache prefix and
+    matches `deploy-owned-apps.mjs`'s `readOfflineManifest()` contract.
+  - **AI host versioning note:** `curtcox/hashbin.org/scripts/deploy-ai-host.mjs`
+    treats existing `/v0.4.0/` (Python-only), `/v0.4.3/` (R-only) and
+    `/fleet-v0.4.3/` (the other 9 apps) as immutable (`assertAiHostPreserved`).
+    Allowlisting `https://slides.hashbin.page` on `ai.hashbin.page` therefore
+    needs a new versioned host directory (e.g. `/v0.4.4/` or `/slides-v0.4.4/`
+    built from published Fragment Kit v0.4.4) rather than modifying `/v0.4.0/`.
+- Updated `online/docs/index.md`, `online/docs/sharing.md` (and their rendered
+  HTML) and `online/README.md` to reflect shipped Phase 6–7 features (PWA
+  install/repair/update, Presenter view, printable standalone HTML export and
+  lazy Monaco / `{monaco-run}`).
+- Remaining Phase 8 owner actions (cannot be performed without owner approval
+  and credentials):
+  1. Register a HashBin client for Slidev Online with return URL
+     `https://slides.hashbin.page/` and provide the public `app_<uuid>` client ID.
+  2. Approve a `curtcox/hashbin.org` PR adding `slides` to `OWNED_APPS`,
+     `scripts/deploy-owned-apps.mjs` and `.github/workflows/deploy-owned-apps.yml`
+     (with pnpm workspace build + `node online/scripts/build.mjs --release`),
+     plus Cloudflare DNS/Worker deployment for `slides.hashbin.page`.
+  3. Approve adding a Fragment Kit v0.4.4 AI host entry for
+     `https://slides.hashbin.page` in `curtcox/hashbin.org` and dispatch
+     `deploy-ai-host.yml`.
+  4. Once those are live, wire `canonicalOrigin`, `hashbin-client-id`, CSP
+     `frame-src` and `ai.deployments["https://slides.hashbin.page/"]` in
+     `online/`, deploy both origins, run live Chromium/WebKit two-origin
+     acceptance (including a real Publish round trip) and record receipts in
+     `curtcox/Tools-for-pages-with-state-in-URL-fragments`'s `todo/rollout-status.md`.

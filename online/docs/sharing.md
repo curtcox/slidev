@@ -30,6 +30,6 @@ Bundled fonts work offline. Additional Google fonts send font names and your net
 
 ## Local copies
 
-Download offers `slides.md`, `style.css`, a ZIP archive containing both, and a JSON document. Use JSON to retain future document extension fields. ZIP export contains only the two named files.
+Download offers `slides.md`, `style.css`, a ZIP archive containing both, a JSON document, and printable standalone HTML (`slides.html` or `slides-with-notes.html`). Use JSON to retain future document extension fields. ZIP export contains only the two named files. Printable HTML strips scripts, enforces a strict `default-src 'none'` policy, and lets you print or save as PDF from a normal browser tab.
 
 Browser drafts stay on the current device. They are separate from shared links and HashBin saves. Download a copy before clearing browser data.

@@ -71,9 +71,9 @@ until a later phase registers and deploys the canonical origin.
 
 The Phase 2 compiler reuses Slidev's Markdown plugin chain and pure layout
 wrapper inside the opaque frame. Characterization includes the real starter,
-composable-vue and all online example decks: 187 slide/title SFCs match CLI transforms exactly in both Chromium and WebKit,
-including forty grammar probes, and 14 corpus cases assert documented errors or fallbacks
-for file imports, Monaco, PlantUML and unavailable grammars. These fallback
+composable-vue and all online example decks: 198 slide/title SFCs match CLI transforms exactly in both Chromium and WebKit,
+including forty grammar probes and `{monaco}`/`{monaco-diff}`/`{monaco-run}` blocks, and 14 corpus cases assert documented errors or fallbacks
+for file imports, PlantUML and unavailable grammars. These fallback
 cases are not exact-match claims. Reports go to
 `runtime/.cache/characterization-<browser>.json`. Hidden/disabled slides follow
 CLI numbering, while headmatter and source line ranges remain attached to the
@@ -204,8 +204,29 @@ in-memory dark mode, magic-move click steps, motion and inline markers. No navig
 uses opaque-origin storage. `runtime/virtual-modules.json` is the single source
 for Vite aliases; both runtime builds and static checks scan all client TS/Vue
 imports and fail if a new `#slidev/*` module lacks an implementation. Empty setup
-lists reflect the online format's lack of filesystem setup directories; Monaco
-remains a static-code fallback until Phase 7.
+lists reflect the online format's lack of filesystem setup directories.
+
+## Offline / PWA, presenter view, export and Monaco
+
+Slidev Online ships `manifest.webmanifest`, icons and a Fragment Kit service
+worker (`service-worker.js`) using the `slidevonline-` cache prefix. `src/offline.js`
+mounts **More → Repair offline copy** and **More → Apply update** so waiting
+updates flush local drafts and the URL fragment before reloading.
+
+**More → Presenter** opens `presenter.html` on the editor origin with current
+and next slide previews in separate opaque sandboxes, text-only speaker notes,
+a presentation timer and two-way sync over `BroadcastChannel('slidevonline:presenter')`.
+**More → Print / PDF** (and Download) exports a self-contained, script-free
+printable HTML file (`slides.html` or `slides-with-notes.html`) rendered in a
+disposable opaque sandbox with `default-src 'none'` CSP and optional escaped notes.
+
+`{monaco}`, `{monaco-diff}` and `{monaco-run}` code blocks load a standalone
+lazy Monaco bundle (`runtime/monaco/monaco.js`, `monaco-editor` 0.57.0, MIT)
+only when used, with TypeScript ATA disabled (`monacoTypesSource = 'none'`).
+`{monaco-run}` transpiles TypeScript with `sucrase` and runs code via a `blob:`
+ESM import strictly inside the opaque deck sandbox. The Phase 6–7 Playwright
+contracts (`offline-pwa.spec.js`, `presenter.spec.js`, `export-html.spec.js`,
+`monaco.spec.js`) run as part of `npm run test:contracts`.
 
 Builds extract matched UnoCSS tokens from bundled layouts, built-in components,
 directives and theme sources. The sandbox combines those tokens with utilities
