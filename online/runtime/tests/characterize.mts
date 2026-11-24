@@ -171,9 +171,6 @@ async function main() {
           else if (/^<<<\s/m.test(original.content)) {
             expectedError = 'File snippets'
           }
-          else if (/^```[^\n]*\{monaco/m.test(original.content)) {
-            expectedNotice = 'Monaco editing and execution are not available yet'
-          }
           else if (/^```plantuml\b/m.test(original.content)) {
             expectedNotice = '<OnlinePlantUml'
           }
@@ -231,7 +228,7 @@ async function main() {
       ...expected.map(({ src, index, layoutImport, titles }) => ({ src, index, layoutImport, titles })),
       ...negative,
       ...corpusProbes,
-      { src: '# Static\n\n```js {monaco-run}\nconsole.log(1)\n```', expectedNotice: 'Monaco editing and execution are not available yet' },
+      { src: '# Runnable\n\n```js {monaco-run}\nconsole.log(1)\n```', expectedNotice: '<Monaco  runnable lang="js"' },
       { src: '# Diagram\n\n```plantuml\n@startuml\nA -> B\n@enduml\n```', expectedNotice: '<OnlinePlantUml', noPlantUml: true },
       { src: '# Diagram\n\n```plantuml\n@startuml\nA -> B\n@enduml\n```', plantUmlAllowed: true, expectedNotice: '<PlantUml' },
       { src: '---\ntwoslash: true\n---\n# Type information\n\n```ts\nconst count = 1\n```', expectedNotice: 'Twoslash is unavailable' },

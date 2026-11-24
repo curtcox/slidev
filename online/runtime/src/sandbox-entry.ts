@@ -60,7 +60,7 @@ export async function start(styles: Response) {
   })
   addEventListener('keydown', (event) => {
     if (event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey
-      || (event.target as HTMLElement)?.closest('button, a, input, textarea, select, [contenteditable]')) {
+      || (event.target as HTMLElement)?.closest('button, a, input, textarea, select, [contenteditable], .monaco-editor')) {
       return
     }
     if (activeDragElement.value) {

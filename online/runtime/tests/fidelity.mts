@@ -188,8 +188,8 @@ async function main() {
           ...(path === 'demo/composable-vue/slides.md'
             ? titleComponents.filter(name => new RegExp(`<${name}\\b`).test(slide.content))
             : []),
-          ...(/^```[^\n]*\{monaco(?:-run)?\b/m.test(slide.content)
-            ? ['Monaco static fallback']
+          ...(/^```[^\n]*\{monaco(?:-run|-diff)?\b/m.test(slide.content)
+            ? ['Monaco interactive editor']
             : []),
           ...(/^```plantuml\b/m.test(slide.content)
             ? ['PlantUML consent']

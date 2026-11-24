@@ -11,5 +11,6 @@ declare const hashbinSandbox: {
     (url: 'runtime/diagrams/mermaid.js'): Promise<typeof import('./mermaid-entry')>
     (url: 'runtime/highlighting/shiki.js'): Promise<typeof import('./highlighting-entry')>
     (url: 'runtime/math/katex.js'): Promise<typeof import('katex')>
+    (url: 'runtime/monaco/monaco.js'): Promise<typeof import('./monaco-entry')>
   }
 }

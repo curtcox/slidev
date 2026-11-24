@@ -451,7 +451,7 @@ contract, plus a fully offline reload that renders the gallery.
 | 4 | Docs and gallery | DONE — Markdown docs, 15 example decks, kit gallery and opaque-rendered covers deployed; all three CI browsers, 109 visual comparisons and live Chromium/WebKit gallery/offline checks pass |
 | 5 | AI-assisted editing | DONE — kit Ask, settings, six comparison tasks, isolated compilation checks and paused apply deployed; CI run `45474430596` (all three browsers + visual gate) and live Chromium/WebKit acceptance pass |
 | 6 | Offline / PWA | DONE — `manifest.webmanifest`, icons, repair and update-preserving controls, kit `offline.spec.js` and offline gallery/docs/update contracts deployed; CI run `45476886127` (all three browsers + visual gate) and live Chromium/WebKit acceptance pass |
-| 7 | Presenting and export | IN PROGRESS — Presenter view (second editor-origin window, opaque current/next previews, text notes, timer, two-way sync) and printable standalone HTML export (spike confirmed `allow-scripts` blocks `print()`) implemented and passing Chromium/WebKit; lazy Monaco (`{monaco}` / `{monaco-run}`) follows |
+| 7 | Presenting and export | IN PROGRESS — Presenter view (`517934bd`), printable standalone HTML export (`5d230c42`) and lazy Monaco (`{monaco}`/`{monaco-diff}`/`{monaco-run}` with ATA disabled) implemented and passing Chromium/WebKit locally; final CI and live deployment acceptance follow |
 | 8 | Canonical origin | TODO |
 
 ### Phase 0 evidence (2026-11-12)
@@ -2268,3 +2268,25 @@ records the measured results. Publication/tag approvals remain outstanding.
   `@page` / `@media print` rules and strict `default-src 'none'` CSP, and
   optionally includes escaped speaker notes.
 - Lazy Monaco (`{monaco}` and `{monaco-run}`) remains to complete Phase 7.
+
+### Phase 7 lazy Monaco and `{monaco-run}` (2026-11-24)
+
+- Added a standalone lazy Monaco bundle (`online/runtime/monaco.config.ts`,
+  pinned `monaco-editor` 0.57.0, MIT) with native Monarch language definitions,
+  inlined CSS fonts, an opaque-sandbox `setTimeout` scheduler seam (avoiding
+  collisions with the SDK's parent MessagePort `postMessage`), and a minimal
+  in-memory Blob worker. Ordinary decks without `{monaco}` never download
+  Monaco assets.
+- Enabled the upstream `packages/slidev/node/syntax/codeblock/monaco.ts`
+  transform and registered `online/runtime/src/Monaco.vue` for `{monaco}`,
+  `{monaco-diff}` and `{monaco-run}`. TypeScript ATA is strictly disabled
+  (`monacoTypesSource = 'none'`, zero external CDN fetches).
+- `{monaco-run}` transpiles TypeScript with `sucrase` and executes JS/TS via a
+  temporary `blob:` ESM import strictly inside the opaque deck sandbox
+  (`origin === 'null'`), keeping the unchanged CSP with no `'unsafe-eval'`.
+- Exact CLI SFC characterization increases from 187 to 198 exact matches in
+  both Chromium and WebKit. All 84 visible corpus slides, all 51 online unit
+  tests, gallery/docs/manifest/offline checks, ESLint and all Phase 7
+  Playwright contracts (`presenter.spec.js`, `export-html.spec.js`,
+  `monaco.spec.js`) pass locally in Chromium and WebKit. CI and live
+  deployment acceptance follow.

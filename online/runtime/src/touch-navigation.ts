@@ -1,4 +1,4 @@
-const interactive = 'button, a, input, textarea, select, [contenteditable], [role="button"], [role="link"], video, audio, iframe, canvas, pre, [data-drag-id]'
+const interactive = 'button, a, input, textarea, select, [contenteditable], [role="button"], [role="link"], video, audio, iframe, canvas, pre, [data-drag-id], .monaco-editor'
 
 /** Touch gestures belong to the frame and use the same click steps as keys. */
 export function installTouchNavigation({ next, previous, isDragging }: {

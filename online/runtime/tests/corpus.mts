@@ -143,12 +143,12 @@ async function main() {
           assert.equal(await image.evaluate(element => (element as HTMLImageElement).naturalWidth), 100, `${label}: remote images must receive the mock bytes`)
         }
         const monaco = [
-          ...content.matchAll(/^```[^\n]*\{monaco(?:-run)?\b/gm),
+          ...content.matchAll(/^```[^\n]*\{monaco(?:-run|-diff)?\b/gm),
         ].length
-        assert.equal(await slide.locator('.online-notice').count(), monaco, `${label}: Monaco must show its static-code notice`)
-        for (const notice of await slide.locator('.online-notice').allTextContents())
-          assert.match(notice, /Monaco editing and execution are not available yet/)
-        if (/^```(?:ts|js|html|vue|yaml)\b/m.test(content))
+        assert.equal(await slide.locator('.slidev-monaco-container').count(), monaco, `${label}: Monaco must mount lazily`)
+        if (monaco)
+          await slide.locator('.monaco-editor').nth(monaco - 1).waitFor({ timeout: 20000 })
+        if (/^```(?:ts|js|html|vue|yaml)(?![^\n]*\{monaco)/m.test(content))
           assert.ok(await slide.locator('pre.slidev-code span[style]').count() > 0, `${label}: code must actually highlight`)
         const diagrams = [
           ...content.matchAll(/^```mermaid\b/gm),

@@ -73,8 +73,6 @@ export function browserTransforms(): Plugin {
       if (file.endsWith('/node/syntax/codeblock/magic-move.ts') && source === '../snippet')
         return shim('snippet')
       if (file.endsWith('/node/syntax/codeblock/index.ts')) {
-        if (source === './monaco')
-          return shim('monaco')
         if (source === './plant-uml')
           return shim('plant-uml')
       }

@@ -117,6 +117,8 @@ export async function createDeckCompiler(src: string, { plantUmlAllowed = false,
   const theme = resolveTheme(headmatter.theme ?? headmatter.config?.theme)
   const config = resolveConfig(headmatter, theme.meta)
   config.theme = theme.name
+  // Never fetch TypeScript types from external CDNs inside the online sandbox.
+  config.monacoTypesSource = 'none'
   const requestedTwoslash = headmatter.twoslash != null && headmatter.twoslash !== false
   config.twoslash = false
   let currentWarnings: string[] = []

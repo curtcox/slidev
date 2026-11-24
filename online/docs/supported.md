@@ -20,7 +20,7 @@ Headmatter is the YAML configuration at the start of a deck. Per-slide frontmatt
 | Icons                                                                | carbon, ph, mdi, logos, simple-icons, twemoji and svg-spinners           |
 | Built-in components                                                  | Includes Toc, Arrow, Link, Youtube, RenderWhen and slide counters        |
 | PlantUML                                                             | Requires a click for each new preview and an internet connection         |
-| Monaco and `monaco-run`                                              | Static highlighted code with a notice. Editing and execution are pending |
+| Monaco, `monaco-diff` and `monaco-run`                               | Supported lazily inside the isolated preview. TypeScript ATA is disabled (no CDN fetches) |
 | Twoslash                                                             | Plain code, without TypeScript analysis                                  |
 | `src:` slide imports and `<<<` file snippets                         | Unavailable. The slide shows an error                                    |
 | Custom components, layouts, setup directories and npm imports        | Unavailable. Use bundled components and supported imports                |

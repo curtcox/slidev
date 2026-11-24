@@ -49,6 +49,7 @@ import { configureDragUpdates, flushDragUpdates } from './drag'
 import { loadFonts } from './fonts'
 import { resolveIcon } from './icons'
 import { loadMathStyles } from './math'
+import Monaco from './Monaco.vue'
 import { createNavigation, useNav } from './navigation'
 import { plantUmlPermission } from './plant-uml'
 import PlantUml from './PlantUml.vue'
@@ -72,6 +73,7 @@ const components = {
   LightOrDark,
   Link,
   Mermaid,
+  Monaco,
   PlantUml,
   OnlinePlantUml: PlantUml,
   RenderWhen,

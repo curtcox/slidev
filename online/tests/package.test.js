@@ -219,6 +219,27 @@ it('ships the standalone Shiki engine and its original license with verified off
   assert.deepEqual(await fs.readFile(new URL(audit.licenseFile, base)), await fs.readFile(new URL('../../node_modules/shiki/LICENSE', import.meta.url)))
 })
 
+it('ships the standalone lazy Monaco bundle, styles and MIT license offline', async () => {
+  const base = new URL('../dist/runtime/', import.meta.url)
+  const audit = JSON.parse(await fs.readFile(new URL('monaco/audit.json', base), 'utf8'))
+  assert.equal(audit.version, '0.57.0')
+  assert.equal(audit.license, 'MIT')
+  const jsBytes = await fs.readFile(new URL(audit.fileName, base))
+  const cssBytes = await fs.readFile(new URL(audit.cssFileName, base))
+  assert.equal(jsBytes.length, audit.bytes)
+  assert.equal(cssBytes.length, audit.cssBytes)
+  assert.equal(createHash('sha256').update(jsBytes).digest('hex'), audit.sha256)
+  assert.equal(createHash('sha256').update(cssBytes).digest('hex'), audit.cssSha256)
+  assert.deepEqual(await fs.readFile(new URL(audit.licenseFile, base)), await fs.readFile(new URL('../../node_modules/monaco-editor/LICENSE', import.meta.url)))
+  const scope = {
+    module: { exports: {} },
+    globalThis: {},
+  }
+  vm.runInNewContext(await fs.readFile(new URL('../offline-assets.js', base), 'utf8'), scope)
+  assert.equal(scope.module.exports.hashes[`runtime/${audit.fileName}`], audit.sha256)
+  assert.equal(scope.module.exports.hashes[`runtime/${audit.cssFileName}`], audit.cssSha256)
+})
+
 it('ships a valid PWA manifest, icons and offline service worker with prefixed cache entries', async () => {
   const base = new URL('../dist/', import.meta.url)
   const manifest = JSON.parse(await fs.readFile(new URL('manifest.webmanifest', base), 'utf8'))
