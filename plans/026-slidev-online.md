@@ -451,8 +451,8 @@ contract, plus a fully offline reload that renders the gallery.
 | 4 | Docs and gallery | DONE — Markdown docs, 15 example decks, kit gallery and opaque-rendered covers deployed; all three CI browsers, 109 visual comparisons and live Chromium/WebKit gallery/offline checks pass |
 | 5 | AI-assisted editing | DONE — kit Ask, settings, six comparison tasks, isolated compilation checks and paused apply deployed; CI run `45474430596` (all three browsers + visual gate) and live Chromium/WebKit acceptance pass |
 | 6 | Offline / PWA | DONE — `manifest.webmanifest`, icons, repair and update-preserving controls, kit `offline.spec.js` and offline gallery/docs/update contracts deployed; CI run `45476886127` (all three browsers + visual gate) and live Chromium/WebKit acceptance pass |
-| 7 | Presenting and export | IN PROGRESS — Presenter view (`517934bd`), printable standalone HTML export (`5d230c42`) and lazy Monaco (`{monaco}`/`{monaco-diff}`/`{monaco-run}` with ATA disabled) implemented and passing Chromium/WebKit locally; final CI and live deployment acceptance follow |
-| 8 | Canonical origin | TODO |
+| 7 | Presenting and export | DONE — Presenter view (`517934bd`), printable standalone HTML export (`5d230c42`) and lazy Monaco (`7ccb8d67`, `{monaco}`/`{monaco-diff}`/`{monaco-run}` with ATA disabled) deployed in run `45485101300` (`d3b09985`, all three browsers + visual gate) and verified live in Chromium/WebKit |
+| 8 | Canonical origin | BLOCKED (owner actions required: `curtcox/hashbin.org` publisher PR, DNS for `slides.hashbin.page`, HashBin client registration and `ai.hashbin.page` allowlist) |
 
 ### Phase 0 evidence (2026-11-12)
 
@@ -2290,3 +2290,27 @@ records the measured results. Publication/tag approvals remain outstanding.
   Playwright contracts (`presenter.spec.js`, `export-html.spec.js`,
   `monaco.spec.js`) pass locally in Chromium and WebKit. CI and live
   deployment acceptance follow.
+
+### Phase 7 deployed acceptance (2026-11-24)
+
+- Commit `d3b09985` refreshes `online/gallery/fingerprints.json` after pre-commit
+  lint formatting of `online/runtime/src/Monaco.vue`. Run `45483607446` passed
+  every test job (Chromium, Firefox, WebKit, unit + `check`, vendor verify and
+  blocking visual fidelity) and hit GitHub Pages' transient artifact-lookup
+  flake during deploy.
+- Fresh dispatch
+  [run 45485101300](https://github.com/curtcox/slidev/actions/runs/45485101300)
+  on `main` (`d3b09985`) passed every job: Chromium, Firefox, WebKit, 51 unit
+  tests + `check`, independent vendor verification, blocking visual fidelity
+  and Pages deployment (including deployed marker check).
+- Live `https://curtcox.github.io/slidev/release.json` reports `d3b09985` with
+  `dirty:false`. Live Chromium and WebKit pass all six Phase 7 contracts
+  (`presenter.spec.js`, `export-html.spec.js` and `monaco.spec.js`):
+  second-window presenter view with separate opaque current/next sandboxes,
+  inert text speaker notes, timer and two-way sync; script-free printable
+  standalone HTML export with revealed clicks, KaTeX, Mermaid SVGs and escaped
+  notes; and lazy Monaco (`{monaco}`, `{monaco-diff}`, `{monaco-run}` in the
+  opaque sandbox with ATA disabled and zero external requests).
+- Phases 0–7 are complete. Phase 8 (canonical origin `slides.hashbin.page`,
+  HashBin client registration, and `ai.hashbin.page` allowlist) awaits owner
+  actions.

@@ -45,7 +45,7 @@ high-confidence security + correctness, then larger refactors. You may cherry-pi
 | 023 | Decompose god functions in `export.ts`/`cli.ts` | P3 | L | MED | 022 | TODO |
 | 024 | Incremental HMR parse cache | P3 | L | MED | — | TODO |
 | 025 | Guard `skills/`-vs-`docs/` drift in CI | P3 | S-M | LOW | — | TODO |
-| 026 | Slidev Online (browser editor on Fragment Kit, GitHub Pages) | P1 | XL | MED-HIGH | SDK v0.6.0 / kit v0.4.4 / workflow `@v4` verified | IN PROGRESS: Phases 0–6 complete. Phase 7 Presenter view (`517934bd`), printable standalone HTML export (`5d230c42`) and lazy Monaco (`{monaco}`/`{monaco-diff}`/`{monaco-run}`, ATA disabled) pass locally in Chromium/WebKit (198 exact CLI SFC matches, 84 corpus slides); Phase 7 CI/live deployment acceptance, Phase 8 and HashBin registration remain open |
+| 026 | Slidev Online (browser editor on Fragment Kit, GitHub Pages) | P1 | XL | MED-HIGH | SDK v0.6.0 / kit v0.4.4 / workflow `@v4` verified | IN PROGRESS: Phases 0–7 complete (Phase 7 Presenter view, printable standalone HTML export and lazy Monaco/`{monaco-run}` deployed in run `45485101300` at `d3b09985` and verified live in Chromium/WebKit). Only Phase 8 (canonical origin `slides.hashbin.page`, HashBin client registration and `ai.hashbin.page` allowlist) remains and requires owner actions |
 
 Status values: `TODO` | `IN PROGRESS` | `DONE` | `BLOCKED` (one-line reason) |
 `REJECTED` (one-line rationale).
