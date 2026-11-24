@@ -1,11 +1,11 @@
 {
   "dependencies": {
     "src/examples.js": "57b3053999d55e6b8521071c0819956f8a8a4656f949900e28f49bd820f60aa8",
-    "src/preview-bridge.js": "2c5e5a84d3e0788c5de3afb00829f7011823719972f6af8db5323b8b04799033",
+    "src/preview-bridge.js": "2257f1146635d8fd3ca42467f1b613712b9f912dc6098b6fffcaeaec5658bb94",
     "src/runtime-assets.js": "c03b3ee39f39d98ade4aff537152c193b3d6769ec84fc7a80cd77afa909ebbe1",
     "src/document-type.js": "f91d196a8eb83046ec2c38a99597e96874edcdb7f372b0de453af25a986f34fa",
     "gallery.html": "66d2581c24809b933a417e8d61d89c7b9b19d6586e0afb3396c5521804693eed",
-    "style.css": "e1f07dd4c4c839d29a456fd84541fab12372544a2fbe9755a15d9e6ce0f0f09f",
+    "style.css": "99d2c6b4518952a4a7aeccbe1f2d68b24e70ce8f24d9f98128acc2dc17114cec",
     "vendor/fragment-kit-v0.4.4/vendor/hashbin-sdk-v0.6.0.mjs": "1333545eae17d46e77b190c7120e8b39c156c99b677e55e4a90df9fc37082000",
     "runtime/dist/diagrams/audit.json": "2f2f4bc9fcf111909a8590a07b7a283524092431df1e6f3213fe661b7907bb59",
     "runtime/dist/diagrams/LICENSE": "ec9fb67dcb25eccc416ed56e1aab819222c805a2a4bfe4cb19e7556bf2ffde80",
@@ -89,7 +89,7 @@
     "runtime/dist/math/katex.js": "5f0c3749f8b28ce1a63b68de34d3950bb4aa1a9e0130865e4b09ecc9a250c8b7",
     "runtime/dist/math/LICENSE": "766ccc1f306c885aa45542a9846bbd0a505b27a0374f146778171c2254ce18e3",
     "runtime/dist/sandbox.css": "29e467ab701fb17d1087aa0f48b8816b3c0835f43c69d92532bf11e6b1ed9969",
-    "runtime/dist/sandbox.js": "d4ddfe35c5163005f3e4ce2c8a0ae93ceb0b9951079cd5c85bed229dff323cfb",
+    "runtime/dist/sandbox.js": "b75eae843d16c860106c6606081a48a766303f56146a5d4e63436d0524c329c7",
     "runtime/dist/theme-audit.json": "da95cef7d63b893a029717f7a95cc3bb18b7d8e8d992464974ae82ef35a14db5"
   },
   "renderer": "423bbf6b54fb6e64ef5bb930345595b0853bb81c3cf9fa123290e5d87fe56e11",

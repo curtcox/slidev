@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="referrer" content="no-referrer">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'wasm-unsafe-eval' blob: 'sha256-MHba4tiwcOxYIRSdlDypRezjguFpToZsa3QmTEaBzAI='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; worker-src 'self' blob:; connect-src 'self' blob:; img-src 'self' data: https:; font-src 'self' data: https://fonts.gstatic.com; frame-src 'self' blob:; object-src 'none'; base-uri 'none'; form-action 'none'">
+  <meta name="theme-color" content="#087eac" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#15252f" media="(prefers-color-scheme: dark)">
+  <title>Presenter · Slidev Online</title>
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="vendor/fragment-kit-v0.4.4/src/ui/kit.css">
+  <link rel="stylesheet" href="style.css">
+  <script type="module" async src="src/runtime-assets.js"></script>
+  <script type="module" src="src/presenter.js"></script>
+</head>
+<body class="presenter-page">
+  <header class="presenter-bar">
+    <a class="fk-brand" href="./">Slidev Online</a>
+    <div class="presenter-controls" role="toolbar" aria-label="Presenter navigation">
+      <button id="presenter-prev" type="button" aria-label="Previous step" disabled>←</button>
+      <span id="presenter-position" aria-live="polite">No deck</span>
+      <button id="presenter-next" type="button" aria-label="Next step" disabled>→</button>
+      <button id="presenter-dark" type="button" aria-pressed="false" disabled>Dark slides</button>
+    </div>
+    <div class="presenter-timer" aria-label="Presentation timer">
+      <span id="presenter-clock" aria-live="off">00:00:00</span>
+      <button id="presenter-timer-toggle" type="button">Pause</button>
+      <button id="presenter-timer-reset" type="button">Reset</button>
+    </div>
+    <p id="presenter-status" role="status" aria-live="polite">Connecting to editor…</p>
+  </header>
+  <main class="presenter-layout">
+    <section class="presenter-stage" aria-label="Current slide">
+      <h1 id="presenter-slide-title">Current slide</h1>
+      <div id="presenter-current" class="presenter-frame" aria-label="Current slide preview"></div>
+    </section>
+    <aside class="presenter-sidebar">
+      <section class="presenter-next-panel" aria-label="Next slide">
+        <h2>Next slide</h2>
+        <div id="presenter-next-frame" class="presenter-frame" aria-label="Next slide preview"></div>
+        <p id="presenter-next-empty" hidden>End of presentation</p>
+      </section>
+      <section class="presenter-notes-panel" aria-label="Speaker notes">
+        <h2>Speaker notes</h2>
+        <pre id="presenter-notes">No speaker notes for this slide.</pre>
+      </section>
+    </aside>
+  </main>
+</body>
+</html>

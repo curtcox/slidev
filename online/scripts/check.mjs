@@ -32,6 +32,7 @@ assert.ok(Array.isArray(manifest.icons) && manifest.icons.length >= 3)
 const worker = await fs.readFile(path.join(root, 'dist/service-worker.js'), 'utf8')
 assert.ok(worker.includes('offline-assets.js') && worker.includes('sw-core.js'))
 for (const file of [
+  'presenter.html',
   'gallery.html',
   'manifest.webmanifest',
   ...manifest.icons.map(icon => icon.src),

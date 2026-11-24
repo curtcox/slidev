@@ -5,12 +5,14 @@ const encoder = new TextEncoder()
 
 export type RuntimeCommand = ({ protocol: 1, type: 'render' } & RenderInput)
   | { protocol: 1, type: 'goto', slide: number, click: number }
+  | { protocol: 1, type: 'next' }
+  | { protocol: 1, type: 'prev' }
 
 export function parseCommand(value: unknown): RuntimeCommand {
   if (!value || typeof value !== 'object' || Array.isArray(value))
     throw new Error('Invalid preview command')
   const data = value as Record<string, unknown>
-  if (data.protocol !== 1 || !['render', 'goto'].includes(String(data.type)))
+  if (data.protocol !== 1 || !['render', 'goto', 'next', 'prev'].includes(String(data.type)))
     throw new Error('Unsupported preview protocol or command')
   const fields = data.type === 'render'
     ? [
@@ -22,9 +24,13 @@ export function parseCommand(value: unknown): RuntimeCommand {
         'click',
         'dark',
       ]
-    : ['protocol', 'type', 'slide', 'click']
+    : data.type === 'goto'
+      ? ['protocol', 'type', 'slide', 'click']
+      : ['protocol', 'type']
   if (Object.keys(data).some(key => !fields.includes(key)))
     throw new Error('Unknown preview command field')
+  if (data.type === 'next' || data.type === 'prev')
+    return data as RuntimeCommand
   if (!Number.isSafeInteger(data.slide) || (data.slide as number) < 1 || (data.slide as number) > 10000
     || !Number.isSafeInteger(data.click) || (data.click as number) < 0 || (data.click as number) > 1000000) {
     throw new Error('Invalid preview position')

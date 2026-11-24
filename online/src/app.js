@@ -12,6 +12,7 @@ import { createFileDialogs } from './files.js'
 import { createDocumentLoader, createWorkspaceUrls } from './links.js'
 import { mountOffline } from './offline.js'
 import { createSlideOverview } from './overview.js'
+import { createPresenterChannel } from './presenter-sync.js'
 import { createPreviewBridge } from './preview-bridge.js'
 import { mountWorkspace } from './workspace.js'
 
@@ -29,9 +30,13 @@ async function main() {
   const input = await response.json()
   const config = createConfig({ ...input, canonicalOrigin: input.canonicalOrigin ?? input.recoveryOrigin })
   let slide = 1
+  let click = 0
   let total = 0
   let dark = false
   let run = true
+  let docVersion = 0
+  let presenterSession
+  let presenterChannel
   let view
   let timer
   let metadata = []
@@ -93,6 +98,7 @@ async function main() {
     document.querySelector('#previous-slide').disabled = !total || slide <= 1
     document.querySelector('#next-slide').disabled = !total || slide >= total
     document.querySelector('#present').disabled = !total
+    document.querySelector('#presenter').disabled = !total
     document.querySelector('#dark-mode').disabled = !total
     document.querySelector('#overview').disabled = !total || editors.getSource() !== renderedSource
     const note = metadata[slide - 1]?.note ?? ''
@@ -108,11 +114,47 @@ async function main() {
     drafts.attempt(doc, true)
     writeURL()
   }
+  function sendPresenterDocument() {
+    if (!presenterChannel || !hasDocument)
+      return
+    try {
+      const doc = getDocument()
+      presenterChannel.post({
+        type: 'document',
+        docVersion,
+        src: doc.src,
+        css: doc.slidev.css,
+        slide,
+        click,
+        total,
+        dark,
+        run,
+        notes: metadata.map(item => item.note ?? ''),
+        titles: metadata.map(item => item.title ?? ''),
+      })
+    }
+    catch {}
+  }
+  function sendPresenterPosition() {
+    if (!presenterChannel)
+      return
+    presenterChannel.post({
+      type: 'position',
+      docVersion,
+      slide,
+      click,
+      total,
+      dark,
+      run,
+    })
+  }
   function render() {
     clearTimeout(timer)
     timer = undefined
     try {
       const doc = getDocument()
+      if (!docVersion || doc.src !== renderedSource || doc.slidev.css !== renderedCSS)
+        docVersion++
       renderedSource = doc.src
       renderedCSS = doc.slidev.css
       inspect()
@@ -122,6 +164,7 @@ async function main() {
         src: doc.src,
         css: doc.slidev.css,
         slide,
+        click,
         dark,
       })
     }
@@ -201,9 +244,11 @@ async function main() {
         total = detail.slides
         status.textContent = 'Slides ready'
         editors.annotate('')
+        sendPresenterDocument()
       }
       else {
         total = 0
+        sendPresenterPosition()
       }
       updateNavigation()
       if (state === 'rendered' || state === 'error')
@@ -215,7 +260,9 @@ async function main() {
       cursorSlide = undefined
       initialPosition = false
       slide = position.slide
+      click = position.click
       updateNavigation()
+      sendPresenterPosition()
       if (!fromEditor && !fromRender && editors.getSource() === renderedSource)
         editors.reveal(metadata[slide - 1]?.contentStart ?? 0)
       const url = new URL(location.href)
@@ -257,6 +304,43 @@ async function main() {
     }
     catch { reportError('Fullscreen is unavailable. Select Slides to present in this window.') }
   }
+  function openPresenter() {
+    if (!hasDocument || !total)
+      return
+    if (!presenterChannel) {
+      presenterSession = crypto.randomUUID()
+      presenterChannel = createPresenterChannel(presenterSession, (message) => {
+        if (message.type === 'hello') {
+          sendPresenterDocument()
+        }
+        else if (message.type === 'next') {
+          preview.next()
+        }
+        else if (message.type === 'prev') {
+          preview.prev()
+        }
+        else if (message.type === 'goto') {
+          preview.goto(message.slide, message.click)
+        }
+        else if (message.type === 'dark') {
+          dark = message.dark
+          const darkToggle = document.querySelector('#dark-mode')
+          if (darkToggle) {
+            darkToggle.setAttribute('aria-pressed', String(dark))
+            darkToggle.textContent = dark ? 'Light slides' : 'Dark slides'
+          }
+          render()
+        }
+      })
+    }
+    const url = new URL('presenter.html', location.href)
+    url.searchParams.set('session', presenterSession)
+    const popup = window.open(url.href, 'slidevonline-presenter')
+    if (!popup)
+      reportError('Allow popups to open Presenter view in a second window.')
+    else
+      popup.focus()
+  }
   async function openAi(action) {
     if (!hasDocument) {
       reportError('Open a document before using AI editing.')
@@ -273,11 +357,13 @@ async function main() {
           clearTimeout(timer)
           preview.stop()
           total = 0
+          click = 0
           document.body.dataset.ready = 'false'
           editors.setDocument(doc)
           changed()
           status.textContent = 'AI change applied — press Render to preview.'
           updateNavigation()
+          sendPresenterPosition()
         },
         urlState: {
           commit(doc, options) {
@@ -307,6 +393,12 @@ async function main() {
     actions: [
       { label: 'Render', id: 'render', onClick: renderAction },
       { label: 'Present', id: 'present', onClick: present },
+      {
+        label: 'Presenter',
+        id: 'presenter',
+        extra: true,
+        onClick: openPresenter,
+      },
       {
         label: 'Share',
         id: 'share',
@@ -388,6 +480,7 @@ async function main() {
     hasDocument = true
     extensions = { ...doc.slidev }
     slide = options.slide ?? 1
+    click = 0
     run = options.run ?? true
     view = options.view
     if (options.kind === 'example')
@@ -416,6 +509,7 @@ async function main() {
     }
     else {
       status.textContent = 'Document opened. Press Render to preview.'
+      sendPresenterPosition()
       startOffline?.()
     }
   }
@@ -547,6 +641,8 @@ async function main() {
     urlState.cancel()
     clearTimeout(timer)
     preview.stop()
+    presenterChannel?.close()
+    presenterChannel = undefined
     ai?.destroy()
     ai = aiLoading = undefined
   })

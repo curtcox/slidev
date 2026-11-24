@@ -125,5 +125,13 @@ export function createPreviewBridge({ container, onStatus, onPosition = () => {}
         })
       }
     },
+    next() {
+      if (ready)
+        sandbox.postMessage({ protocol: 1, type: 'next' })
+    },
+    prev() {
+      if (ready)
+        sandbox.postMessage({ protocol: 1, type: 'prev' })
+    },
   }
 }

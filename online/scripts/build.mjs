@@ -19,6 +19,7 @@ await fs.rm(output, { recursive: true, force: true })
 await fs.mkdir(output, { recursive: true })
 for (const name of [
   'index.html',
+  'presenter.html',
   'gallery.html',
   'gallery',
   'manifest.webmanifest',

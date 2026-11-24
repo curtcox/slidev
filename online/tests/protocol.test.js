@@ -25,11 +25,15 @@ it('bounds and validates the document and position before runtime execution', ()
     slide: 2,
     click: 3,
   })
+  assert.deepEqual(parseCommand({ protocol: 1, type: 'next' }), { protocol: 1, type: 'next' })
+  assert.deepEqual(parseCommand({ protocol: 1, type: 'prev' }), { protocol: 1, type: 'prev' })
   for (const value of [
     null,
     [],
     { ...render, protocol: 2 },
     { ...render, type: 'print' },
+    { protocol: 1, type: 'next', slide: 1 },
+    { protocol: 1, type: 'prev', extra: true },
     { ...render, slide: 0 },
     { ...render, slide: 1.5 },
     { ...render, slide: 10001 },

@@ -37,8 +37,12 @@ export async function start(styles: Response) {
       queue = queue.then(async () => {
         if (command.type === 'render')
           await renderer.render(command)
-        else
+        else if (command.type === 'goto')
           await renderer.goto(command.slide, command.click)
+        else if (command.type === 'next')
+          await renderer.next()
+        else
+          await renderer.prev()
       }).then(() => {}, fail)
     }
     catch (error) { fail(error) }
