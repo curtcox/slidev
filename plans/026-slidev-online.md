@@ -2355,3 +2355,12 @@ records the measured results. Publication/tag approvals remain outstanding.
      `online/`, deploy both origins, run live Chromium/WebKit two-origin
      acceptance (including a real Publish round trip) and record receipts in
      `curtcox/Tools-for-pages-with-state-in-URL-fragments`'s `todo/rollout-status.md`.
+
+### Phase 8 owner action 1: HashBin client registered (2026-11-24)
+
+- Registered "Slidev Online" at `https://hashbin.org/developers` with sole redirect
+  URI `https://slides.hashbin.page/` (dedicated origin, so no shared-origin
+  acknowledgment). Public client ID: `app_e9546b2e-a415-4ec5-be14-611ea0692f56`.
+- Remaining: the `curtcox/hashbin.org` publisher PR (`slides` in `OWNED_APPS`),
+  the Fragment Kit v0.4.4 AI host entry, and wiring `canonicalOrigin`,
+  `hashbin-client-id`, CSP `frame-src` and `ai.deployments` in `online/`.

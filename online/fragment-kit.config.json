@@ -2,6 +2,7 @@
   "slug": "slidev",
   "name": "Slidev Online",
   "storagePrefix": "slidevonline",
+  "canonicalOrigin": "https://slides.hashbin.page/",
   "recoveryOrigin": "https://curtcox.github.io/slidev/",
   "repo": "curtcox/slidev",
   "docs": "docs/index.html",
@@ -10,6 +11,7 @@
   "sandboxDomBootstrapHash": "sha256-MHba4tiwcOxYIRSdlDypRezjguFpToZsa3QmTEaBzAI=",
   "ai": {
     "deployments": {
+      "https://slides.hashbin.page/": { "connection": "host", "host": "https://ai.hashbin.page/slides-v0.4.4/" },
       "https://curtcox.github.io/slidev/": { "connection": "direct" },
       "http://127.0.0.1:8000/": { "connection": "direct" },
       "http://localhost/": { "connection": "direct" },

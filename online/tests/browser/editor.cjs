@@ -147,8 +147,9 @@ async function main() {
     await expect(page.locator('#preview iframe')).toHaveCount(0)
     await page.locator('#fk-more-drawer .fk-close').click()
     await page.locator('#save').click()
-    await expect(page.locator('#hashbin-message')).toContainText('registered client ID')
-    await expect(page.locator('#hashbin-confirm')).toBeDisabled()
+    // The registered client opens hosted per-save review; confirming would start a real save.
+    await expect(page.locator('#hashbin-message')).toContainText('you approve the save on hashbin.org')
+    await expect(page.locator('#hashbin-confirm')).toBeEnabled()
     await page.locator('#hashbin-dialog .fk-close').click()
     const cid = await page.evaluate(async () => {
       const { computeCID } = await import('./vendor/fragment-kit-v0.4.4/src/core/cid.js')
