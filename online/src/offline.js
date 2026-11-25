@@ -31,6 +31,9 @@ export function mountOffline({ container, statusNode, onBeforeActivate = () => {
   function ensureClient() {
     if (!client) {
       client = new OfflineClient({
+        // The ~300-file bundle (themes, icons, Monaco) takes 20-30 s on a warm CDN,
+        // so the kit's 30 s default reports a false timeout on a cold cache.
+        timeout: 180000,
         onStatus: updateOfflineStatus,
         onUpdate() {
           activating = false

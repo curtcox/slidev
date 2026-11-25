@@ -24,7 +24,7 @@ async function main() {
       }
       catch { return false }
     }), false)
-    await page.waitForFunction(() => document.querySelector('#offline-status').textContent === 'Available offline')
+    await page.waitForFunction(() => document.querySelector('#offline-status').textContent === 'Available offline', null, { timeout: 180000 })
     await context.setOffline(true)
     await page.reload()
     await page.waitForSelector('body[data-ready="true"]')
