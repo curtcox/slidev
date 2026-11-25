@@ -452,7 +452,7 @@ contract, plus a fully offline reload that renders the gallery.
 | 5 | AI-assisted editing | DONE — kit Ask, settings, six comparison tasks, isolated compilation checks and paused apply deployed; CI run `45474430596` (all three browsers + visual gate) and live Chromium/WebKit acceptance pass |
 | 6 | Offline / PWA | DONE — `manifest.webmanifest`, icons, repair and update-preserving controls, kit `offline.spec.js` and offline gallery/docs/update contracts deployed; CI run `45476886127` (all three browsers + visual gate) and live Chromium/WebKit acceptance pass |
 | 7 | Presenting and export | DONE — Presenter view (`517934bd`), printable standalone HTML export (`5d230c42`) and lazy Monaco (`7ccb8d67`, `{monaco}`/`{monaco-diff}`/`{monaco-run}` with ATA disabled) deployed in run `45485101300` (`d3b09985`, all three browsers + visual gate) and verified live in Chromium/WebKit |
-| 8 | Canonical origin | BLOCKED (owner actions required: `curtcox/hashbin.org` publisher PR, DNS for `slides.hashbin.page`, HashBin client registration and `ai.hashbin.page` allowlist) |
+| 8 | Canonical origin | DEPLOYED — `slides.hashbin.page` live with registered client and `/slides-v0.4.4/` AI host; live Chromium/WebKit editor, offline and AI host handshake acceptance passed. A real paid Publish round trip (owner-approved amount) and Fragment Kit `todo/rollout-status.md` receipts remain |
 
 ### Phase 0 evidence (2026-11-12)
 
@@ -2364,3 +2364,38 @@ records the measured results. Publication/tag approvals remain outstanding.
 - Remaining: the `curtcox/hashbin.org` publisher PR (`slides` in `OWNED_APPS`),
   the Fragment Kit v0.4.4 AI host entry, and wiring `canonicalOrigin`,
   `hashbin-client-id`, CSP `frame-src` and `ai.deployments` in `online/`.
+
+### Phase 8 deployment and live acceptance (2026-11-24)
+
+- `online/` now sets `canonicalOrigin` `https://slides.hashbin.page/`, the
+  `hashbin-client-id` meta, `frame-src https://ai.hashbin.page` (editor and
+  presenter) and canonical AI via `https://ai.hashbin.page/slides-v0.4.4/`
+  (`aa5ceec7`). The recovery origin keeps direct AI; its HashBin saves fail the
+  redirect check because only the canonical callback is registered, matching
+  the other hashbin.page apps.
+- [hashbin.org #250](https://github.com/curtcox/hashbin.org/pull/250) added
+  `slides` to `OWNED_APPS`, the publisher/workflow build
+  (pnpm workspace, `online/runtime`, `online/scripts/build.mjs --release`) and an
+  immutable `/slides-v0.4.4/` AI host entry from published kit v0.4.4 allowing
+  only `https://slides.hashbin.page`.
+- The first live deploy never reached "Available offline": every asset matched
+  except `release.json`, which Slidev's manifest lists but the publisher
+  overwrites. [hashbin.org #251](https://github.com/curtcox/hashbin.org/pull/251)
+  drops `release.json` from rehashed manifests.
+- Deployments: owned-app runs
+  [45542714800](https://github.com/curtcox/hashbin.org/actions/runs/45542714800) and
+  [45543976711](https://github.com/curtcox/hashbin.org/actions/runs/45543976711)
+  (hashbin.org `78d2c62`); AI host run
+  [45542754722](https://github.com/curtcox/hashbin.org/actions/runs/45542754722).
+  Live `release.json`: app `slides`, revision `aa5ceec7`, `dirty: false`; AI host
+  entries `v0.4.0`, `v0.4.3`, `fleet-v0.4.3`, `slides-v0.4.4`, published pin
+  verified, 285 prior assets preserved.
+- Live acceptance against `https://slides.hashbin.page/`: `editor.cjs` and
+  `all.cjs` (offline reload, offline QR, theme, gallery) pass in Chromium and
+  WebKit. The very first cold-cache install hit the page's offline-install
+  timeout although all 308 assets were cached; reruns passed. The AI settings
+  use host mode, and the hidden host frame loads `/slides-v0.4.4/host` and completes
+  the `fragment-kit-ai-v1` handshake in both engines with no console errors.
+- Not yet done: a real paid Publish round trip (needs an owner-approved amount)
+  and receipts in `curtcox/Tools-for-pages-with-state-in-URL-fragments`
+  `todo/rollout-status.md`.

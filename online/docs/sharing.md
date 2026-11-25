@@ -16,7 +16,7 @@ The optional shortener sends the full share link to an external service through 
 
 A CID is a content identifier that names exact saved bytes. Slidev Online verifies a CID download before it opens the document. A saved HashBin link uses the CID instead of putting the full document in the URL.
 
-Save to HashBin requires a registered Slidev Online client ID. Registration is still pending. Until registration is available, the save controls explain this requirement. No paid Publish round trip is part of the current acceptance evidence.
+Save to HashBin works at https://slides.hashbin.page/, the address Slidev Online is registered with. HashBin shows the size, retention, exact price and your balance, and you approve each save on hashbin.org. Saving from the GitHub Pages copy is not supported, because HashBin only returns to the registered address. No paid Publish round trip is part of the current acceptance evidence.
 
 HashBin saving sends the document to HashBin. A content identifier is not a password or an access restriction. Do not publish private information that others must not retrieve.
 
