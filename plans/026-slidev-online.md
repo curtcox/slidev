@@ -2392,8 +2392,13 @@ records the measured results. Publication/tag approvals remain outstanding.
   verified, 285 prior assets preserved.
 - Live acceptance against `https://slides.hashbin.page/`: `editor.cjs` and
   `all.cjs` (offline reload, offline QR, theme, gallery) pass in Chromium and
-  WebKit. The very first cold-cache install hit the page's offline-install
-  timeout although all 308 assets were cached; reruns passed. The AI settings
+  WebKit. Right after each deploy the cold-cache install hit the kit's 30 s
+  offline-install timeout although all 308 assets were cached (a warm install
+  takes 23–26 s on both origins). `e9c27af5` raises Slidev's install timeout to
+  180 s; after redeploy run
+  [45546106131](https://github.com/curtcox/hashbin.org/actions/runs/45546106131)
+  (live revision `e9c27af5`), `all.cjs` and `editor.cjs` passed first time in
+  Chromium and WebKit, and the updated sharing doc is live. The AI settings
   use host mode, and the hidden host frame loads `/slides-v0.4.4/host` and completes
   the `fragment-kit-ai-v1` handshake in both engines with no console errors.
 - Not yet done: a real paid Publish round trip (needs an owner-approved amount)
