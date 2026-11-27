@@ -25,7 +25,7 @@ You can contribute through a development environment in your browser by clicking
 
 ## Setup (locally)
 
-This project uses [`pnpm`](https://pnpm.io/) to manage the dependencies, install it if you haven't via
+This project requires Node.js `>= 22.22.0` and uses [`pnpm`](https://pnpm.io/) to manage dependencies. Install `pnpm` if you haven't via:
 
 ```bash
 npm i -g pnpm
@@ -72,26 +72,31 @@ The server will restart automatically every time the builds get updated.
 Run the full local gate:
 
 ```bash
-pnpm verify   # build → typecheck → lint → test
+pnpm verify      # build → typecheck → lint → test
+pnpm size:check  # verify tracked files stay within size limits (also runs pre-push)
 ```
 
 Note: tests require a prior build, because workspace packages resolve to their
-built `dist/`. `pnpm verify` handles this ordering for you.
+built `dist/`. `pnpm verify` handles this ordering for you. For changes under
+`online/`, see [`online/README.md`](./online/README.md) for the Slidev Online
+build, contract, browser, and visual fidelity checks.
 
 ## Project Structure
 
 ### Monorepo
 
-We use monorepo to manage multiple packages
+We use a monorepo to manage multiple packages:
 
 ```
-packages
+packages/
   slidev/          - main package entry, holds the code on Node.js side
   client/          - main frontend app
   parser/          - parser for Slidev's extended Markdown format
+  types/           - shared TypeScript types
   create-app/      - scripts and template for `npm init slidev`
   create-theme/    - scripts and template for `npm init slidev-theme`
   vscode/          - the VSCode extension
+online/            - Slidev Online browser editor and @slidev/online-runtime
 ```
 
 ## Code Style
