@@ -31,7 +31,7 @@
 </tr>
 <tr>
 <td>Bundled themes and their layouts</td>
-<td>default, seriph, apple-basic, bricks and shibainu</td>
+<td><code>default</code>, <code>seriph</code>, <code>apple-basic</code>, <code>bricks</code> and <code>shibainu</code></td>
 </tr>
 <tr>
 <td>Markdown, HTML, inline Vue and per-slide <code>&lt;script setup&gt;</code></td>
@@ -71,39 +71,39 @@
 </tr>
 <tr>
 <td>Icons</td>
-<td>carbon, ph, mdi, logos, simple-icons, twemoji and svg-spinners</td>
+<td><code>carbon</code>, <code>ph</code>, <code>mdi</code>, <code>logos</code>, <code>simple-icons</code>, <code>twemoji</code> and <code>svg-spinners</code></td>
 </tr>
 <tr>
 <td>Built-in components</td>
-<td>Includes Toc, Arrow, Link, Youtube, RenderWhen and slide counters</td>
+<td><code>Toc</code>, <code>Arrow</code>, <code>Link</code>, <code>Youtube</code>, <code>RenderWhen</code>, <code>AutoFitText</code>, <code>LightOrDark</code>, <code>Transform</code>, <code>CodeGroup</code>, <code>SlideCurrentNo</code>, <code>SlidesTotal</code>, <code>PoweredBySlidev</code></td>
 </tr>
 <tr>
 <td>PlantUML</td>
 <td>Requires a click for each new preview and an internet connection</td>
 </tr>
 <tr>
-<td>Monaco, <code>monaco-diff</code> and <code>monaco-run</code></td>
-<td>Supported lazily inside the isolated preview. TypeScript ATA is disabled (no CDN fetches)</td>
+<td><code>{monaco}</code>, <code>{monaco-diff}</code> and <code>{monaco-run}</code></td>
+<td>Loaded lazily inside the isolated preview; <code>{monaco-run}</code> runs JS/TS without module imports; TypeScript ATA is disabled (no CDN fetches); <code>{monaco-write}</code> is unavailable</td>
 </tr>
 <tr>
 <td>Twoslash</td>
-<td>Plain code, without TypeScript analysis</td>
+<td>Unavailable; code blocks use static highlighting with a visible notice</td>
 </tr>
 <tr>
 <td><code>src:</code> slide imports and <code>&lt;&lt;&lt;</code> file snippets</td>
-<td>Unavailable. The slide shows an error</td>
+<td>Unavailable; the slide shows an error</td>
 </tr>
 <tr>
 <td>Custom components, layouts, setup directories and npm imports</td>
-<td>Unavailable. Use bundled components and supported imports</td>
+<td>Unavailable; use bundled components and supported imports</td>
 </tr>
 <tr>
 <td>Themes and addons downloaded from npm</td>
 <td>Unavailable</td>
 </tr>
 <tr>
-<td>Presenter window, print/PDF and standalone HTML export</td>
-<td>Presenter opens in a second window with opaque previews, text notes and timer; Print/PDF downloads standalone script-free printable HTML</td>
+<td>Present, Presenter window and Print / PDF export</td>
+<td>Fullscreen <strong>Present</strong>, synced <strong>Presenter</strong> window with opaque previews, text notes and timer, and script-free printable standalone HTML</td>
 </tr>
 <tr>
 <td>Camera, recording and remote-control synchronization</td>
@@ -111,12 +111,13 @@
 </tr>
 </tbody>
 </table>
-<p>Missing components, icons, imports and languages produce visible errors or notices. The Tweet widget is unavailable. Remote media and additional Google fonts need an internet connection.</p>
+<p>Missing components, icons, imports and languages produce visible errors or notices. The <code>Tweet</code> and <code>SlidevVideo</code> components are unavailable. Remote media and additional Google fonts need an internet connection.</p>
 <h2>Offline use</h2>
-<p>Wait for the editor to report “Available offline” before disconnecting. The app caches the editor, docs, examples, themes, bundled fonts, icon collections, grammars, math and Mermaid assets. You can install Slidev Online as a web app from your browser. Use <strong>More → Repair offline copy</strong> if cached files need verification, and <strong>More → Apply update</strong> when a new release is ready without losing your current slides.</p>
-<p>Remote images, videos, additional fonts and PlantUML are outside this download. Browser storage can be cleared or evicted. Keep a downloaded copy of important work.</p>
+<p>Wait for the editor to report “Available offline” before disconnecting. The app caches the editor, docs, examples, themes, bundled fonts, icon collections, grammars, math, Mermaid and Monaco assets. You can install Slidev Online as a web app from your browser. Use <strong>More → Repair offline copy</strong> if cached files need verification, and <strong>More → Apply update</strong> when a new release is ready without losing your current slides.</p>
+<p>Remote images, videos, additional Google fonts, PlantUML and the optional browser AI engine are excluded from the automatic offline download. Browser storage can be cleared or evicted. Keep a downloaded copy of important work.</p>
 <h2>Isolation</h2>
 <p>Author scripts and Vue expressions execute only inside the isolated preview. They cannot read the editor's document, cookies or browser storage. This isolation does not prevent permitted requests for remote media. Read <a href="sharing.html">sharing and privacy</a> before opening a deck with private content.</p>
+<p><a href="index.html">Online documentation</a> · <a href="../">Open the editor</a></p>
   </main>
 </body>
 </html>

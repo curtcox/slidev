@@ -25,4 +25,4 @@ If a font fails to load, the preview shows a notice and uses the next available 
 
 Bundled fonts come from pinned Fontsource 5.3.0 packages under the SIL Open Font License 1.1. The offline download includes the original font bytes, attribution and licenses. [Read the font audit](../runtime/fonts/audit.json).
 
-[Online documentation](index.md) · [Open the preview](../)
+[Online documentation](index.md) · [Open the editor](../)

@@ -23,4 +23,4 @@ Other npm themes and local theme directories are unavailable online.
 
 All five themes use the MIT license. The offline download includes their original licenses. [Read the theme audit](../runtime/theme-audit.json).
 
-[Online documentation](./) · [Open the preview](../)
+[Online documentation](index.md) · [Open the editor](../)
