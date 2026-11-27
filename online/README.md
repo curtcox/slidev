@@ -1,39 +1,83 @@
 # Slidev Online
 
-Write `slides.md` and `style.css` in the browser with the pinned Ace editors.
-The preview uses the real Slidev client in an isolated frame with no access
-to the editor page. Changes update the preview after a 500 ms pause.
+Browser-based editor and presenter for Slidev decks, built on [Fragment Kit](https://github.com/curtcox/Tools-for-pages-with-state-in-URL-fragments) (`v0.4.4`) and the real Slidev Vue client.
 
-Share links preserve Markdown, CSS, extension fields and the current slide.
-The Share dialog can shorten links through is.gd using the kit's AllOrigins proxy.
-QR codes use a saved CID when it still matches the editor. A CID is a
-content identifier that the kit verifies against the saved bytes.
-HashBin saving displays the registration message until the owner supplies a client ID.
+- **Canonical origin:** [https://slides.hashbin.page/](https://slides.hashbin.page/) (HashBin saving and isolated AI host)
+- **Recovery origin:** [https://curtcox.github.io/slidev/](https://curtcox.github.io/slidev/) (GitHub Pages mirror)
+- **User guides:** [docs/index.md](docs/index.md) (rendered to `docs/*.html`)
 
-Links take priority over browser drafts. Failed links keep the current work.
-Use **More → Resume saved work** to recover a draft. Recovered drafts and file
-imports wait for Render. A `?run=0` link also waits for Render, even after edits.
-The Open dialog accepts Markdown, CSS, saved JSON documents and Slidev Online links.
-Download offers a ZIP with `slides.md` and `style.css`, the two files separately,
-or one JSON document that also preserves extension fields.
-The Phase 3 kit contracts run against the Ace adapter with `npm run test:contracts`.
-They cover links, sharing, QR upload/camera, HashBin callbacks, drafts and layout.
-Publish and shortener checks use mocked services.
+## Architecture
 
-Phones and short windows use Slides, Markdown and CSS tabs. Desktop also has a
-Split view with a divider that supports dragging and keyboard arrows.
-Preview navigation follows the editor cursor. Slide navigation reveals its source.
-Speaker notes appear as text. Present requests fullscreen from a click.
-Overview lists the visible slides by title and supports keyboard selection.
-On touchscreens, swipe left to advance or right to go back through click reveals.
-Tap the left third of a slide to go back, or the rest to advance.
-Buttons, links, inputs, code blocks and drag controls keep their own touch actions.
+Slidev Online separates the editor shell from untrusted deck execution:
 
-The shell uses native modules. Only `runtime/` is built with Vite. Vendored kit
-bytes are immutable; use its vendor-sync tool to upgrade an exact release.
-Deployment also requires the independent kit-check workflow to match the pin
-against the published release manifest. A locally prepared copy alone cannot
-pass that publication gate.
+- **Editor shell (`index.html`, `presenter.html`, `gallery.html`, `src/`)** — buildless native ES modules using vendored Fragment Kit (`vendor/fragment-kit-v0.4.4/`, including HashBin SDK `v0.6.0`) and Ace (`vendor/ace-1.43.3/`). Vendored kit bytes are immutable; upgrade only with `vendor-sync.mjs`. CI checks the vendor pin against the published release manifest via `kit-check.yml@v2`.
+- **Slidev runtime (`runtime/`, workspace package `@slidev/online-runtime`)** — a Vite build from `packages/*` that runs strictly inside an opaque SDK iframe (`sandbox="allow-scripts"`, origin `null`) with no access to the editor document, storage, or cookies.
+- **Editor parser bundle (`runtime/editor/document.js`)** — parse-only bundle used on the editor origin for slide boundaries, titles, speaker notes, and bounded drag-position patches without executing author code.
+
+### Runtime compilation and isolation
+
+- Reuses Slidev's Markdown plugin chain and layout wrapper inside the opaque frame. Vue's eval-dependent static-tree optimization is disabled so templates compile under the frame CSP.
+- Hidden and disabled slides follow CLI numbering while headmatter and source line ranges remain attached to the original document.
+- `src/runtime-assets.js` starts credential-free preloads of the runtime JavaScript and CSS while the editor loads (deferred on `?run=0` until **Render**).
+- Vite compiles core and theme CSS at build time and pre-extracts UnoCSS tokens from bundled layouts, built-in components, directives, and themes. The sandbox combines those tokens with slide and frontmatter utilities using the active deck's font variables.
+- Module URLs are created on demand when a slide imports them. Static and dynamic imports share the same module within a preview.
+- `runtime/virtual-modules.json` is the single source of truth for `#slidev/*` virtual module aliases. Builds and static checks scan client TS/Vue imports and fail if a new `#slidev/*` module lacks a runtime implementation.
+- Navigation, dark mode, and drag state stay in memory inside the opaque frame (no opaque-origin storage).
+
+## Features
+
+### Editor and workspace
+
+- Pinned Ace editors for `slides.md` and `style.css` (5 MiB combined UTF-8 limit); preview updates after a 500 ms pause.
+- Compiler diagnostics map errors back to editor file, line, and column when available.
+- Phones and short viewports use **Slides**, **Markdown**, and **CSS** tabs; desktop adds **Split** view with a draggable and keyboard-accessible divider.
+- Preview navigation follows the editor cursor, and slide navigation reveals the corresponding source.
+- **Overview** lists visible slides by title with keyboard selection; touchscreens support left/right swipes and tap zones while preserving interactive controls.
+- Speaker notes render as plain text. **Present** requests fullscreen on the preview iframe from a user click.
+
+### Sharing, links, QR, and HashBin
+
+- Share URLs encode `slides.md`, `style.css`, extension fields, `?slide=`, `?view=`, and `?run=0` in the URL fragment/query. Explicit links take priority over stored drafts, and failed links preserve current work.
+- Drafts save locally in browser storage; recover via **More → Resume saved work**. Recovered drafts, imported files, and `?run=0` links wait for **Render**.
+- The **Share** dialog supports optional link shortening via `is.gd` through Fragment Kit's AllOrigins proxy.
+- The **QR** dialog (lazy-loaded scanner) encodes the current share URL or matching saved HashBin CID link.
+- **Save to HashBin** uses the registered client (`app_e9546b2e-a415-4ec5-be14-611ea0692f56`) with return URL `https://slides.hashbin.page/`. CID downloads are verified against their content hash before opening.
+- **Open** accepts Markdown, CSS, saved JSON documents, Slidev Online links, and HashBin CIDs. **Download** exports a ZIP (`slides.md` and `style.css`), individual files, a JSON document (preserving extension fields), or printable standalone HTML.
+
+### Presenter view and printable HTML export
+
+- **Presenter** (`presenter.html`) opens a second window on the editor origin with current and next slide previews in separate opaque sandboxes, text-only speaker notes, a presentation timer, and two-way sync over `BroadcastChannel('slidevonline:presenter')`.
+- **Print / PDF** (also in **Download**) renders every visible slide in a disposable opaque sandbox into a self-contained, script-free HTML file (`slides.html` or `slides-with-notes.html`, `default-src 'none'` CSP, 32 MiB limit) with optional escaped speaker notes for browser printing or Save as PDF.
+
+### Offline / PWA
+
+- Ships `manifest.webmanifest`, icons, and a Fragment Kit service worker (`service-worker.js`) using the `slidevonline-` cache prefix.
+- `src/offline.js` uses a 180 s offline install timeout (accommodating cold CDN caches across the full asset set) and mounts **More → Repair offline copy** and **More → Apply update**.
+- Applying a waiting update flushes local drafts and updates the URL fragment before activating the new service worker so current edits are preserved when reloading.
+- Every offline asset is hashed in `offline-assets.js`. Optional browser AI engines (`wllama-*`) are excluded from automatic offline downloads.
+
+### AI editing
+
+- **Ask AI**, **AI settings**, and **Compare models** load lazily on explicit user clicks.
+- Supports paste handoff, provider connections (OpenAI, OpenRouter, Anthropic, Gemini), local loopback servers, optional browser models, spending caps, six-task model comparisons (`ai-suite.json`), and Undo.
+- `https://slides.hashbin.page/` connects through the isolated AI host (`https://ai.hashbin.page/slides-v0.4.4/`). `https://curtcox.github.io/slidev/` and localhost servers use direct connections; unrecognized origins allow paste handoff only.
+- **Check proposal** (`src/ai-check.js`) compiles every visible slide in a disposable opaque sandbox without executing author modules, reporting Vue/CSS errors before destroying the frame.
+- Accepting a proposal pauses rendering, commits a `?run=0` URL, and leaves document extension fields outside prompts and unchanged. See [docs/ai.md](docs/ai.md).
+
+### Bundled runtime capabilities
+
+- **Themes (`runtime/theme-audit.json`):** `default`, `seriph`, `bricks`, and `shibainu` (`0.25.0`), plus `apple-basic` (`0.25.1`), all MIT-licensed. Includes all 45 theme layouts, artwork, and Bricks' `Polygon1`–`Polygon11` components. Unknown themes fall back to `default` with a notice. See [docs/themes.md](docs/themes.md).
+- **Fonts (`runtime/fonts/audit.json`):** Nunito Sans, Fira Code, PT Serif, PT Mono, Signika Negative, Sigmar One, and Titillium Web (77 WOFF2 faces from Fontsource `5.3.0`, OFL-1.1) ship offline. Headmatter `fonts` options can load additional Google fonts inside the frame with `no-referrer` (not cached offline; 5 s timeout per stage; `coollabs` unavailable). See [docs/fonts.md](docs/fonts.md).
+- **Icons (`runtime/icons/attribution.json`):** `carbon`, `ph`, `mdi`, `logos`, `simple-icons`, `twemoji`, and `svg-spinners` from pinned `@iconify/json` `2.2.553`, loaded on demand via the offline proxy and cached offline.
+- **Syntax highlighting (`runtime/highlighting/`, `runtime/grammars/`):** Shiki `4.6.0` (MIT) loads lazily when slides contain code, with 40 bundled languages and aliases (`runtime/src/compiler/languages.json`), isolated TextMate registries per root language, ES2018 regex target, and a 500 ms line tokenization budget.
+- **Math (`runtime/math/`):** KaTeX `0.19.1` (MIT) loads on demand with embedded WOFF2 font data URLs.
+- **Diagrams (`runtime/diagrams/`):** Mermaid `12.3.0` (MIT) loads lazily with a serialized render queue and bounded SVG cache. PlantUML sends diagram text to `https://www.plantuml.com/plantuml` only after per-preview user consent (15 s timeout; see [docs/plantuml.md](docs/plantuml.md)).
+- **Monaco (`runtime/monaco/`):** `monaco-editor` `0.57.0` (MIT) loads lazily for `{monaco}`, `{monaco-diff}`, and `{monaco-run}` with TypeScript ATA disabled (`monacoTypesSource = 'none'`). `{monaco-run}` transpiles TypeScript with `sucrase` and executes JS/TS (without module imports) via a `blob:` ESM import strictly inside the opaque sandbox. `{monaco-write}` is unavailable.
+- **Transitions & drag:** Upstream CSS transitions (`fade`, `fade-out`, directional slides, custom `style.css` transitions) and native `transition: view-transition` (with fade fallback). `<VDrag>`, `<VDragArrow>`, and `v-drag` support move, resize, rotation, and keyboard controls with bounded Markdown writeback (`onSourceChange` / `getSource` / `onDragError`, up to 1,024 changed elements per render) without rerunning author code.
+
+## Building and testing
+
+From the repository root:
 
 ```sh
 pnpm install --frozen-lockfile
@@ -44,320 +88,55 @@ npm ci
 npm run build
 npm test
 npm run check
+npm run gallery:check
+```
+
+### Browser and runtime suites
+
+Start the local static server in one terminal:
+
+```sh
+cd online
 npm run serve
-# In another terminal; selects the kit's three browser engines by default.
-npm run test:contracts
+```
+
+Run the Playwright contract suite and browser suites in another terminal (defaults to Chromium; pass `webkit` or `firefox`, or set `BROWSER=webkit` / `BROWSER=firefox` for compiler checks):
+
+```sh
+cd online
+FRAGMENT_KIT_BASE_URL=http://127.0.0.1:8000/ npm run test:contracts
 node tests/browser/all.cjs http://127.0.0.1:8000/ chromium
+node tests/browser/gallery.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/editor.cjs http://127.0.0.1:8000/ chromium
+node tests/browser/ai-check.cjs http://127.0.0.1:8000/ chromium
+node tests/browser/ai.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/runtime.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/transitions.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/icons.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/languages.cjs http://127.0.0.1:8000/ chromium
-node tests/browser/themes.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/math.cjs http://127.0.0.1:8000/ chromium
+node tests/browser/fonts.cjs http://127.0.0.1:8000/ chromium
+node tests/browser/themes.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/diagrams.cjs http://127.0.0.1:8000/ chromium
+node tests/browser/plant-uml.cjs http://127.0.0.1:8000/ chromium
 node tests/browser/drag.cjs http://127.0.0.1:8000/ chromium
 node runtime/tests/run.mjs
 node runtime/tests/corpus.mjs
 node runtime/tests/fidelity.mjs
-# Repeat the compiler checks with BROWSER=webkit or BROWSER=firefox.
 ```
 
-Release staging uses `node scripts/build.mjs --release`, which rejects a dirty
-checkout and writes `release.json` with the exact commit and dirty state.
-Every offline asset is hashed. Optional AI engines are excluded from automatic
-offline downloads. The canonical host is unset; the shell uses the recovery URL
-until a later phase registers and deploys the canonical origin.
-
-The Phase 2 compiler reuses Slidev's Markdown plugin chain and pure layout
-wrapper inside the opaque frame. Characterization includes the real starter,
-composable-vue and all online example decks: 198 slide/title SFCs match CLI transforms exactly in both Chromium and WebKit,
-including forty grammar probes and `{monaco}`/`{monaco-diff}`/`{monaco-run}` blocks, and 14 corpus cases assert documented errors or fallbacks
-for file imports, PlantUML and unavailable grammars. These fallback
-cases are not exact-match claims. Reports go to
-`runtime/.cache/characterization-<browser>.json`. Hidden/disabled slides follow
-CLI numbering, while headmatter and source line ranges remain attached to the
-original document. Vue's eval-dependent static-tree optimization is disabled
-so large templates compile under the unchanged SDK frame CSP.
-
-The corpus gate mounts every visible slide from the unchanged starter,
-composable-vue and online example sources through the staged preview bridge.
-It checks initial, final and restored click states, decoded HTTPS images,
-highlighting, lazy diagrams, equations and visible fallbacks. The current corpus
-has 84 visible slides. Eighty-two mount, and two report the expected file-import
-errors. The gate checks recovery after each error. Three hidden slides stay
-excluded. Demo-only components, unbundled icons and the unavailable Tweet widget
-have explicit notice expectations. External images receive mock SVG bytes.
-Other external traffic is blocked. Remote image requests send no referrer,
-and PlantUML receives no request without consent. Reports go to
-`runtime/.cache/corpus-<browser>.json`. CI runs the gate in all three engines
-and attaches a report to its test artifact when the gate fails. This gate does
-not compare screenshots. To test a deployment, pass its URL:
-
-```sh
-node runtime/tests/corpus.mjs https://curtcox.github.io/slidev/
-```
-
-The report hashes the runtime bytes served by that URL and records the browser
-version, source hashes, per-slide outcomes and image counts.
-
-To measure the welcome deck's cold startup against the Phase 2 phone profile:
-
-```sh
-node runtime/tests/performance.mjs https://curtcox.github.io/slidev/
-```
-
-The performance report records five throttled Chromium samples, the served
-release and runtime hash, response encoding and size, and both budget results
-in `runtime/.cache/performance-chromium.json`. Use a production URL for a
-measurement with compressed delivery.
-
-The shell starts credential-free downloads of the trusted runtime JavaScript and
-CSS while loading the editor. The SDK receives separately readable responses
-from an in-memory cache and executes JavaScript only in each fresh opaque frame.
-Failed downloads can retry. `?run=0` defers these downloads until Render;
-service-worker offline preparation can still cache them in the background.
-
-The runtime creates a module URL only when a slide imports that module.
-Static and dynamic imports share the same module within a preview.
-Vite compiles the trusted core and theme styles during the build.
-Their font rules use CSS variables from the active deck.
-Author styles still compile inside the opaque frame.
-
-The runtime browser suite exercises author scripts, style isolation, slots,
-click navigation, hostile-deck isolation, document replacement, built-ins,
-TOC navigation, motion, markers and visible unsupported features. Full source-
-corpus screenshots record known feature fallbacks separately. The visual job is
-a blocking deployment gate: supported slides must meet the existing 0.1% pixel
-tolerance, and file imports must fail visibly. Clean release `e114e8a4` passes
-the five-sample simulated phone budget at 1.80 s median and 1.95 s maximum.
-The initial runtime is 817,174 bytes gzip. See [Plan 026](../plans/026-slidev-online.md) for the profile and limits.
-
-The official `default`, `seriph`, `bricks` and `shibainu` themes are pinned at
-0.25.0; `apple-basic` is pinned at 0.25.1. All five use the MIT license.
-All 45 theme layouts, styles, config defaults, artwork and the eleven Bricks
-polygon components are bundled. Layout CSS is activated only for its theme,
-without changing selector specificity. Font utilities follow the active deck
-configuration. Artwork stays self-contained inside the opaque frame. Unknown themes fall back
-to default with a visible notice. Builds audit versions, license and source size,
-and ship unchanged licenses plus `runtime/theme-audit.json` offline. Nunito Sans,
-Fira Code, PT Serif, PT Mono, Signika Negative, Sigmar One and Titillium Web ship as separate self-contained stylesheets from
-pinned Fontsource 5.3.0 packages (OFL-1.1). All 77 faces retain their original
-WOFF2 bytes and available Unicode subsets. Builds audit versions, licenses,
-hashes and size. Original licenses and attribution ship at `runtime/fonts/`.
-The SDK delivers these styles into the opaque frame through its offline proxy.
-Navigation reuses the styles. Replacing the document discards its font set.
-
-Headmatter font configuration follows the parser's resolution of `sans`, `serif`,
-`mono`, `custom`, `local`, `webfonts`, weights, italics and disabled providers.
-Additional Google fonts load in the frame through a stylesheet link with no
-referrer. Only Google stylesheet and font hosts are added to the page CSP.
-No script, connection or frame permissions change. Custom remote fonts are not
-cached by the app for offline use. Unavailable fonts, invalid configurations and
-the unsupported coollabs provider produce visible notices with local/system
-fallbacks. Each font-loading stage has a five-second deadline.
-See [fonts and privacy](docs/fonts.html).
-See [bundled themes](docs/themes.html).
-The offline browser suite also renders a seriph fact slide after a fully
-offline reload, checking that theme-specific styles survive cached delivery.
-
-The runtime fidelity harness compares the staged bundle through the editor
-bridge with `slidev build` on a separate origin. It checks the unmodified
-gallery examples, both demo decks, twenty fixtures in default and seriph, all 33 additional
-theme layouts and five font fixtures. Coverage includes Markdown, columns,
-scoped styles, code, built-in components, TOC, icons, lazy syntax languages,
-math, Mermaid, positioned drag
-elements, named slots, theme artwork and initial click states. Font fixtures
-supply identical pinned bytes to both clients and require the used webfonts to
-load; Apple Basic retains its local/system font stack. Color-only image props
-disable CLI image preloading. Reports and CLI/online/diff PNGs go to
-`runtime/.cache/fidelity/`, separated by browser. Use `--skip-reference-build`
-only when the fixtures and CLI are unchanged; `BROWSER=webkit` selects WebKit.
-CI requires the Chromium visual gate to pass and uploads its report.
-Documented feature fallbacks remain separate from supported pixel comparisons.
-
-The starter and composable-vue references build from their original entries.
-Each reference runs in a separate process because the CLI caches its project
-root. Their components, snippets and setup files remain available to the CLI.
-Online receives the exact original Markdown. Both clients receive identical
-mock SVGs for remote images. The CLI preloads the optional HTML grammar for
-Markdown code fences. This prevents build order from changing their colors.
-Its tokenization cutoff is disabled for repeatable comparisons.
-
-The report captures every renderable demo slide, including known fallbacks.
-It names differences for filesystem components, unbundled icons, Monaco,
-PlantUML consent and the TOC title from an imported slide. These screenshots
-are diagnostic comparisons. They do not count as CLI pixel parity.
-Every other slide retains the 0.1% pixel tolerance. The two unsupported file
-imports must produce their exact documented errors and terminate the frame.
-The harness then checks that rendering recovers on the following slide.
-Deck-level warnings outside the slide are verified before capture and hidden
-from slide-only screenshots. Inline fallback content stays visible.
-Reports include source paths, source hashes, counts and the runtime hash.
-
-For a focused demo run, use `node runtime/tests/fidelity.mjs --demos-only`.
-Add `--skip-reference-build` only when those reference inputs remain unchanged.
-
-The bundled navigation adapter provides slide aliases, counters, links, the
-upstream table of contents, slide-enter/leave hooks, conditional rendering,
-in-memory dark mode, magic-move click steps, motion and inline markers. No navigation or color state
-uses opaque-origin storage. `runtime/virtual-modules.json` is the single source
-for Vite aliases; both runtime builds and static checks scan all client TS/Vue
-imports and fail if a new `#slidev/*` module lacks an implementation. Empty setup
-lists reflect the online format's lack of filesystem setup directories.
-
-## Offline / PWA, presenter view, export and Monaco
-
-Slidev Online ships `manifest.webmanifest`, icons and a Fragment Kit service
-worker (`service-worker.js`) using the `slidevonline-` cache prefix. `src/offline.js`
-mounts **More → Repair offline copy** and **More → Apply update** so waiting
-updates flush local drafts and the URL fragment before reloading.
-
-**More → Presenter** opens `presenter.html` on the editor origin with current
-and next slide previews in separate opaque sandboxes, text-only speaker notes,
-a presentation timer and two-way sync over `BroadcastChannel('slidevonline:presenter')`.
-**More → Print / PDF** (and Download) exports a self-contained, script-free
-printable HTML file (`slides.html` or `slides-with-notes.html`) rendered in a
-disposable opaque sandbox with `default-src 'none'` CSP and optional escaped notes.
-
-`{monaco}`, `{monaco-diff}` and `{monaco-run}` code blocks load a standalone
-lazy Monaco bundle (`runtime/monaco/monaco.js`, `monaco-editor` 0.57.0, MIT)
-only when used, with TypeScript ATA disabled (`monacoTypesSource = 'none'`).
-`{monaco-run}` transpiles TypeScript with `sucrase` and runs code via a `blob:`
-ESM import strictly inside the opaque deck sandbox. The Phase 6–7 Playwright
-contracts (`offline-pwa.spec.js`, `presenter.spec.js`, `export-html.spec.js`,
-`monaco.spec.js`) run as part of `npm run test:contracts`.
-
-Builds extract matched UnoCSS tokens from bundled layouts, built-in components,
-directives and theme sources. The sandbox combines those tokens with utilities
-extracted from the current slide and frontmatter. It generates the final CSS
-with the deck's font settings, without rescanning the fixed component source.
-CSS parity tests cover attributify, variants, shortcuts and custom font families;
-the visual gate checks the resulting slides against the CLI.
-
-Slide changes use the upstream CSS transitions and direction resolver. Deck and
-per-slide configuration support fade, fade-out, directional slides, paired names,
-object options and custom transitions from `style.css`. An explicit `none`
-disables animation. The first render does not animate. Departing slides retain
-their styles until their animation ends. Click changes on the current slide
-preserve author state and do not rerun its script. A new document still gets a
-fresh opaque frame. `transition: view-transition` uses the browser's View
-Transition API inside that frame. Set the same `view-transition-name` on one
-element in each slide to animate between them. Browsers without the API show
-a notice and use fade.
-
-Icons from carbon, ph, mdi, logos, simple-icons, twemoji and svg-spinners are
-bundled as separate JSON assets from pinned `@iconify/json` 2.2.553. Collections
-load on demand through the SDK's offline fetch proxy, once per frame. Kebab
-tags such as `<carbon-arrow-right />`, colon tags inside HTML blocks, and
-`~icons/carbon/arrow-right` imports work, including aliases and TOC titles.
-Missing icons show a placeholder and a text notice; unknown collections never
-trigger network requests. Original collection attribution/license metadata is
-shipped at `runtime/icons/attribution.json` and in each unchanged collection.
-All seven collections total about 33.4 MB before compression (8.74 MB gzip),
-separate from the initial runtime payload. They are included in offline caching.
-
-The Shiki engine and its two color themes ship as one standalone module under
-`runtime/highlighting/`. The SDK imports it only when a slide or title contains
-code. Slides without code do not download or initialize it. The original MIT
-license, version, size and hash ship beside the module and are cached offline.
-Each frame reuses its engine; failed downloads can retry.
-
-Forty syntax languages and their upstream aliases are listed in
-`runtime/src/compiler/languages.json`. Grammar data from Shiki 4.6.0 loads only
-when code is highlighted, through the SDK's verified offline proxy. Bundles
-include embedded dependencies (including Markdown's optional HTML grammar).
-Each root language has an isolated TextMate registry so Vue injections cannot
-change previously compiled Markdown. The registry cache is bounded by the
-curated catalog. The unchanged package license, version, dependency lists,
-byte counts and hashes ship at `runtime/grammars/` and are cached offline.
-Unknown or unavailable languages show readable plain code and a visible notice.
-The runtime pins the JavaScript regex target to ES2018 for consistent browser
-support; characterization disables Shiki's elapsed-time cutoff in both test compilers to
-compare complete output under CI load. Product renders retain the CLI's default
-500 ms line budget.
-
-The pinned KaTeX 0.19.1 module loads when compiling a slide or slide title that
-may contain math. Rendered equations load a stylesheet with all twenty WOFF2
-fonts embedded as data URLs for the opaque frame. The original module and font
-bytes, MIT license and build audit ship under `runtime/math/` and are cached
-offline. Equation click ranges use the upstream wrapper and highlighting
-rules. Failed delivery produces a visible error or notice.
-
-Mermaid 12.3.0 is a separate standalone module, imported through the SDK only
-when the upstream Mermaid component renders a diagram. The build rejects
-external module imports and audits the version, MIT license and payload size.
-The module, unchanged license and hash metadata ship under `runtime/diagrams/`
-and are cached offline. A serial queue keeps Mermaid's global configuration
-from crossing between diagrams. Its SVG cache is bounded by count and bytes.
-The upstream component retains scale, per-diagram themes, dark mode, shadow
-styles and visible errors. Missing module bytes fail visibly and a later
-render can retry. Flowcharts, sequence diagrams and pie charts pass integration
-checks in Chromium and WebKit; the full diagram catalog is not yet verified.
-
-The runtime supports `<VDrag>`, `<VDragArrow>` and `v-drag` with the upstream
-move, resize, rotation and keyboard controls. Drag state stays in memory;
-positions survive slide navigation and account for frame scale and slide zoom.
-Initial layout does not modify source, and writeback does not rerun author code.
-Named positions use up to 128 letters, numbers, underscores or hyphens.
-
-The parent bridge accepts `onSourceChange(src, patch)`, `getSource()` and
-`onDragError(message)` callbacks for the future editor. A separate parse-only
-bundle at `runtime/editor/document.js` validates bounded position messages and
-rebuilds edits against the original render snapshot. This preserves repeated
-inline element offsets, notes, scripts, frontmatter comments and CRLF/BOM.
-Named positions update YAML, including empty, missing and fenced blocks.
-Manual Markdown changes require Render before further writeback. A render can
-retain up to 1,024 changed elements. The editor uses these callbacks to update Markdown after a drag without rerunning
-author code. Separate browser tests also exercise the bridge with a textarea host.
-
-The local Vite drag adapter checks its upstream transformation anchors at build
-time. Builds also reject client storage-state modules without an opaque-origin
-adapter. The two upstream Markdown fixes for PascalCase and repeated/nested
-drag sources have their own separately committed regression tests.
-
-## AI editing
-
-Ask AI loads on an explicit click. The kit provides paste handoff, provider
-connections, review, Undo and model comparisons. Applying a proposal pauses
-the preview and commits a `run=0` URL. Render starts the changed deck.
-The AI adapter exposes only Markdown and CSS. Other document extensions stay
-outside prompts and survive acceptance, Undo and URL history.
-
-Check proposal compiles every visible slide in a fresh opaque SDK frame.
-It never imports or mounts generated author modules. It reports Vue and CSS
-errors, then destroys the frame. Automated comparisons use this same checker.
-The six tasks and their good/bad references live in `ai-suite.json`.
-
-From `online/`, run these checks against the staged site:
-
-```sh
-node tests/browser/ai-check.cjs http://127.0.0.1:8000/ chromium
-node tests/browser/ai.cjs http://127.0.0.1:8000/ chromium
-```
-
-Use `webkit` or `firefox` for the other engines. The provider suite uses
-synthetic keys and mocked responses. It blocks service workers in that context
-because workers can bypass network interception. A separate context tests
-first-use offline paste and compilation without connecting a provider.
-Phone layout and safe history checks also run in `npm run test:contracts`.
-See [the AI guide](docs/ai.html) for connections, budgets and current limits.
+- **Playwright contracts (`npm run test:contracts`):** Runs Fragment Kit contracts plus Slidev Online specs (`ai`, `diagnostics`, `document`, `export-html`, `monaco`, `navigation`, `offline-pwa`, `presenter`, `startup`). Publish, shortener, and AI provider checks use mocked services.
+- **Characterization (`runtime/tests/run.mjs`):** Compares in-browser SFC transforms against CLI transforms across `demo/starter`, `demo/composable-vue`, all 15 online examples, 40 grammar probes, and Monaco blocks, plus documented fallback/error cases. Writes `runtime/.cache/characterization-<browser>.json`.
+- **Corpus (`runtime/tests/corpus.mjs [url]`):** Mounts every visible slide from the real deck corpus through the staged preview bridge, checking click states, decoded HTTPS images (mocked SVGs), highlighting, diagrams, math, and expected file-import error recovery. Writes `runtime/.cache/corpus-<browser>.json`. Pass a deployed URL (e.g. `https://slides.hashbin.page/` or `https://curtcox.github.io/slidev/`) to verify a live origin.
+- **Visual fidelity (`runtime/tests/fidelity.mjs`):** Blocking CI deployment gate comparing staged runtime renders against isolated `slidev build` references across all gallery examples, both demo decks, theme layouts, and font fixtures (0.1% pixel tolerance on supported slides; documented fallbacks recorded separately as diagnostic screenshots). Use `--demos-only` for a focused demo run and `--skip-reference-build` only when fixtures and CLI are unchanged. Reports go to `runtime/.cache/fidelity/`.
+- **Startup performance (`runtime/tests/performance.mjs <url>`):** Measures five cold throttled phone-profile Chromium loads against a production URL with compressed delivery and writes `runtime/.cache/performance-chromium.json`.
 
 ## Docs and gallery
 
-Edit `docs/*.md`, then run `npm run docs` from `online/`. Generated HTML stays
-committed. Static checks reject stale pages. Local documentation links point
-to the generated HTML.
+- **User docs:** Edit `docs/*.md`, then run `npm run docs` from `online/`. Generated `docs/*.html` files stay committed; `npm run check` rejects stale pages. Local links in Markdown rewrite to `.html`.
+- **Gallery:** `examples/*.md` is the source of truth for the 15 example decks (headmatter supports `title`, `info`, and `onlineTags`). `?example=<id>` opens allowlisted local decks only. Browsing and filtering `gallery.html` never executes slide code.
 
-The gallery uses the unchanged Fragment Kit gallery and 15 local example decks.
-`examples/*.md` is the source of truth. Each deck can set `title`, `info` and
-`onlineTags` in its headmatter. The generated catalog contains the exact source
-bytes, so a gallery link carries its own document. `?example=<id>` also opens
-an allowlisted local deck. Unknown IDs cannot turn into arbitrary fetches.
-Browsing and filtering the gallery does not execute any slide code.
-
-After editing examples or changing a cover dependency, run these commands from
-`online/` after building the workspace packages:
+After editing examples or changing any cover dependency listed in `gallery.config.mjs`, rebuild from `online/` (after `pnpm build`):
 
 ```sh
 npm run docs
@@ -370,15 +149,10 @@ npm run check
 npm run gallery:check
 ```
 
-Cover generation starts a temporary local server and renders each deck's first
-slide through the real opaque preview in Chromium. Commit `gallery/*.png` and
-`gallery/fingerprints.json` with the sources. The fingerprints include the
-catalog, renderer, bridge, SDK and every built runtime asset. CI checks these
-hashes without comparing screenshots from different operating systems. The
-separate visual suite compares every visible example slide with the CLI and
-waits for its Mermaid diagrams before capture.
+`npm run gallery` renders slide 1 of each example inside the real opaque preview in Chromium and updates `gallery/*.png` and `gallery/fingerprints.json`. Commit both alongside source changes.
 
-`tests/browser/gallery.cjs` checks covers, filters, served-origin links, sandbox
-isolation, script interaction, deferred rendering, documentation links and a
-360 px layout. The offline suite opens the cached gallery and interacts with
-an example after disconnecting.
+## Release staging and deployment
+
+- `node scripts/build.mjs --release` requires a clean committed checkout, stages `dist/`, writes `release.json` (`commit`, `dirty: false`), generates `offline-assets.js`, and adds `.nojekyll`.
+- Pushing changes under `online/**` or `packages/**` to `main` triggers `.github/workflows/online-deploy.yml`, which runs all tests (`online-test.yml`, including the Chromium visual fidelity gate and `kit-check.yml@v2`) before deploying the GitHub Pages recovery origin.
+- The canonical origin (`https://slides.hashbin.page/`) and its AI host (`https://ai.hashbin.page/slides-v0.4.4/`) are published from `curtcox/hashbin.org`.
