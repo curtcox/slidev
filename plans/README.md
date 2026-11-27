@@ -34,7 +34,6 @@ Ordered by leverage and dependencies. You may cherry-pick — only the edges in 
 | [023](./023-decompose-god-functions.md) | Decompose god functions in `export.ts`/`cli.ts` | P3 | L | MED | 022 | TODO |
 | [024](./024-incremental-hmr-parse-cache.md) | Incremental HMR parse cache | P3 | L | MED | — | TODO |
 | [025](./025-skills-docs-drift-guard.md) | Guard `skills/`-vs-`docs/` drift in CI | P3 | S-M | LOW | — | TODO |
-| [026](./026-slidev-online.md) | Slidev Online (browser editor on Fragment Kit) | P1 | XL | MED-HIGH | — | DEPLOYED — `slides.hashbin.page` live with registered HashBin client and `/slides-v0.4.4/` AI host; paid Publish round trip and Fragment Kit rollout-status receipts remain |
 
 Status values: `TODO` | `IN PROGRESS` | `DEPLOYED` | `DONE` | `BLOCKED` (one-line reason) | `REJECTED` (one-line rationale).
 
